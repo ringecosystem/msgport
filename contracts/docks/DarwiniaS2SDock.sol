@@ -56,7 +56,8 @@ contract DarwiniaS2SDock is MessageDockBase, Ownable2Step {
         require(specVersion != 0, "!specVersion");
 
         bytes memory recvCall = abi.encodeWithSignature(
-            "recv(address,address,bytes)",
+            "recv(address,address,address,bytes)",
+            address(this),
             _fromDappAddress,
             _toDappAddress,
             messagePayload
@@ -84,7 +85,7 @@ contract DarwiniaS2SDock is MessageDockBase, Ownable2Step {
         return 0;
     }
 
-    function permitted(
+    function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message

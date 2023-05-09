@@ -16,7 +16,7 @@ abstract contract MessageDockBase {
     // Abstract functions
     ////////////////////////////////////////
     // For receiving
-    function permitted(
+    function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
@@ -70,14 +70,18 @@ abstract contract MessageDockBase {
 
     // called by remote dock through low level messaging contract or self
     function recv(
+        address _srcDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
     ) public {
         require(
-            permitted(_fromDappAddress, _toDappAddress, _messagePayload),
+            allowToRecv(_fromDappAddress, _toDappAddress, _messagePayload),
             "!permitted"
         );
+
+        // only allow messages from remote dock
+        require(_srcDockAddress == getRemoteDockAddress(), "!remoteDock");
 
         // call local msgport to receive message
         localMsgport.recv(_fromDappAddress, _toDappAddress, _messagePayload);

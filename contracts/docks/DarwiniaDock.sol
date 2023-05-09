@@ -65,7 +65,8 @@ contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
             IOutboundLane(outboundLane).send_message{value: msg.value}(
                 remoteDockAddress,
                 abi.encodeWithSignature(
-                    "recv(address,address,bytes)",
+                    "recv(address,address,address,bytes)",
+                    address(this),
                     _fromDappAddress,
                     _toDappAddress,
                     messagePayload
@@ -74,7 +75,7 @@ contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
     }
 
     // For receiving
-    function permitted(
+    function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload

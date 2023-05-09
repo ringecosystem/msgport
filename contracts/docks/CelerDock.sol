@@ -67,6 +67,7 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
         bytes memory _messagePayload
     ) internal override returns (uint256) {
         bytes memory celerMessage = abi.encode(
+            address(this),
             _fromDappAddress,
             _toDappAddress,
             _messagePayload
@@ -89,20 +90,25 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
     ) external payable override onlyMessageBus returns (ExecutionStatus) {
         require(_srcChainId == SRC_CHAIN_ID, "Invalid chainId");
         (
+            address srcDockAddress,
             address fromDappAddress,
             address toDappAddress,
             bytes memory messagePayload
-        ) = abi.decode((_celerMessage), (address, address, bytes));
-        recv(fromDappAddress, toDappAddress, messagePayload);
+        ) = abi.decode((_celerMessage), (address, address, address, bytes));
+        recv(srcDockAddress, fromDappAddress, toDappAddress, messagePayload);
         return ExecutionStatus.Success;
     }
 
     // override MessageDockBase
-    function permitted(
+    function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
     ) internal view override returns (bool) {
+        require(
+            msg.sender == address(this),
+            "only self contract can call recv"
+        );
         return true;
     }
 }
