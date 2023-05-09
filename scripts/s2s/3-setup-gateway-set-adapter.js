@@ -9,7 +9,7 @@ async function main() {
   const pangolinMsgport = await DefaultMsgport.attach(pangolinMsgportAddress);
 
   const tx = await pangolinMsgport.setAdapterAddress(
-    3, // IMPORTANT!!! This needs to be +1 if the adapter is changed.
+    3, // IMPORTANT!!! This needs to be +1 if the channel is changed.
     s2sPangolinAdapterAddress
   );
   console.log(`tx: ${(await tx.wait()).transactionHash}`);

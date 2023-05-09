@@ -4,8 +4,8 @@ pragma solidity >=0.8.9;
 
 import "./IMsgport.sol";
 
-// adapter knows hot to send message to remote adapter.
-abstract contract AbstractMessageAdapter {
+// channel knows hot to send message to remote channel.
+abstract contract AbstractMessageChannel {
     IMsgport public immutable localMsgport;
 
     constructor(address _localMsgportAddress) {
@@ -23,14 +23,14 @@ abstract contract AbstractMessageAdapter {
     ) internal virtual returns (bool);
 
     // For sending
-    function callRemoteAdapterRecv(
-        address _remoteAdapterAddress,
+    function callRemoteChannelRecv(
+        address _remoteChannelAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
     ) internal virtual returns (uint256);
 
-    function getRemoteAdapterAddress() public virtual returns (address);
+    function getRemoteChannelAddress() public virtual returns (address);
 
     function getRelayFee(
         address _fromDappAddress,
@@ -58,19 +58,19 @@ abstract contract AbstractMessageAdapter {
             msg.sender == address(localMsgport),
             "not allowed to be called by others except local msgport"
         );
-        address remoteAdapterAddress = getRemoteAdapterAddress();
-        require(remoteAdapterAddress != address(0), "remote adapter not set");
+        address remoteChannelAddress = getRemoteChannelAddress();
+        require(remoteChannelAddress != address(0), "remote channel not set");
 
         return
-            callRemoteAdapterRecv(
-                remoteAdapterAddress,
+            callRemoteChannelRecv(
+                remoteChannelAddress,
                 _fromDappAddress,
                 _toDappAddress,
                 _messagePayload
             );
     }
 
-    // called by remote adapter through low level messaging contract or self
+    // called by remote channel through low level messaging contract or self
     function recv(
         address _fromDappAddress,
         address _toDappAddress,

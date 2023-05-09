@@ -52,11 +52,11 @@ async function main() {
   // CONNECT THE ENDPOINTS TO EACH OTHER
   //////////////////////////
   console.log("Connecting adapters...");
-  await pangolinAdapter.setRemoteAdapterAddress(goerliAdapter.address);
+  await pangolinAdapter.setRemoteChannelAddress(goerliAdapter.address);
   console.log(" Connected pangolinAdapter to goerliAdapter...");
 
   hre.changeNetwork("goerli");
-  await goerliAdapter.setRemoteAdapterAddress(pangolinAdapter.address);
+  await goerliAdapter.setRemoteChannelAddress(pangolinAdapter.address);
   console.log(" Connected goerliAdapter to pangolinAdapter...");
 }
 

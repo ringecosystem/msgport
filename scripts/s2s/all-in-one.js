@@ -50,18 +50,18 @@ async function main() {
   console.log(`  s2sPangoroAdapter: ${s2sPangoroAdapter.address}`);
 
   // CONNECT TO EACH OTHER
-  await s2sPangoroAdapter.setRemoteAdapterAddress(s2sPangolinAdapter.address);
+  await s2sPangoroAdapter.setRemoteChannelAddress(s2sPangolinAdapter.address);
   hre.changeNetwork("pangolin");
-  await s2sPangolinAdapter.setRemoteAdapterAddress(s2sPangoroAdapter.address);
+  await s2sPangolinAdapter.setRemoteChannelAddress(s2sPangoroAdapter.address);
 
   ////////////////////////////////////
-  // Add adapter to msgport
+  // Add channel to msgport
   ////////////////////////////////////
-  console.log("Add pangolin adapter to pangolin msgport...");
+  console.log("Add pangolin channel to pangolin msgport...");
   DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   pangolinMsgport = await DefaultMsgport.attach(pangolinMsgportAddress);
 
-  const adapterId = 3; // IMPORTANT!!! This needs to be +1 if the adapter is changed.
+  const adapterId = 3; // IMPORTANT!!! This needs to be +1 if the channel is changed.
   const tx = await pangolinMsgport.setAdapterAddress(
     adapterId,
     s2sPangolinAdapterAddress
@@ -109,16 +109,16 @@ async function main() {
 }
 
 async function estimateFee(pangolinDapp, adapterId) {
-  const gatewayAddress = await pangolinDapp.gatewayAddress();
+  const msgportAddress = await pangolinDapp.msgportAddress();
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = DefaultMsgport.attach(gatewayAddress);
+  const msgport = DefaultMsgport.attach(msgportAddress);
 
-  const adapterAddress = await msgport.adapterAddresses(adapterId);
+  const msgportAddress = await msgport.msgportAddresses(adapterId);
   const DarwiniaS2sAdapter = await hre.ethers.getContractFactory(
     "DarwiniaS2sAdapter"
   );
-  const adapter = DarwiniaS2sAdapter.attach(adapterAddress);
-  return await adapter.estimateFee();
+  const channel = DarwiniaS2sAdapter.attach(msgportAddress);
+  return await channel.estimateFee();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

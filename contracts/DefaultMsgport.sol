@@ -4,15 +4,15 @@ pragma solidity >=0.8.9;
 
 import "./interfaces/IMsgport.sol";
 import "./interfaces/IMessageReceiver.sol";
-import "./interfaces/AbstractMessageAdapter.sol";
+import "./interfaces/AbstractMessageChannel.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract DefaultMsgport is IMsgport, Ownable2Step {
-    address public adapterAddress;
+    address public msgportAddress;
     uint256 public defaultExecutionGas;
 
-    function setAdapter(address _adapterAddress) external onlyOwner {
-        adapterAddress = _adapterAddress;
+    function setAdapter(address _msgportAddress) external onlyOwner {
+        msgportAddress = _msgportAddress;
     }
 
     function estimateFee(
@@ -39,17 +39,17 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         uint256 _executionGas, // 0 means using defaultExecutionGas
         uint256 _gasPrice
     ) internal view returns (uint256) {
-        AbstractMessageAdapter adapter = AbstractMessageAdapter(adapterAddress);
+        AbstractMessageChannel channel = AbstractMessageChannel(msgportAddress);
 
         // fee1: Get the relay fee.
-        uint256 relayFee = adapter.getRelayFee(
+        uint256 relayFee = channel.getRelayFee(
             _fromDappAddress,
             _toDappAddress,
             _messagePayload
         );
 
         // fee2: Get the delivery gas. this gas used by lower level layer and msgport.
-        uint256 deliveryGas = adapter.getDeliveryGas(
+        uint256 deliveryGas = channel.getDeliveryGas(
             _fromDappAddress,
             _toDappAddress,
             _messagePayload
@@ -88,14 +88,14 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         }
 
         return
-            AbstractMessageAdapter(adapterAddress).send{value: fee}(
+            AbstractMessageChannel(msgportAddress).send{value: fee}(
                 msg.sender,
                 _toDappAddress,
                 _messagePayload
             );
     }
 
-    // called by adapter.
+    // called by channel.
     //
     // catch the error if user's recv function failed with uncaught error.
     // store the message and error for the user to do something like retry.
@@ -104,7 +104,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         address _toDappAddress,
         bytes memory _messagePayload
     ) external {
-        require(msg.sender == adapterAddress, "!adapter");
+        require(msg.sender == msgportAddress, "!channel");
         try
             IMessageReceiver(_toDappAddress).recv(
                 _fromDappAddress,

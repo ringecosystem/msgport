@@ -26,9 +26,9 @@ async function main() {
   console.log(`s2sPangoroAdapter: ${s2sPangoroAdapter.address}`);
 
   // CONNECT TO EACH OTHER
-  await s2sPangoroAdapter.setRemoteAdapterAddress(s2sPangolinAdapter.address);
+  await s2sPangoroAdapter.setRemoteChannelAddress(s2sPangolinAdapter.address);
   hre.changeNetwork("pangolin");
-  await s2sPangolinAdapter.setRemoteAdapterAddress(s2sPangoroAdapter.address);
+  await s2sPangolinAdapter.setRemoteChannelAddress(s2sPangoroAdapter.address);
   console.log("Done!");
 }
 

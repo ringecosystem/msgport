@@ -38,18 +38,18 @@ async function printResult(pangoroDappAddress) {
 }
 
 async function estimateFee(pangolinDapp, adapterId) {
-  const gatewayAddress = await pangolinDapp.gatewayAddress();
-  console.log(`gatewayAddress: ${gatewayAddress}`);
+  const msgportAddress = await pangolinDapp.msgportAddress();
+  console.log(`msgportAddress: ${msgportAddress}`);
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = DefaultMsgport.attach(gatewayAddress);
+  const msgport = DefaultMsgport.attach(msgportAddress);
 
-  const adapterAddress = await msgport.adapterAddresses(adapterId);
+  const msgportAddress = await msgport.msgportAddresses(adapterId);
   const DarwiniaS2sAdapter = await hre.ethers.getContractFactory(
     "DarwiniaS2sAdapter"
   );
-  const adapter = DarwiniaS2sAdapter.attach(adapterAddress);
-  console.log(`endpointAddress: ${await adapter.endpointAddress()}`);
-  return await adapter.estimateFee();
+  const channel = DarwiniaS2sAdapter.attach(msgportAddress);
+  console.log(`endpointAddress: ${await channel.endpointAddress()}`);
+  return await channel.estimateFee();
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
