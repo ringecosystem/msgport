@@ -25,7 +25,7 @@ contract DarwiniaMessageHub is IMessageReceiver {
     }
 
     function fee() public view returns (uint256) {
-        // because the underlying darwinia channel depends on fee market, so we
+        // because the underlying darwinia dock depends on fee market, so we
         // don't need to input real message and gas to estimate fee.
         return
             IMsgport(MSGPORT_ADDRESS).estimateFee(

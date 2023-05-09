@@ -1,5 +1,5 @@
 # MSGPORT
 
-- [ ] multi adapters a msgport.
-- [ ] async message execution in a single channel instance.
-- [ ] ordered message execution(blocked message channel).
+- [ ] multi docks a msgport.
+- [ ] async message execution in a single dock instance.
+- [ ] ordered message execution(blocked message dock).

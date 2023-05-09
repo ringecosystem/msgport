@@ -4,8 +4,8 @@ pragma solidity >=0.8.9;
 
 import "./IMsgport.sol";
 
-// channel knows hot to send message to remote channel.
-abstract contract AbstractMessageChannel {
+// dock knows hot to send message to remote dock.
+abstract contract MessageDockBase {
     IMsgport public immutable localMsgport;
 
     constructor(address _localMsgportAddress) {
@@ -23,14 +23,14 @@ abstract contract AbstractMessageChannel {
     ) internal virtual returns (bool);
 
     // For sending
-    function callRemoteChannelRecv(
-        address _remoteChannelAddress,
+    function callRemoteDockRecv(
+        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
     ) internal virtual returns (uint256);
 
-    function getRemoteChannelAddress() public virtual returns (address);
+    function getRemoteDockAddress() public virtual returns (address);
 
     function getRelayFee(
         address _fromDappAddress,
@@ -58,19 +58,19 @@ abstract contract AbstractMessageChannel {
             msg.sender == address(localMsgport),
             "not allowed to be called by others except local msgport"
         );
-        address remoteChannelAddress = getRemoteChannelAddress();
-        require(remoteChannelAddress != address(0), "remote channel not set");
+        address remoteDockAddress = getRemoteDockAddress();
+        require(remoteDockAddress != address(0), "remote dock not set");
 
         return
-            callRemoteChannelRecv(
-                remoteChannelAddress,
+            callRemoteDockRecv(
+                remoteDockAddress,
                 _fromDappAddress,
                 _toDappAddress,
                 _messagePayload
             );
     }
 
-    // called by remote channel through low level messaging contract or self
+    // called by remote dock through low level messaging contract or self
     function recv(
         address _fromDappAddress,
         address _toDappAddress,

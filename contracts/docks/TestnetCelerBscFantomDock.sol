@@ -2,43 +2,43 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/AbstractMessageChannel.sol";
+import "../interfaces/MessageDockBase.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 
-contract TestnetCelerBscFantomChannel is
-    AbstractMessageChannel,
+contract TestnetCelerBscFantomDock is
+    MessageDockBase,
     MessageSenderApp,
     MessageReceiverApp
 {
     uint64 public constant BSC_CHAIN_ID = 97;
     uint64 public constant FANTOM_CHAIN_ID = 4002;
-    address public remoteChannelAddress;
+    address public remoteDockAddress;
 
     constructor(
         address _msgportAddress,
         address _messageBus
-    ) AbstractMessageChannel(_msgportAddress) {
+    ) MessageDockBase(_msgportAddress) {
         messageBus = _messageBus;
     }
 
-    function setRemoteChannelAddress(
-        address _remoteChannelAddress
+    function setRemoteDockAddress(
+        address _remoteDockAddress
     ) external onlyOwner {
-        remoteChannelAddress = _remoteChannelAddress;
+        remoteDockAddress = _remoteDockAddress;
     }
 
     //////////////////////////////////////////
     // For sending
     //////////////////////////////////////////
-    // override AbstractMessageChannel
-    function getRemoteChannelAddress() public view override returns (address) {
-        return remoteChannelAddress;
+    // override MessageDockBase
+    function getRemoteDockAddress() public view override returns (address) {
+        return remoteDockAddress;
     }
 
-    // override AbstractMessageChannel
+    // override MessageDockBase
     function getRelayFee(
         address _fromDappAddress,
         address _toDappAddress,
@@ -50,7 +50,7 @@ contract TestnetCelerBscFantomChannel is
             );
     }
 
-    // override AbstractMessageChannel
+    // override MessageDockBase
     function getDeliveryGas(
         address _fromDappAddress,
         address _toDappAddress,
@@ -59,9 +59,9 @@ contract TestnetCelerBscFantomChannel is
         return 0;
     }
 
-    // override AbstractMessageChannel
-    function callRemoteChannelRecv(
-        address _remoteChannelAddress,
+    // override MessageDockBase
+    function callRemoteDockRecv(
+        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
@@ -72,7 +72,7 @@ contract TestnetCelerBscFantomChannel is
             _messagePayload
         );
         sendMessage(
-            _remoteChannelAddress,
+            _remoteDockAddress,
             FANTOM_CHAIN_ID,
             celerMessage,
             msg.value
@@ -101,7 +101,7 @@ contract TestnetCelerBscFantomChannel is
         return ExecutionStatus.Success;
     }
 
-    // override AbstractMessageChannel
+    // override MessageDockBase
     function permitted(
         address _fromDappAddress,
         address _toDappAddress,

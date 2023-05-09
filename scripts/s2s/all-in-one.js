@@ -32,44 +32,36 @@ async function main() {
   const S2sPangolinEndpoint = await hre.ethers.getContractFactory(
     "DarwiniaS2sEndpoint"
   );
-  const s2sPangolinAdapter = await S2sPangolinAdapter.deploy(
-    pangolinEndpointAddress
-  );
-  await s2sPangolinAdapter.deployed();
-  const s2sPangolinAdapterAddress = s2sPangolinAdapter.address;
-  console.log(`  s2sPangolinAdapter: ${s2sPangolinAdapterAddress}`);
+  const s2sPangolinDock = await S2sPangolinDock.deploy(pangolinEndpointAddress);
+  await s2sPangolinDock.deployed();
+  const s2sPangolinDockAddress = s2sPangolinDock.address;
+  console.log(`  s2sPangolinDock: ${s2sPangolinDockAddress}`);
 
   hre.changeNetwork("pangoro");
-  const S2sPangoroAdapter = await hre.ethers.getContractFactory(
-    "DarwiniaS2sAdapter"
-  );
-  const s2sPangoroAdapter = await S2sPangoroAdapter.deploy(
-    pangoroEndpointAddress
-  );
-  await s2sPangoroAdapter.deployed();
-  console.log(`  s2sPangoroAdapter: ${s2sPangoroAdapter.address}`);
+  const S2sPangoroDock = await hre.ethers.getContractFactory("DarwiniaS2sDock");
+  const s2sPangoroDock = await S2sPangoroDock.deploy(pangoroEndpointAddress);
+  await s2sPangoroDock.deployed();
+  console.log(`  s2sPangoroDock: ${s2sPangoroDock.address}`);
 
   // CONNECT TO EACH OTHER
-  await s2sPangoroAdapter.setRemoteChannelAddress(s2sPangolinAdapter.address);
+  await s2sPangoroDock.setRemoteDockAddress(s2sPangolinDock.address);
   hre.changeNetwork("pangolin");
-  await s2sPangolinAdapter.setRemoteChannelAddress(s2sPangoroAdapter.address);
+  await s2sPangolinDock.setRemoteDockAddress(s2sPangoroDock.address);
 
   ////////////////////////////////////
-  // Add channel to msgport
+  // Add dock to msgport
   ////////////////////////////////////
-  console.log("Add pangolin channel to pangolin msgport...");
+  console.log("Add pangolin dock to pangolin msgport...");
   DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   pangolinMsgport = await DefaultMsgport.attach(pangolinMsgportAddress);
 
-  const adapterId = 3; // IMPORTANT!!! This needs to be +1 if the channel is changed.
-  const tx = await pangolinMsgport.setAdapterAddress(
-    adapterId,
-    s2sPangolinAdapterAddress
+  const dockId = 3; // IMPORTANT!!! This needs to be +1 if the dock is changed.
+  const tx = await pangolinMsgport.setDockAddress(
+    dockId,
+    s2sPangolinDockAddress
   );
   console.log(
-    `  pangolinMsgport.setAdapterAddress tx: ${
-      (await tx.wait()).transactionHash
-    }`
+    `  pangolinMsgport.setDockAddress tx: ${(await tx.wait()).transactionHash}`
   );
 
   ////////////////////////////////////
@@ -98,27 +90,27 @@ async function main() {
   hre.changeNetwork("pangolin");
   S2sPangolinDapp = await hre.ethers.getContractFactory("S2sPangolinDapp");
   s2sPangolinDapp = S2sPangolinDapp.attach(pangolinDappAddress);
-  const fee = await estimateFee(s2sPangolinDapp, adapterId);
+  const fee = await estimateFee(s2sPangolinDapp, dockId);
   console.log(`  Market fee: ${fee} wei`);
 
   // Run
-  const tx2 = await s2sPangolinDapp.remoteAdd(adapterId, pangoroDappAddress, {
+  const tx2 = await s2sPangolinDapp.remoteAdd(dockId, pangoroDappAddress, {
     value: fee,
   });
   console.log(`  tx: ${(await tx2.wait()).transactionHash}`);
 }
 
-async function estimateFee(pangolinDapp, adapterId) {
+async function estimateFee(pangolinDapp, dockId) {
   const msgportAddress = await pangolinDapp.msgportAddress();
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   const msgport = DefaultMsgport.attach(msgportAddress);
 
-  const msgportAddress = await msgport.msgportAddresses(adapterId);
-  const DarwiniaS2sAdapter = await hre.ethers.getContractFactory(
-    "DarwiniaS2sAdapter"
+  const msgportAddress = await msgport.msgportAddresses(dockId);
+  const DarwiniaS2sDock = await hre.ethers.getContractFactory(
+    "DarwiniaS2sDock"
   );
-  const channel = DarwiniaS2sAdapter.attach(msgportAddress);
-  return await channel.estimateFee();
+  const dock = DarwiniaS2sDock.attach(msgportAddress);
+  return await dock.estimateFee();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

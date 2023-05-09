@@ -2,19 +2,15 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/AbstractMessageChannel.sol";
+import "../interfaces/MessageDockBase.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaChannel is
-    AbstractMessageChannel,
-    ICrossChainFilter,
-    Ownable2Step
-{
-    address public remoteChannelAddress;
+contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
+    address public remoteDockAddress;
     address public immutable outboundLane;
     address public immutable inboundLane;
     address public immutable feeMarket;
@@ -24,23 +20,23 @@ contract DarwiniaChannel is
         address _outboundLane,
         address _inboundLane,
         address _feeMarket
-    ) AbstractMessageChannel(msgportAddress) {
+    ) MessageDockBase(msgportAddress) {
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
         feeMarket = _feeMarket;
     }
 
-    function setRemoteChannelAddress(
-        address _remoteChannelAddress
+    function setRemoteDockAddress(
+        address _remoteDockAddress
     ) external onlyOwner {
-        remoteChannelAddress = _remoteChannelAddress;
+        remoteDockAddress = _remoteDockAddress;
     }
 
     //////////////////////////////////////////
-    // override AbstractMessageChannel
+    // override MessageDockBase
     //////////////////////////////////////////
-    function getRemoteChannelAddress() public view override returns (address) {
-        return remoteChannelAddress;
+    function getRemoteDockAddress() public view override returns (address) {
+        return remoteDockAddress;
     }
 
     function getRelayFee(
@@ -60,15 +56,15 @@ contract DarwiniaChannel is
     }
 
     // For sending
-    function callRemoteChannelRecv(
-        address _remoteChannelAddress,
+    function callRemoteDockRecv(
+        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
     ) internal override returns (uint256) {
         return
             IOutboundLane(outboundLane).send_message{value: msg.value}(
-                _remoteChannelAddress,
+                _remoteDockAddress,
                 abi.encodeWithSignature(
                     "recv(address,address,bytes)",
                     _fromDappAddress,
@@ -97,10 +93,10 @@ contract DarwiniaChannel is
         address sourceAccount,
         bytes calldata payload
     ) external view returns (bool) {
-        // check remote channel address is set.
+        // check remote dock address is set.
         // this check is not necessary, but it can provide an more understandable err.
-        require(remoteChannelAddress != address(0), "!remote channel");
+        require(remoteDockAddress != address(0), "!remote dock");
 
-        return sourceAccount == remoteChannelAddress;
+        return sourceAccount == remoteDockAddress;
     }
 }

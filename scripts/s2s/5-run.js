@@ -11,12 +11,12 @@ async function main() {
   );
   const s2sPangolinDapp = S2sPangolinDapp.attach(pangolinDappAddress);
 
-  const adapterId = 3;
-  const fee = await estimateFee(s2sPangolinDapp, adapterId);
+  const dockId = 3;
+  const fee = await estimateFee(s2sPangolinDapp, dockId);
   console.log(`Market fee: ${fee} wei`);
 
   // Run
-  const tx = await s2sPangolinDapp.remoteAdd(adapterId, pangoroDappAddress, {
+  const tx = await s2sPangolinDapp.remoteAdd(dockId, pangoroDappAddress, {
     value: fee,
   });
   console.log(`tx: ${(await tx.wait()).transactionHash}`);
@@ -37,19 +37,19 @@ async function printResult(pangoroDappAddress) {
   );
 }
 
-async function estimateFee(pangolinDapp, adapterId) {
+async function estimateFee(pangolinDapp, dockId) {
   const msgportAddress = await pangolinDapp.msgportAddress();
   console.log(`msgportAddress: ${msgportAddress}`);
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   const msgport = DefaultMsgport.attach(msgportAddress);
 
-  const msgportAddress = await msgport.msgportAddresses(adapterId);
-  const DarwiniaS2sAdapter = await hre.ethers.getContractFactory(
-    "DarwiniaS2sAdapter"
+  const msgportAddress = await msgport.msgportAddresses(dockId);
+  const DarwiniaS2sDock = await hre.ethers.getContractFactory(
+    "DarwiniaS2sDock"
   );
-  const channel = DarwiniaS2sAdapter.attach(msgportAddress);
-  console.log(`endpointAddress: ${await channel.endpointAddress()}`);
-  return await channel.estimateFee();
+  const dock = DarwiniaS2sDock.attach(msgportAddress);
+  console.log(`endpointAddress: ${await dock.endpointAddress()}`);
+  return await dock.estimateFee();
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
