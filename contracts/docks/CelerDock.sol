@@ -8,20 +8,21 @@ import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 
-contract TestnetCelerBscFantomDock is
-    MessageDockBase,
-    MessageSenderApp,
-    MessageReceiverApp
-{
-    uint64 public constant BSC_CHAIN_ID = 97;
-    uint64 public constant FANTOM_CHAIN_ID = 4002;
+contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
+    uint64 public immutable SRC_CHAIN_ID;
+    uint64 public immutable TGT_CHAIN_ID;
     address public remoteDockAddress;
+    uint64 public nextNonce = 0;
 
     constructor(
         address _msgportAddress,
-        address _messageBus
+        address _messageBus,
+        uint64 _srcChainId,
+        uint64 _tgtChainId
     ) MessageDockBase(_msgportAddress) {
         messageBus = _messageBus;
+        SRC_CHAIN_ID = _srcChainId;
+        TGT_CHAIN_ID = _tgtChainId;
     }
 
     function setRemoteDockAddress(
@@ -61,7 +62,6 @@ contract TestnetCelerBscFantomDock is
 
     // override MessageDockBase
     function callRemoteDockRecv(
-        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
@@ -71,13 +71,9 @@ contract TestnetCelerBscFantomDock is
             _toDappAddress,
             _messagePayload
         );
-        sendMessage(
-            _remoteDockAddress,
-            FANTOM_CHAIN_ID,
-            celerMessage,
-            msg.value
-        );
-        return 0;
+        sendMessage(remoteDockAddress, TGT_CHAIN_ID, celerMessage, msg.value);
+
+        return nextNonce++;
     }
 
     //////////////////////////////////////////
@@ -91,7 +87,7 @@ contract TestnetCelerBscFantomDock is
         bytes calldata _celerMessage,
         address // executor
     ) external payable override onlyMessageBus returns (ExecutionStatus) {
-        require(_srcChainId == BSC_CHAIN_ID, "Invalid chainId");
+        require(_srcChainId == SRC_CHAIN_ID, "Invalid chainId");
         (
             address fromDappAddress,
             address toDappAddress,

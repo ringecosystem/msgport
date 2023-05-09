@@ -57,14 +57,13 @@ contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
 
     // For sending
     function callRemoteDockRecv(
-        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
     ) internal override returns (uint256) {
         return
             IOutboundLane(outboundLane).send_message{value: msg.value}(
-                _remoteDockAddress,
+                remoteDockAddress,
                 abi.encodeWithSignature(
                     "recv(address,address,bytes)",
                     _fromDappAddress,

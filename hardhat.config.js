@@ -42,9 +42,6 @@ task(
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  mocha: {
-    timeout: 1000000,
-  },
   solidity: {
     compilers: [
       {
@@ -128,6 +125,16 @@ module.exports = {
       gasPrice: 53100000000,
       accounts: [PRIVATE_KEY],
       timeout: 1000000,
+    },
+    bscTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      network_id: "97",
+      accounts: [PRIVATE_KEY],
+    },
+    fantomTestnet: {
+      url: "https://rpc.testnet.fantom.network",
+      network_id: "4002",
+      accounts: [PRIVATE_KEY],
     },
   },
   abiExporter: {

@@ -24,7 +24,6 @@ abstract contract MessageDockBase {
 
     // For sending
     function callRemoteDockRecv(
-        address _remoteDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
@@ -63,7 +62,6 @@ abstract contract MessageDockBase {
 
         return
             callRemoteDockRecv(
-                remoteDockAddress,
                 _fromDappAddress,
                 _toDappAddress,
                 _messagePayload

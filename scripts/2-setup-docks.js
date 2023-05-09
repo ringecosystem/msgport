@@ -47,7 +47,7 @@ async function main() {
   await (await pangolinMsgport.setDock(pangolinDock.address)).wait();
 
   //////////////////////////
-  // CONNECT THE ENDPOINTS TO EACH OTHER
+  // CONNECT THE MSGPORTS TO EACH OTHER
   //////////////////////////
   console.log("Connecting docks...");
   await pangolinDock.setRemoteDockAddress(goerliDock.address);
