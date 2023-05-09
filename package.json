@@ -4,7 +4,10 @@
   "description": "A general omnichain messages transport framework",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "clean": "shx rm -rf cache artifacts abi",
+    "flatten": "npx hardhat flat"
   },
   "keywords": [
     "cross-chain",
@@ -14,7 +17,16 @@
   "author": "Aki Wu (aki.wu@itering.io)",
   "license": "MIT",
   "devDependencies": {
+    "@darwinia/contracts-periphery": "2.1.0-pre6",
+    "@darwinia/contracts-utils": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "hardhat": "^2.14.0"
+    "hardhat": "^2.14.0",
+    "@openzeppelin/contracts": "^4.3.2",
+    "dotenv": "^10.0.0",
+    "hardhat-abi-exporter": "^2.2.1",
+    "hardhat-change-network": "^0.0.7",
+    "hardhat-gas-reporter": "^1.0.6",
+    "shx": "^0.3.3",
+    "sgn-v2-contracts": "^0.2.0"
   }
 }
