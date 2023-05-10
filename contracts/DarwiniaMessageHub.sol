@@ -24,19 +24,6 @@ contract DarwiniaMessageHub is IMessageReceiver {
         MSGPORT_ADDRESS = _msgportAddress;
     }
 
-    function fee() public view returns (uint256) {
-        // because the underlying darwinia dock depends on fee market, so we
-        // don't need to input real message and gas to estimate fee.
-        return
-            IMsgport(MSGPORT_ADDRESS).estimateFee(
-                msg.sender,
-                address(0),
-                hex"",
-                0,
-                0
-            );
-    }
-
     //////////////////////////
     // To Parachain
     //////////////////////////
@@ -154,23 +141,22 @@ contract DarwiniaMessageHub is IMessageReceiver {
     //////////////////////////
     function send(
         address _toDappAddress, // address on Ethereum
-        bytes calldata _messagePayload
+        bytes calldata _messagePayload,
+        uint256 _fee
     ) external payable returns (uint256 nonce) {
         uint256 paid = msg.value;
 
-        uint256 marketFee = fee();
-        require(paid >= marketFee, "!fee");
-        if (paid > marketFee) {
+        require(paid >= _fee, "!fee");
+        if (paid > _fee) {
             // refund fee to Dapp.
-            payable(msg.sender).transfer(paid - marketFee);
+            payable(msg.sender).transfer(paid - _fee);
         }
 
         return
-            IMsgport(MSGPORT_ADDRESS).send{value: marketFee}(
+            IMsgport(MSGPORT_ADDRESS).send{value: _fee}(
                 _toDappAddress,
                 _messagePayload,
-                0,
-                0
+                _fee
             );
     }
 }

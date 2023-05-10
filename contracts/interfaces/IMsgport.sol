@@ -28,8 +28,7 @@ interface IMsgport {
     function send(
         address _toDappAddress,
         bytes memory _messagePayload,
-        uint256 _executionGas, // 0 means using defaultExecutionGas,
-        uint256 _gasPrice
+        uint256 _fee
     ) external payable returns (uint256);
 
     function recv(
@@ -37,12 +36,4 @@ interface IMsgport {
         address _toDappAddress,
         bytes memory _message
     ) external;
-
-    function estimateFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        uint256 _executionGas, // 0 means using defaultExecutionGas
-        uint256 _gasPrice
-    ) external view returns (uint256);
 }

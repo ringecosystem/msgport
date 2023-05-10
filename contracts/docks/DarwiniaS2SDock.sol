@@ -69,22 +69,6 @@ contract DarwiniaS2sDock is MessageDockBase, Ownable2Step {
             }(specVersion, remoteDockAddress, recvCall, gasLimit);
     }
 
-    function getRelayFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return IMessageEndpoint(darwiniaEndpointAddress).fee();
-    }
-
-    function getDeliveryGas(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return 0;
-    }
-
     function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,

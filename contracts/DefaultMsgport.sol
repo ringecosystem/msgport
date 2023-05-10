@@ -8,87 +8,29 @@ import "./interfaces/MessageDockBase.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract DefaultMsgport is IMsgport, Ownable2Step {
-    address public msgportAddress;
-    uint256 public defaultExecutionGas;
+    address public dockAddress;
 
-    function setDock(address _msgportAddress) external onlyOwner {
-        msgportAddress = _msgportAddress;
-    }
-
-    function estimateFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        uint256 _executionGas, // 0 means using defaultExecutionGas
-        uint256 _gasPrice
-    ) external view returns (uint256) {
-        return
-            doEstimateFee(
-                _fromDappAddress,
-                _toDappAddress,
-                _messagePayload,
-                _executionGas,
-                _gasPrice
-            );
-    }
-
-    function doEstimateFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        uint256 _executionGas, // 0 means using defaultExecutionGas
-        uint256 _gasPrice
-    ) internal view returns (uint256) {
-        MessageDockBase dock = MessageDockBase(msgportAddress);
-
-        // fee1: Get the relay fee.
-        uint256 relayFee = dock.getRelayFee(
-            _fromDappAddress,
-            _toDappAddress,
-            _messagePayload
-        );
-
-        // fee2: Get the delivery gas. this gas used by lower level layer and msgport.
-        uint256 deliveryGas = dock.getDeliveryGas(
-            _fromDappAddress,
-            _toDappAddress,
-            _messagePayload
-        );
-
-        // fee3: Get the message execution gas.
-        uint256 executionGas = _executionGas == 0
-            ? defaultExecutionGas
-            : _executionGas;
-
-        return relayFee + (deliveryGas + executionGas) * _gasPrice;
+    function setDock(address _dockAddress) external onlyOwner {
+        dockAddress = _dockAddress;
     }
 
     // called by Dapp.
     function send(
         address _toDappAddress,
         bytes memory _messagePayload,
-        uint256 _executionGas, // 0 means using defaultExecutionGas,
-        uint256 _gasPrice
+        uint256 _fee
     ) external payable returns (uint256) {
-        uint256 fee = doEstimateFee(
-            msg.sender,
-            _toDappAddress,
-            _messagePayload,
-            _executionGas,
-            _gasPrice
-        );
-
         // check fee payed by caller is enough.
         uint256 paid = msg.value;
-        require(paid >= fee, "!fee");
+        require(paid >= _fee, "!fee");
 
         // refund fee to caller if paid too much.
-        if (paid > fee) {
-            payable(msg.sender).transfer(paid - fee);
+        if (paid > _fee) {
+            payable(msg.sender).transfer(paid - _fee);
         }
 
         return
-            MessageDockBase(msgportAddress).send{value: fee}(
+            MessageDockBase(dockAddress).send{value: _fee}(
                 msg.sender,
                 _toDappAddress,
                 _messagePayload
@@ -104,7 +46,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         address _toDappAddress,
         bytes memory _messagePayload
     ) external {
-        require(msg.sender == msgportAddress, "!dock");
+        require(msg.sender == dockAddress, "!dock");
         try
             IMessageReceiver(_toDappAddress).recv(
                 _fromDappAddress,

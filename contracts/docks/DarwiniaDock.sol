@@ -39,22 +39,6 @@ contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
         return remoteDockAddress;
     }
 
-    function getRelayFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return IFeeMarket(feeMarket).market_fee();
-    }
-
-    function getDeliveryGas(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return 0;
-    }
-
     // For sending
     function callRemoteDockRecv(
         address _fromDappAddress,

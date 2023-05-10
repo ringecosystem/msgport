@@ -1,22 +1,27 @@
 const hre = require("hardhat");
 const { getMsgport } = require("../helper");
 
-function buildEstimateFeeFunction(network, endpointAddress) {
+function buildEstimateFeeFunction(network, feeMarketAddress) {
   hre.changeNetwork(network);
-  const abi = ["function fee() public view returns (uint128)"];
-  const messageEndpoint = new hre.ethers.Contract(
-    endpointAddress,
+  const abi = ["function market_fee() external view returns (uint256)"];
+  const feeMarket = new hre.ethers.Contract(
+    feeMarketAddress,
     abi,
     hre.ethers.provider
   );
   return async (_fromDappAddress, _toDappAddress, _messagePayload) => {
-    return await messageEndpoint.fee();
+    return await feeMarket.market_fee();
   };
 }
 
 async function main() {
+  const senderChain = "goerli";
+  const receiverChain = "pangolin";
+
+  const goerliMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7";
+
   // Deploy receiver
-  hre.changeNetwork("pangoro");
+  hre.changeNetwork(receiverChain);
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(
     "ExampleReceiverDapp"
   );
@@ -26,11 +31,10 @@ async function main() {
 
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
-    "pangolin",
-    "0xE8C0d3dF83a07892F912a71927F4740B8e0e04ab" // pangolin endpoint address
+    senderChain,
+    "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
   );
-  const pangolinMsgportAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F";
-  const msgport = await getMsgport("pangolin", pangolinMsgportAddress);
+  const msgport = await getMsgport(senderChain, goerliMsgportAddress);
   msgport.send(receiver.address, "0x12345678", estimateFee);
 }
 

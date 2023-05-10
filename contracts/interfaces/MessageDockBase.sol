@@ -31,18 +31,6 @@ abstract contract MessageDockBase {
 
     function getRemoteDockAddress() public virtual returns (address);
 
-    function getRelayFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view virtual returns (uint256);
-
-    function getDeliveryGas(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view virtual returns (uint256);
-
     ////////////////////////////////////////
     // Public functions
     ////////////////////////////////////////

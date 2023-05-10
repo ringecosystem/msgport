@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const { getMsgport } = require("../helper");
+const { buildEstimateFeeFunction } = require("../celer/celer-helper");
 
 async function main() {
   const senderChain = "fantom";
@@ -17,8 +18,12 @@ async function main() {
   console.log(`${receiverChain} receiver: ${receiver.address}`);
 
   // Send message to receiver
+  const estimateFee = buildEstimateFeeFunction(
+    senderChain,
+    "0xFF4E183a0Ceb4Fa98E63BbF8077B929c8E5A2bA4" // fantom message bus address
+  );
   const msgport = await getMsgport(senderChain, fantomMsgportAddress);
-  msgport.send(receiver.address, "0x12345678");
+  msgport.send(receiver.address, "0x12345678", estimateFee);
 }
 
 main().catch((error) => {

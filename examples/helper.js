@@ -38,34 +38,28 @@ async function setRemoteDock(network, dockAddress, remoteDockAddress) {
 
 async function getMsgport(network, msgportAddress) {
   return {
-    send: async (toDappAddress, msg, executionGas = 0, gasPrice = 0) => {
+    send: async (toDappAddress, messagePayload, estimateFee) => {
       hre.changeNetwork(network);
       const DefaultMsgport = await hre.ethers.getContractFactory(
         "DefaultMsgport"
       );
       const msgport = await DefaultMsgport.attach(msgportAddress);
 
+      // Estimate fee
       const fromDappAddress = (await hre.ethers.getSigner()).address;
-      const fee = await msgport.estimateFee(
+      const fee = await estimateFee(
         fromDappAddress,
         toDappAddress,
-        msg,
-        executionGas,
-        gasPrice
+        messagePayload
       );
       console.log(`cross-chain fee: ${fee} wei.`);
 
-      const tx = await msgport.send(
-        toDappAddress,
-        msg,
-        executionGas,
-        gasPrice,
-        {
-          value: fee,
-        }
-      );
+      // Send message
+      const tx = await msgport.send(toDappAddress, messagePayload, fee, {
+        value: fee,
+      });
       console.log(
-        `message ${msg} sent to ${toDappAddress} through ${network} msgport ${msgportAddress}`
+        `message ${messagePayload} sent to ${toDappAddress} through ${network} msgport ${msgportAddress}`
       );
       console.log(
         `https://pangoro.subscan.io/extrinsic/${

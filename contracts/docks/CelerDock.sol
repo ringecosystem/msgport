@@ -40,27 +40,6 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
     }
 
     // override MessageDockBase
-    function getRelayFee(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return
-            IMessageBus(messageBus).calcFee(
-                abi.encode(_fromDappAddress, _toDappAddress, _messagePayload)
-            );
-    }
-
-    // override MessageDockBase
-    function getDeliveryGas(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) external view override returns (uint256) {
-        return 0;
-    }
-
-    // override MessageDockBase
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
