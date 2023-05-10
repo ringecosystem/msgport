@@ -136,6 +136,26 @@ module.exports = {
       network_id: "4002",
       accounts: [PRIVATE_KEY],
     },
+    fantom: {
+      url: "https://1rpc.io/ftm",
+      network_id: "250",
+      accounts: [PRIVATE_KEY],
+    },
+    polygon: {
+      url: "https://1rpc.io/matic",
+      network_id: "137",
+      accounts: [PRIVATE_KEY],
+    },
+    zkSyncEra: {
+      url: "https://mainnet.era.zksync.io",
+      network_id: "324",
+      accounts: [PRIVATE_KEY],
+    },
+    bnbChain: {
+      url: "https://bsc-dataseed1.defibit.io",
+      network_id: "56",
+      accounts: [PRIVATE_KEY],
+    },
   },
   abiExporter: {
     path: "./abi/",
