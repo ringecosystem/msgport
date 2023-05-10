@@ -136,6 +136,11 @@ module.exports = {
       network_id: "4002",
       accounts: [PRIVATE_KEY],
     },
+    polygonTestnet: {
+      url: "https://polygon-testnet.public.blastapi.io",
+      network_id: "80001",
+      accounts: [PRIVATE_KEY],
+    },
     fantom: {
       url: "https://1rpc.io/ftm",
       network_id: "250",
