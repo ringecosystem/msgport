@@ -7,8 +7,9 @@ import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contract
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarDock is MessageDockBase, AxelarExecutable {
+contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
     string public sourceChain;
     string public sourceAddress;
     string public destinationChain;
@@ -23,6 +24,12 @@ contract AxelarDock is MessageDockBase, AxelarExecutable {
         address _gasReceiver
     ) MessageDockBase(_msgportAddress) AxelarExecutable(_gateway) {
         gasService = IAxelarGasService(_gasReceiver);
+    }
+
+    function setRemoteDockAddress(
+        address _remoteDockAddress
+    ) external onlyOwner {
+        remoteDockAddress = _remoteDockAddress;
     }
 
     function allowToRecv(
