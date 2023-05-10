@@ -16,16 +16,16 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2SDock is MessageDockBase, Ownable2Step {
+contract DarwiniaS2sDock is MessageDockBase, Ownable2Step {
     address public remoteDockAddress;
     address public immutable darwiniaEndpointAddress;
     uint32 public specVersion = 6021;
     uint256 public gasLimit = 3_000_000;
 
     constructor(
-        address gatewayAddress,
+        address msgportAddress,
         address _darwiniaEndpointAddress
-    ) MessageDockBase(gatewayAddress) {
+    ) MessageDockBase(msgportAddress) {
         darwiniaEndpointAddress = _darwiniaEndpointAddress;
     }
 
