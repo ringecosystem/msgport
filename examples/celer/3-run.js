@@ -3,7 +3,7 @@ const { getMsgport } = require("../helper");
 
 async function main() {
   // Deploy receiver
-  hre.changeNetwork("pangoro");
+  hre.changeNetwork("fantomTestnet");
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(
     "ExampleReceiverDapp"
   );
@@ -12,8 +12,8 @@ async function main() {
   console.log(`receiver: ${receiver.address}`);
 
   // Send message to receiver
-  const pangolinMsgportAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F";
-  const msgport = await getMsgport("pangolin", pangolinMsgportAddress);
+  const bscMsgportAddress = "0x07414d2B62A4Dd7fd1750C6DfBd9D38c250Cc573";
+  const msgport = await getMsgport("bscTestnet", bscMsgportAddress);
   msgport.send(receiver.address, "0x12345678");
 }
 
