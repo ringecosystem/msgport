@@ -45,8 +45,18 @@ async function main() {
   );
 
   // CONNECT TO EACH OTHER
-  await setRemoteDock(senderChain, goerliDockAddress, pangolinDockAddress);
-  await setRemoteDock(receiverChain, pangolinDockAddress, goerliDockAddress);
+  await setRemoteDock(
+    senderChain,
+    "DarwiniaDock",
+    goerliDockAddress,
+    pangolinDockAddress
+  );
+  await setRemoteDock(
+    receiverChain,
+    "DarwiniaDock",
+    pangolinDockAddress,
+    goerliDockAddress
+  );
 }
 
 main().catch((error) => {

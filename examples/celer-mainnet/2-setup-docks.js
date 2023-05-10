@@ -29,8 +29,18 @@ async function main() {
   );
 
   // CONNECT TO EACH OTHER
-  await setRemoteDock("fantom", fantomDockAddress, bnbChainDockAddress);
-  await setRemoteDock("bnbChain", bnbChainDockAddress, fantomDockAddress);
+  await setRemoteDock(
+    "fantom",
+    "CelerDock",
+    fantomDockAddress,
+    bnbChainDockAddress
+  );
+  await setRemoteDock(
+    "bnbChain",
+    "CelerDock",
+    bnbChainDockAddress,
+    fantomDockAddress
+  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

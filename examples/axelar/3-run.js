@@ -6,18 +6,20 @@ const {
   GasToken,
 } = require("@axelar-network/axelarjs-sdk");
 
-function buildEstimateFeeFunction() {
+function buildEstimateFeeFunction(
+  axelarSrcChainName,
+  axelarDstChainName,
+  axelarSrcGasToken
+) {
   const sdk = new AxelarQueryAPI({
     environment: "testnet",
   });
   return async (_fromDappAddress, _toDappAddress, _messagePayload) => {
-    const fee = await sdk.estimateGasFee(
-      EvmChain.FANTOM,
-      EvmChain.POLYGON,
-      GasToken.FTM
+    return await sdk.estimateGasFee(
+      axelarSrcChainName,
+      axelarDstChainName,
+      axelarSrcGasToken
     );
-
-    return parseInt(fee);
   };
 }
 
@@ -25,7 +27,7 @@ async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "polygonTestnet";
 
-  const fantomMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7";
+  const fantomMsgportAddress = "0x0B4972B183C19B615658a928e6cB606D76B18dEd";
 
   // Deploy receiver
   hre.changeNetwork(receiverChain);
@@ -34,10 +36,14 @@ async function main() {
   );
   const receiver = await ExampleReceiverDapp.deploy();
   await receiver.deployed();
-  console.log(`receiver: ${receiver.address}`);
+  console.log(`${receiverChain} receiver: ${receiver.address}`);
 
   // Send message to receiver
-  const estimateFee = buildEstimateFeeFunction();
+  const estimateFee = buildEstimateFeeFunction(
+    EvmChain.FANTOM,
+    EvmChain.POLYGON,
+    GasToken.FTM
+  );
   const msgport = await getMsgport(senderChain, fantomMsgportAddress);
   msgport.send(receiver.address, "0x12345678", estimateFee);
 }

@@ -11,7 +11,7 @@ async function main() {
 
   // bsc dock
   const bscDockAddress = await deployDock(
-    "bscTestnet",
+    "bnbChainTestnet",
     bscMsgportAddress,
     "CelerDock",
     [bscMsgportAddress, bscMessageBus, bscChainId, fantomChainId]
@@ -26,8 +26,18 @@ async function main() {
   );
 
   // CONNECT TO EACH OTHER
-  await setRemoteDock("bscTestnet", bscDockAddress, fantomDockAddress);
-  await setRemoteDock("fantomTestnet", fantomDockAddress, bscDockAddress);
+  await setRemoteDock(
+    "bnbChainTestnet",
+    "CelerDock",
+    bscDockAddress,
+    fantomDockAddress
+  );
+  await setRemoteDock(
+    "fantomTestnet",
+    "CelerDock",
+    fantomDockAddress,
+    bscDockAddress
+  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function deployMsgport(network) {
   hre.changeNetwork(network);
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.deploy();
+  const msgport = await DefaultMsgport.deploy({ gasLimit: 800000 });
   await msgport.deployed();
   console.log(`${network} msgport: ${msgport.address}`);
 }
@@ -11,28 +11,35 @@ async function deployMsgport(network) {
 async function deployDock(network, msgportAddress, dockName, dockArgs) {
   hre.changeNetwork(network);
   let Dock = await hre.ethers.getContractFactory(dockName);
-  let dock = await Dock.deploy(...dockArgs);
+  let dock = await Dock.deploy(...dockArgs, { gasLimit: 2000000 });
   await dock.deployed();
-  console.log(`${network} ${dockName} dock: ${dock.address}`);
+  console.log(`${network} ${dockName}: ${dock.address}`);
 
   // Add it to the msgport
   let DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   const msgport = await DefaultMsgport.attach(msgportAddress);
-  await (await msgport.setDock(dock.address)).wait();
+  await (await msgport.setDock(dock.address, { gasLimit: 50000 })).wait();
   console.log(
-    ` ${network} dock ${dock.address} set on msgport ${msgportAddress}`
+    `┗${network} ${dockName} ${dock.address} set on msgport ${msgportAddress}`
   );
 
   return dock.address;
 }
 
-async function setRemoteDock(network, dockAddress, remoteDockAddress) {
+async function setRemoteDock(
+  network,
+  dockName,
+  dockAddress,
+  remoteDockAddress
+) {
   hre.changeNetwork(network);
-  let Dock = await hre.ethers.getContractFactory("DarwiniaS2sDock");
+  let Dock = await hre.ethers.getContractFactory(dockName);
   let dock = await Dock.attach(dockAddress);
-  await (await dock.setRemoteDockAddress(remoteDockAddress)).wait();
+  await (
+    await dock.setRemoteDockAddress(remoteDockAddress, { gasLimit: 50000 })
+  ).wait();
   console.log(
-    `${network} dock ${dockAddress} set remote dock ${remoteDockAddress}`
+    `${network} ${dockName} ${dockAddress} set remote dock ${remoteDockAddress}`
   );
 }
 
@@ -56,16 +63,12 @@ async function getMsgport(network, msgportAddress) {
 
       // Send message
       const tx = await msgport.send(toDappAddress, messagePayload, fee, {
-        value: fee,
+        value: hre.ethers.BigNumber.from(fee),
       });
       console.log(
         `message ${messagePayload} sent to ${toDappAddress} through ${network} msgport ${msgportAddress}`
       );
-      console.log(
-        `https://pangoro.subscan.io/extrinsic/${
-          (await tx.wait()).transactionHash
-        }`
-      );
+      console.log(`tx hash: ${(await tx.wait()).transactionHash}`);
     },
   };
 }

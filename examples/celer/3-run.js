@@ -3,7 +3,7 @@ const { getMsgport } = require("../helper");
 const { buildEstimateFeeFunction } = require("./celer-helper");
 
 async function main() {
-  const senderChain = "bscTestnet";
+  const senderChain = "bnbChainTestnet";
   const receiverChain = "fantomTestnet";
 
   const bscMsgportAddress = "0x07414d2B62A4Dd7fd1750C6DfBd9D38c250Cc573";
