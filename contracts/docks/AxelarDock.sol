@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
     string public sourceChain;
-    string public sourceAddress;
     string public destinationChain;
     IAxelarGasService public immutable gasService;
 
@@ -21,9 +20,13 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
     constructor(
         address _msgportAddress,
         address _gateway,
-        address _gasReceiver
+        address _gasReceiver,
+        string memory _sourceChain,
+        string memory _destinationChain
     ) MessageDockBase(_msgportAddress) AxelarExecutable(_gateway) {
         gasService = IAxelarGasService(_gasReceiver);
+        sourceChain = _sourceChain;
+        destinationChain = _destinationChain;
     }
 
     function setRemoteDockAddress(
@@ -45,12 +48,20 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
         address _toDappAddress,
         bytes memory messagePayload
     ) internal override returns (uint256) {
+        bytes memory axelarMessage = abi.encodeWithSignature(
+            "recv(address,address,address,bytes)",
+            address(this),
+            _fromDappAddress,
+            _toDappAddress,
+            messagePayload
+        );
+
         if (msg.value > 0) {
             gasService.payNativeGasForContractCall{value: msg.value}(
                 address(this),
                 destinationChain,
                 Strings.toHexString(uint256(uint160(remoteDockAddress)), 20),
-                messagePayload,
+                axelarMessage,
                 msg.sender
             );
         }
@@ -58,13 +69,7 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
         gateway.callContract(
             destinationChain,
             Strings.toHexString(uint256(uint160(remoteDockAddress)), 20),
-            abi.encodeWithSignature(
-                "recv(address,address,address,bytes)",
-                address(this),
-                _fromDappAddress,
-                _toDappAddress,
-                messagePayload
-            )
+            axelarMessage
         );
 
         return nextNonce++;

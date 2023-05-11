@@ -1,10 +1,10 @@
 const { deployMsgport } = require("../helper");
 
 // fantomTestnet msgport: 0x0B4972B183C19B615658a928e6cB606D76B18dEd
-// polygonTestnet msgport: 0x0E23B6e7009Ef520298ccFD8FC3F67E43223B77c
+// moonbaseAlpha msgport: 0xE669D751d2C79EA11a947aDE15eFb2720D7a6F94
 async function main() {
   await deployMsgport("fantomTestnet");
-  await deployMsgport("polygonTestnet");
+  await deployMsgport("moonbaseAlpha");
 }
 
 main().catch((error) => {

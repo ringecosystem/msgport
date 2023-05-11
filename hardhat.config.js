@@ -141,6 +141,11 @@ module.exports = {
       network_id: "80001",
       accounts: [PRIVATE_KEY],
     },
+    moonbaseAlpha: {
+      url: "https://moonbase-alpha.public.blastapi.io",
+      network_id: "1287",
+      accounts: [PRIVATE_KEY],
+    },
     fantom: {
       url: "https://1rpc.io/ftm",
       network_id: "250",

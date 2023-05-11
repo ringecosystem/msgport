@@ -18,14 +18,17 @@ function buildEstimateFeeFunction(
     return await sdk.estimateGasFee(
       axelarSrcChainName,
       axelarDstChainName,
-      axelarSrcGasToken
+      axelarSrcGasToken,
+      100000,
+      1.1,
+      "2025000000"
     );
   };
 }
 
 async function main() {
   const senderChain = "fantomTestnet";
-  const receiverChain = "polygonTestnet";
+  const receiverChain = "moonbaseAlpha";
 
   const fantomMsgportAddress = "0x0B4972B183C19B615658a928e6cB606D76B18dEd";
 
@@ -41,7 +44,7 @@ async function main() {
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
     EvmChain.FANTOM,
-    EvmChain.POLYGON,
+    EvmChain.MOONBEAM,
     GasToken.FTM
   );
   const msgport = await getMsgport(senderChain, fantomMsgportAddress);

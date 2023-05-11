@@ -1,33 +1,46 @@
 const { deployDock, setRemoteDock } = require("../helper");
+const { EvmChain } = require("@axelar-network/axelarjs-sdk");
 
-// fantomTestnet AxelarDock: 0x8d2318F02e619726EC12061eF253B7bD82D0e5E8
-// polygonTestnet AxelarDock: 0x6c3af2A2DB9c8CE7F698FC866eaC6E5ed7C24D9f
+// fantomTestnet AxelarDock: 0x14c3f58eA1054Fba834e801856F2985DEFe410f3
+// moonbaseAlpha AxelarDock: 0x000dFde2A09e3b8C303B3174B5b4C91B22eE8bb2
 async function main() {
   const senderChain = "fantomTestnet";
-  const receiverChain = "polygonTestnet";
+  const receiverChain = "moonbaseAlpha";
 
   const fantomMsgportAddress = "0x0B4972B183C19B615658a928e6cB606D76B18dEd";
   const fantomGateway = "0x97837985Ec0494E7b9C71f5D3f9250188477ae14";
   const fantomGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
 
-  const polygonMsgportAddress = "0x0E23B6e7009Ef520298ccFD8FC3F67E43223B77c";
-  const polygonGateway = "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B";
-  const polygonGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
+  const moonbaseMsgportAddress = "0xE669D751d2C79EA11a947aDE15eFb2720D7a6F94";
+  const moonbaseGateway = "0x5769D84DD62a6fD969856c75c7D321b84d455929";
+  const moonbaseGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
 
   // fantom Dock
   const fantomDockAddress = await deployDock(
     senderChain,
     fantomMsgportAddress,
     "AxelarDock",
-    [fantomMsgportAddress, fantomGateway, fantomGasReceiver]
+    [
+      fantomMsgportAddress,
+      fantomGateway,
+      fantomGasReceiver,
+      EvmChain.FANTOM,
+      EvmChain.MOONBEAM,
+    ]
   );
 
-  // polygon Dock
-  const polygonDockAddress = await deployDock(
+  // moonbase Dock
+  const moonbaseDockAddress = await deployDock(
     receiverChain,
-    polygonMsgportAddress,
+    moonbaseMsgportAddress,
     "AxelarDock",
-    [polygonMsgportAddress, polygonGateway, polygonGasReceiver]
+    [
+      moonbaseMsgportAddress,
+      moonbaseGateway,
+      moonbaseGasReceiver,
+      EvmChain.MOONBEAM,
+      EvmChain.FANTOM,
+    ]
   );
 
   // CONNECT TO EACH OTHER
@@ -35,12 +48,12 @@ async function main() {
     senderChain,
     "AxelarDock",
     fantomDockAddress,
-    polygonDockAddress
+    moonbaseDockAddress
   );
   await setRemoteDock(
     receiverChain,
     "AxelarDock",
-    polygonDockAddress,
+    moonbaseDockAddress,
     fantomDockAddress
   );
 }
