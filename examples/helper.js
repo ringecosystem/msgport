@@ -85,15 +85,6 @@ async function getMsgport(network, msgportAddress) {
       );
       console.log(`cross-chain fee: ${fee} wei.`);
 
-      console.log(
-        network,
-        msgportAddress,
-        toChainId,
-        toDappAddress,
-        messagePayload,
-        fee,
-        params
-      );
       // Send message
       const tx = await msgport.send(
         toChainId,
