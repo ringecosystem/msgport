@@ -1,50 +1,36 @@
-const { deployDock, setRemoteDock } = require("../helper");
+const { setupDocks } = require("../helper");
 
-// fantom CelerDock dock: 0x64944F4A62a28ccD2D6fdc47Ba9511FfDB802E2C
-// bnbChain CelerDock dock: 0x08f17e8c83DdC3F05543b7F0b61977F6648521a7
 async function main() {
-  const fantomMsgportAddress = "0x7bB47867d8BA255c79e6f5BaCAC6e3194D05C273";
-  const bnbChainMsgportAddress = "0x770497281303Cdb2e0252B82AdEEA1d61896dD43";
+  const senderChain = "fantom";
+  const senderMsgportAddress = "0x7bB47867d8BA255c79e6f5BaCAC6e3194D05C273"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderDockName = "CelerDock";
+  const senderDockParams = [
+    "0xFF4E183a0Ceb4Fa98E63BbF8077B929c8E5A2bA4", // senderMessageBus
+    250, // senderChainId
+    56, // receiverChainId
+  ];
 
-  const fantomMessageBus = "0xFF4E183a0Ceb4Fa98E63BbF8077B929c8E5A2bA4";
-  const bnbChainMessageBus = "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b";
+  const receiverChain = "bnbChain";
+  const receiverMsgportAddress = "0x770497281303Cdb2e0252B82AdEEA1d61896dD43"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverDockName = "CelerDock";
+  const receiverDockParams = [
+    "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b", // receiverMessageBus
+    56, // senderChainId
+    250, // receiverChainId
+  ];
 
-  const fantomChainId = 250;
-  const bnbChainChainId = 56;
-
-  // fantom dock
-  const fantomDockAddress = await deployDock(
-    "fantom",
-    fantomMsgportAddress,
-    "CelerDock",
-    [fantomMsgportAddress, fantomMessageBus, fantomChainId, bnbChainChainId]
-  );
-
-  // bnbChain dock
-  const bnbChainDockAddress = await deployDock(
-    "bnbChain",
-    bnbChainMsgportAddress,
-    "CelerDock",
-    [bnbChainMsgportAddress, bnbChainMessageBus, bnbChainChainId, fantomChainId]
-  );
-
-  // CONNECT TO EACH OTHER
-  await setRemoteDock(
-    "fantom",
-    "CelerDock",
-    fantomDockAddress,
-    bnbChainDockAddress
-  );
-  await setRemoteDock(
-    "bnbChain",
-    "CelerDock",
-    bnbChainDockAddress,
-    fantomDockAddress
+  await setupDocks(
+    senderChain,
+    senderMsgportAddress,
+    senderDockName,
+    senderDockParams,
+    receiverChain,
+    receiverMsgportAddress,
+    receiverDockName,
+    receiverDockParams
   );
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
