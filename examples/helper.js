@@ -129,9 +129,75 @@ async function deployReceiver(network) {
   return receiver.address;
 }
 
+async function setupDocks(
+  senderChain,
+  senderMsgportAddress,
+  senderDockName,
+  senderDockParams,
+  receiverChain,
+  receiverMsgportAddress,
+  receiverDockName,
+  receiverDockParams
+) {
+  // Prepare sender and receiver info
+  const senderChainId = await getChainId(senderChain);
+  const receiverChainId = await getChainId(receiverChain);
+
+  // Deploy sender Dock
+  const senderDockAddress = await deployDock(
+    senderChain,
+    senderMsgportAddress,
+    receiverChainId,
+    senderDockName,
+    senderDockParams
+  );
+
+  // Deploy receiver Dock
+  const receiverDockAddress = await deployDock(
+    receiverChain,
+    receiverMsgportAddress,
+    senderChainId,
+    receiverDockName,
+    receiverDockParams
+  );
+
+  // Configure remote Dock
+  await setRemoteDock(
+    senderChain,
+    senderDockName,
+    senderDockAddress,
+    receiverDockAddress
+  );
+  await setRemoteDock(
+    receiverChain,
+    receiverDockName,
+    receiverDockAddress,
+    senderDockAddress
+  );
+}
+
+async function sendMessage(
+  senderChain,
+  senderMsgportAddress,
+  receiverChain,
+  message,
+  estimateFee,
+  params = "0x"
+) {
+  // Deploy receiver
+  const receiverAddress = await deployReceiver(receiverChain);
+
+  // Send message to receiver
+  const receiverChainId = await getChainId(receiverChain);
+  const msgport = await getMsgport(senderChain, senderMsgportAddress);
+  msgport.send(receiverChainId, receiverAddress, message, estimateFee, params);
+}
+
 exports.deployMsgport = deployMsgport;
 exports.deployDock = deployDock;
 exports.setRemoteDock = setRemoteDock;
 exports.getMsgport = getMsgport;
 exports.deployReceiver = deployReceiver;
 exports.getChainId = getChainId;
+exports.setupDocks = setupDocks;
+exports.sendMessage = sendMessage;

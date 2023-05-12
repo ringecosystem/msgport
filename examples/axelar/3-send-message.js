@@ -1,5 +1,4 @@
-const { getMsgport, deployReceiver, getChainId } = require("../helper");
-const hre = require("hardhat");
+const { sendMessage } = require("../helper");
 const {
   AxelarQueryAPI,
   EvmChain,
@@ -10,22 +9,20 @@ const {
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";
-  const receiverChainId = await getChainId(receiverChain);
-
   const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <------- change this
-
-  // Deploy receiver
-  const receiverAddress = await deployReceiver(receiverChain);
-
-  // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
     EvmChain.FANTOM,
     EvmChain.MOONBEAM,
     GasToken.FTM
   );
-  hre.changeNetwork(senderChain);
-  const msgport = await getMsgport(senderChain, senderMsgportAddress);
-  msgport.send(receiverChainId, receiverAddress, "0x12345678", estimateFee);
+
+  await sendMessage(
+    senderChain,
+    senderMsgportAddress,
+    receiverChain,
+    "0x12345678",
+    estimateFee
+  );
 }
 
 function buildEstimateFeeFunction(
