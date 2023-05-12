@@ -1,8 +1,14 @@
-const { deployMsgport } = require("../helper");
+const { deployMsgport, getChainId } = require("../helper");
 
 async function main() {
-  await deployMsgport("pangolin");
-  await deployMsgport("rocstar");
+  const senderChain = "pangolin";
+  const senderChainId = await getChainId(senderChain);
+
+  const receiverChain = "rocstar";
+  const receiverChainId = await getChainId(receiverChain);
+
+  await deployMsgport(senderChain, senderChainId);
+  await deployMsgport(receiverChain, receiverChainId);
 }
 
 main().catch((error) => {
