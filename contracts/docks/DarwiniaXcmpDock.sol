@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDockBase.sol";
+import "../interfaces/MessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaXcmpDock is MessageDockBase, Ownable2Step {
+contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
     address public remoteDockAddress;
 
     bytes2 public immutable SRC_PARAID;
@@ -15,11 +15,12 @@ contract DarwiniaXcmpDock is MessageDockBase, Ownable2Step {
         0x0000000000000000000000000000000000000401;
 
     constructor(
-        address _msgportAddress,
+        address _localMsgportAddress,
+        uint _remoteChainId,
         bytes2 _srcParaId,
         bytes2 _tgtParaId,
         bytes2 _polkadotXcmSendCallIndex
-    ) MessageDockBase(_msgportAddress) {
+    ) MessageDock(_localMsgportAddress, _remoteChainId) {
         SRC_PARAID = _srcParaId;
         TGT_PARAID = _tgtParaId;
         POLKADOT_XCM_SEND_CALL_INDEX = _polkadotXcmSendCallIndex;

@@ -5,11 +5,20 @@ pragma solidity >=0.8.9;
 import "./IMsgport.sol";
 
 // dock knows hot to send message to remote dock.
-abstract contract MessageDockBase {
+abstract contract MessageDock {
     IMsgport public immutable localMsgport;
+    uint public immutable localChainId;
+    uint public immutable remoteChainId;
 
-    constructor(address _localMsgportAddress) {
+    constructor(address _localMsgportAddress, uint _remoteChainId) {
         localMsgport = IMsgport(_localMsgportAddress);
+        localChainId = localMsgport.getLocalChainId();
+
+        require(
+            localChainId != _remoteChainId,
+            "!remoteChainId == localChainId"
+        );
+        remoteChainId = _remoteChainId;
     }
 
     ////////////////////////////////////////
@@ -61,7 +70,7 @@ abstract contract MessageDockBase {
 
     // called by remote dock through low level messaging contract or self
     function recv(
-        address _srcDockAddress,
+        address _toDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
@@ -72,9 +81,14 @@ abstract contract MessageDockBase {
         );
 
         // only allow messages from remote dock
-        require(_srcDockAddress == getRemoteDockAddress(), "!remoteDock");
+        require(_toDockAddress == getRemoteDockAddress(), "!remoteDock");
 
         // call local msgport to receive message
-        localMsgport.recv(_fromDappAddress, _toDappAddress, _messagePayload);
+        localMsgport.recv(
+            remoteChainId,
+            _fromDappAddress,
+            _toDappAddress,
+            _messagePayload
+        );
     }
 }

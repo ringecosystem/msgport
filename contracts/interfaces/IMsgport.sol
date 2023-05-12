@@ -25,7 +25,10 @@ interface IMsgport {
         string _reason
     );
 
+    function getLocalChainId() external view returns (uint);
+
     function send(
+        uint _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         uint256 _fee,
@@ -33,6 +36,7 @@ interface IMsgport {
     ) external payable returns (uint256);
 
     function recv(
+        uint _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message

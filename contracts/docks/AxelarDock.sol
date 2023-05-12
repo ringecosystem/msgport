@@ -2,14 +2,14 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDockBase.sol";
+import "../interfaces/MessageDock.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
+contract AxelarDock is MessageDock, AxelarExecutable, Ownable2Step {
     string public sourceChain;
     string public destinationChain;
     IAxelarGasService public immutable gasService;
@@ -18,12 +18,16 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
     uint64 public nextNonce;
 
     constructor(
-        address _msgportAddress,
+        address _localMsgportAddress,
+        uint _remoteChainId,
         address _gateway,
         address _gasReceiver,
         string memory _sourceChain,
         string memory _destinationChain
-    ) MessageDockBase(_msgportAddress) AxelarExecutable(_gateway) {
+    )
+        MessageDock(_localMsgportAddress, _remoteChainId)
+        AxelarExecutable(_gateway)
+    {
         gasService = IAxelarGasService(_gasReceiver);
         sourceChain = _sourceChain;
         destinationChain = _destinationChain;

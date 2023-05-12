@@ -2,24 +2,25 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDockBase.sol";
+import "../interfaces/MessageDock.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 
-contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
+contract CelerDock is MessageDock, MessageSenderApp, MessageReceiverApp {
     uint64 public immutable SRC_CHAIN_ID;
     uint64 public immutable TGT_CHAIN_ID;
     address public remoteDockAddress;
     uint64 public nextNonce = 0;
 
     constructor(
-        address _msgportAddress,
+        address _localMsgportAddress,
+        uint _remoteChainId,
         address _messageBus,
         uint64 _srcChainId,
         uint64 _tgtChainId
-    ) MessageDockBase(_msgportAddress) {
+    ) MessageDock(_localMsgportAddress, _remoteChainId) {
         messageBus = _messageBus;
         SRC_CHAIN_ID = _srcChainId;
         TGT_CHAIN_ID = _tgtChainId;
@@ -34,12 +35,12 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
     //////////////////////////////////////////
     // For sending
     //////////////////////////////////////////
-    // override MessageDockBase
+    // override MessageDock
     function getRemoteDockAddress() public view override returns (address) {
         return remoteDockAddress;
     }
 
-    // override MessageDockBase
+    // override MessageDock
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
@@ -79,7 +80,7 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
         return ExecutionStatus.Success;
     }
 
-    // override MessageDockBase
+    // override MessageDock
     function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,

@@ -11,10 +11,11 @@ contract GoerliDapp {
         msgportAddress = _msgportAddress;
     }
 
-    function remoteAdd(address pangolinDapp) external payable {
+    function remoteAdd(address pangolinDappAddress) external payable {
         bytes memory message = abi.encode(uint256(2));
         IMsgport(msgportAddress).send{value: msg.value}(
-            pangolinDapp,
+            43, // Pangolin chain id
+            pangolinDappAddress,
             message,
             50_000 * 2457757432886,
             hex""

@@ -154,6 +154,7 @@ contract DarwiniaMessageHub is IMessageReceiver {
 
         return
             IMsgport(MSGPORT_ADDRESS).send{value: _fee}(
+                81,
                 _toDappAddress,
                 _messagePayload,
                 _fee,
