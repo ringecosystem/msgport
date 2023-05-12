@@ -1,26 +1,44 @@
 const hre = require("hardhat");
 
-async function deployMsgport(network) {
+async function deployMsgport(network, localChainId) {
   hre.changeNetwork(network);
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.deploy({ gasLimit: 800000 });
+  const msgport = await DefaultMsgport.deploy(localChainId, {
+    gasLimit: 1000000,
+  });
   await msgport.deployed();
   console.log(`${network} msgport: ${msgport.address}`);
 }
 
-async function deployDock(network, msgportAddress, dockName, dockArgs) {
-  hre.changeNetwork(network);
+async function deployDock(
+  localNetwork,
+  localMsgportAddress,
+  remoteChainId,
+  dockName,
+  dockArgs
+) {
+  // Deploy dock
+  hre.changeNetwork(localNetwork);
   let Dock = await hre.ethers.getContractFactory(dockName);
-  let dock = await Dock.deploy(...dockArgs, { gasLimit: 2000000 });
+  let dock = await Dock.deploy(
+    localMsgportAddress,
+    remoteChainId,
+    ...dockArgs,
+    {
+      gasLimit: 2000000,
+    }
+  );
   await dock.deployed();
-  console.log(`${network} ${dockName}: ${dock.address}`);
+  console.log(`${localNetwork} ${dockName}: ${dock.address}`);
 
   // Add it to the msgport
   let DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.attach(msgportAddress);
-  await (await msgport.setDock(dock.address, { gasLimit: 50000 })).wait();
+  const msgport = await DefaultMsgport.attach(localMsgportAddress);
+  await (
+    await msgport.setDock(remoteChainId, dock.address, { gasLimit: 50000 })
+  ).wait();
   console.log(
-    `┗${network} ${dockName} ${dock.address} set on msgport ${msgportAddress}`
+    `··${localNetwork} ${dockName} ${dock.address} set on msgport ${localMsgportAddress}`
   );
 
   return dock.address;
@@ -45,7 +63,13 @@ async function setRemoteDock(
 
 async function getMsgport(network, msgportAddress) {
   return {
-    send: async (toDappAddress, messagePayload, estimateFee, params) => {
+    send: async (
+      toChainId,
+      toDappAddress,
+      messagePayload,
+      estimateFee,
+      params = "0x"
+    ) => {
       hre.changeNetwork(network);
       const DefaultMsgport = await hre.ethers.getContractFactory(
         "DefaultMsgport"
@@ -61,8 +85,18 @@ async function getMsgport(network, msgportAddress) {
       );
       console.log(`cross-chain fee: ${fee} wei.`);
 
+      console.log(
+        network,
+        msgportAddress,
+        toChainId,
+        toDappAddress,
+        messagePayload,
+        fee,
+        params
+      );
       // Send message
       const tx = await msgport.send(
+        toChainId,
         toDappAddress,
         messagePayload,
         fee,
@@ -79,6 +113,11 @@ async function getMsgport(network, msgportAddress) {
   };
 }
 
+async function getChainId(network) {
+  hre.changeNetwork(network);
+  return (await hre.ethers.provider.getNetwork())["chainId"];
+}
+
 async function deployReceiver(network) {
   hre.changeNetwork(network);
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(
@@ -87,6 +126,7 @@ async function deployReceiver(network) {
   const receiver = await ExampleReceiverDapp.deploy();
   await receiver.deployed();
   console.log(`${network} receiver: ${receiver.address}`);
+  return receiver.address;
 }
 
 exports.deployMsgport = deployMsgport;
@@ -94,3 +134,4 @@ exports.deployDock = deployDock;
 exports.setRemoteDock = setRemoteDock;
 exports.getMsgport = getMsgport;
 exports.deployReceiver = deployReceiver;
+exports.getChainId = getChainId;

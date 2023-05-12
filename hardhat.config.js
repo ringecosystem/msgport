@@ -132,7 +132,7 @@ module.exports = {
       accounts: [PRIVATE_KEY],
     },
     fantomTestnet: {
-      url: "https://rpc.testnet.fantom.network",
+      url: "https://rpc.ankr.com/fantom_testnet",
       network_id: "4002",
       accounts: [PRIVATE_KEY],
     },
@@ -142,7 +142,7 @@ module.exports = {
       accounts: [PRIVATE_KEY],
     },
     moonbaseAlpha: {
-      url: "https://moonbase-alpha.public.blastapi.io",
+      url: "https://rpc.testnet.moonbeam.network",
       network_id: "1287",
       accounts: [PRIVATE_KEY],
     },

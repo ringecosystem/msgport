@@ -29,7 +29,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     ///
     /// @param _chainId Target chain id.
     /// @param _dockAddress Dock address.
-    function addDock(uint _chainId, address _dockAddress) external onlyOwner {
+    function setDock(uint _chainId, address _dockAddress) external onlyOwner {
         require(_chainId != localChainId, "!localChainId");
         require(_dockAddress != dockAddresses[_chainId], "!dockAddress");
 

@@ -1,60 +1,54 @@
-const { deployDock, setRemoteDock } = require("../helper");
+const { deployDock, setRemoteDock, getChainId } = require("../helper");
 const { EvmChain } = require("@axelar-network/axelarjs-sdk");
 
-// fantomTestnet AxelarDock: 0xE80266BDfF9CD848309a2A5580f7695fa496c40d
-// moonbaseAlpha AxelarDock: 0x8669BC1898283A5fBa18BBe1dD86D96d6B6E6aEe
+// fantomTestnet AxelarDock: 0xD461E0fFC07672416d9Ec21d1929b20D931885A6
+// moonbaseAlpha AxelarDock: 0x6c3af2A2DB9c8CE7F698FC866eaC6E5ed7C24D9f
 async function main() {
+  // Prepare sender and receiver info
   const senderChain = "fantomTestnet";
+  const senderChainId = await getChainId(senderChain);
+
   const receiverChain = "moonbaseAlpha";
+  const receiverChainId = await getChainId(receiverChain);
 
-  const fantomMsgportAddress = "0x0B4972B183C19B615658a928e6cB606D76B18dEd";
-  const fantomGateway = "0x97837985Ec0494E7b9C71f5D3f9250188477ae14";
-  const fantomGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
+  const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderGateway = "0x97837985Ec0494E7b9C71f5D3f9250188477ae14";
+  const senderGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
 
-  const moonbaseMsgportAddress = "0xE669D751d2C79EA11a947aDE15eFb2720D7a6F94";
-  const moonbaseGateway = "0x5769D84DD62a6fD969856c75c7D321b84d455929";
-  const moonbaseGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
+  const receiverMsgportAddress = "0x0E23B6e7009Ef520298ccFD8FC3F67E43223B77c"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverGateway = "0x5769D84DD62a6fD969856c75c7D321b84d455929";
+  const receiverGasReceiver = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6";
 
-  // fantom Dock
-  const fantomDockAddress = await deployDock(
+  // Deploy sender Dock
+  const senderDockAddress = await deployDock(
     senderChain,
-    fantomMsgportAddress,
+    senderMsgportAddress,
+    receiverChainId,
     "AxelarDock",
-    [
-      fantomMsgportAddress,
-      fantomGateway,
-      fantomGasReceiver,
-      EvmChain.FANTOM,
-      EvmChain.MOONBEAM,
-    ]
+    [senderGateway, senderGasReceiver, EvmChain.FANTOM, EvmChain.MOONBEAM]
   );
 
-  // moonbase Dock
-  const moonbaseDockAddress = await deployDock(
+  // Deploy receiver Dock
+  const receiverDockAddress = await deployDock(
     receiverChain,
-    moonbaseMsgportAddress,
+    receiverMsgportAddress,
+    senderChainId,
     "AxelarDock",
-    [
-      moonbaseMsgportAddress,
-      moonbaseGateway,
-      moonbaseGasReceiver,
-      EvmChain.MOONBEAM,
-      EvmChain.FANTOM,
-    ]
+    [receiverGateway, receiverGasReceiver, EvmChain.MOONBEAM, EvmChain.FANTOM]
   );
 
-  // CONNECT TO EACH OTHER
+  // Configure remote Dock
   await setRemoteDock(
     senderChain,
     "AxelarDock",
-    fantomDockAddress,
-    moonbaseDockAddress
+    senderDockAddress,
+    receiverDockAddress
   );
   await setRemoteDock(
     receiverChain,
     "AxelarDock",
-    moonbaseDockAddress,
-    fantomDockAddress
+    receiverDockAddress,
+    senderDockAddress
   );
 }
 

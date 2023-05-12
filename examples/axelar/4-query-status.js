@@ -6,17 +6,19 @@ const hre = require("hardhat");
 
 async function main() {
   // query the cross chain message status
+  // --------------------------------------
   const sdk = new AxelarGMPRecoveryAPI({
     environment: Environment.TESTNET,
   });
   const txHash =
-    "0x2f59645568f4fb5f27600ca3d4003df4a1ed0d234a86fe20f5937987aa7f87a0";
+    "0x88e1c783954d0cbccb02cf9c5b8d420b185b7fc485907cf8bea92c2c3f48c484"; // <------- change this
   const txStatus = await sdk.queryTransactionStatus(txHash);
   console.log(txStatus["status"]);
 
   // query the receiver's result
+  // --------------------------------------
   const receiverChain = "moonbaseAlpha";
-  const receiverAddress = "0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626";
+  const receiverAddress = "0xAFb5F12C5F379431253159fae464572999E78485"; // <------- change this
 
   hre.changeNetwork(receiverChain);
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(
