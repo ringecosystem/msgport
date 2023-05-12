@@ -1,4 +1,3 @@
-const hre = require("hardhat");
 const { deployMsgport, getChainId } = require("../helper");
 
 // fantomTestnet msgport: 0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599

@@ -1,5 +1,23 @@
 const hre = require("hardhat");
-const { getMsgport, deployReceiver } = require("../helper");
+const { sendMessage } = require("../helper");
+
+async function main() {
+  const senderChain = "goerli";
+  const receiverChain = "pangolin";
+  const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <------- change this
+  const estimateFee = buildEstimateFeeFunction(
+    senderChain,
+    "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
+  );
+
+  await sendMessage(
+    senderChain,
+    senderMsgportAddress,
+    receiverChain,
+    "0x12345678",
+    estimateFee
+  );
+}
 
 function buildEstimateFeeFunction(network, feeMarketAddress) {
   hre.changeNetwork(network);
@@ -12,24 +30,6 @@ function buildEstimateFeeFunction(network, feeMarketAddress) {
   return async (_fromDappAddress, _toDappAddress, _messagePayload) => {
     return await feeMarket.market_fee();
   };
-}
-
-async function main() {
-  const senderChain = "goerli";
-  const receiverChain = "pangolin";
-
-  const goerliMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7";
-
-  // Deploy receiver
-  await deployReceiver(receiverChain);
-
-  // Send message to receiver
-  const estimateFee = buildEstimateFeeFunction(
-    senderChain,
-    "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
-  );
-  const msgport = await getMsgport(senderChain, goerliMsgportAddress);
-  msgport.send(receiver.address, "0x12345678", estimateFee, "");
 }
 
 main().catch((error) => {
