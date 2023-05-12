@@ -19,8 +19,6 @@ interface IMessageEndpoint {
 contract DarwiniaS2sDock is MessageDockBase, Ownable2Step {
     address public remoteDockAddress;
     address public immutable darwiniaEndpointAddress;
-    uint32 public specVersion = 6021;
-    uint256 public gasLimit = 3_000_000;
 
     constructor(
         address msgportAddress,
@@ -35,14 +33,6 @@ contract DarwiniaS2sDock is MessageDockBase, Ownable2Step {
         remoteDockAddress = _remoteDockAddress;
     }
 
-    function setSpecVersion(uint32 _specVersion) external onlyOwner {
-        specVersion = _specVersion;
-    }
-
-    function setGasLimit(uint256 _gasLimit) external onlyOwner {
-        gasLimit = _gasLimit;
-    }
-
     function getRemoteDockAddress() public view override returns (address) {
         return remoteDockAddress;
     }
@@ -50,10 +40,13 @@ contract DarwiniaS2sDock is MessageDockBase, Ownable2Step {
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory messagePayload,
+        bytes memory _params
     ) internal override returns (uint256) {
-        // check specVersion is set.
-        require(specVersion != 0, "!specVersion");
+        (uint32 specVersion, uint256 gasLimit) = abi.decode(
+            _params,
+            (uint32, uint256)
+        );
 
         bytes memory recvCall = abi.encodeWithSignature(
             "recv(address,address,address,bytes)",

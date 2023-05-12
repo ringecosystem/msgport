@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { getMsgport } = require("../helper");
+const { getMsgport, deployReceiver } = require("../helper");
 
 function buildEstimateFeeFunction(network, endpointAddress) {
   hre.changeNetwork(network);
@@ -15,23 +15,27 @@ function buildEstimateFeeFunction(network, endpointAddress) {
 }
 
 async function main() {
+  const senderChain = "pangolin";
+  const receiverChain = "pangoro";
+
   // Deploy receiver
-  hre.changeNetwork("pangoro");
-  const ExampleReceiverDapp = await hre.ethers.getContractFactory(
-    "ExampleReceiverDapp"
-  );
-  const receiver = await ExampleReceiverDapp.deploy();
-  await receiver.deployed();
-  console.log(`receiver: ${receiver.address}`);
+  await deployReceiver(receiverChain);
 
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
-    "pangolin",
+    senderChain,
     "0xE8C0d3dF83a07892F912a71927F4740B8e0e04ab" // pangolin endpoint address
   );
   const pangolinMsgportAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F";
-  const msgport = await getMsgport("pangolin", pangolinMsgportAddress);
-  msgport.send(receiver.address, "0x12345678", estimateFee);
+  const msgport = await getMsgport(senderChain, pangolinMsgportAddress);
+  // params:
+  //  - specVersion: uint32
+  //  - gasLimit: uint256
+  const params = hre.ethers.utils.defaultAbiCoder.encode(
+    ["uint32", "uint256"],
+    ["6021", "3000000"]
+  );
+  msgport.send(receiver.address, "0x12345678", estimateFee, params);
 }
 
 main().catch((error) => {

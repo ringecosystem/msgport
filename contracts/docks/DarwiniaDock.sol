@@ -43,7 +43,8 @@ contract DarwiniaDock is MessageDockBase, ICrossChainFilter, Ownable2Step {
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory messagePayload,
+        bytes memory _params
     ) internal override returns (uint256) {
         return
             IOutboundLane(outboundLane).send_message{value: msg.value}(

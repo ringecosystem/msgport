@@ -18,7 +18,8 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     function send(
         address _toDappAddress,
         bytes memory _messagePayload,
-        uint256 _fee
+        uint256 _fee,
+        bytes memory _params
     ) external payable returns (uint256) {
         // check fee payed by caller is enough.
         uint256 paid = msg.value;
@@ -33,7 +34,8 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
             MessageDockBase(dockAddress).send{value: _fee}(
                 msg.sender,
                 _toDappAddress,
-                _messagePayload
+                _messagePayload,
+                _params
             );
     }
 

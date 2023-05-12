@@ -45,7 +45,7 @@ async function setRemoteDock(
 
 async function getMsgport(network, msgportAddress) {
   return {
-    send: async (toDappAddress, messagePayload, estimateFee) => {
+    send: async (toDappAddress, messagePayload, estimateFee, params) => {
       hre.changeNetwork(network);
       const DefaultMsgport = await hre.ethers.getContractFactory(
         "DefaultMsgport"
@@ -62,9 +62,15 @@ async function getMsgport(network, msgportAddress) {
       console.log(`cross-chain fee: ${fee} wei.`);
 
       // Send message
-      const tx = await msgport.send(toDappAddress, messagePayload, fee, {
-        value: hre.ethers.BigNumber.from(fee),
-      });
+      const tx = await msgport.send(
+        toDappAddress,
+        messagePayload,
+        fee,
+        params,
+        {
+          value: hre.ethers.BigNumber.from(fee),
+        }
+      );
       console.log(
         `message ${messagePayload} sent to ${toDappAddress} through ${network} msgport ${msgportAddress}`
       );
@@ -73,7 +79,18 @@ async function getMsgport(network, msgportAddress) {
   };
 }
 
+async function deployReceiver(network) {
+  hre.changeNetwork(network);
+  const ExampleReceiverDapp = await hre.ethers.getContractFactory(
+    "ExampleReceiverDapp"
+  );
+  const receiver = await ExampleReceiverDapp.deploy();
+  await receiver.deployed();
+  console.log(`${network} receiver: ${receiver.address}`);
+}
+
 exports.deployMsgport = deployMsgport;
 exports.deployDock = deployDock;
 exports.setRemoteDock = setRemoteDock;
 exports.getMsgport = getMsgport;
+exports.deployReceiver = deployReceiver;

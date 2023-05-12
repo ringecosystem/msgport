@@ -46,14 +46,14 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory _messagePayload,
+        bytes memory _params
     ) internal override returns (uint256) {
-        bytes memory axelarMessage = abi.encodeWithSignature(
-            "recv(address,address,address,bytes)",
+        bytes memory axelarMessage = abi.encode(
             address(this),
             _fromDappAddress,
             _toDappAddress,
-            messagePayload
+            _messagePayload
         );
 
         if (msg.value > 0) {
@@ -77,5 +77,19 @@ contract AxelarDock is MessageDockBase, AxelarExecutable, Ownable2Step {
 
     function getRemoteDockAddress() public virtual override returns (address) {
         return remoteDockAddress;
+    }
+
+    function _execute(
+        string calldata sourceChain_,
+        string calldata sourceAddress_,
+        bytes calldata payload_
+    ) internal override {
+        (
+            address srcDockAddress,
+            address fromDappAddress,
+            address toDappAddress,
+            bytes memory messagePayload
+        ) = abi.decode(payload_, (address, address, address, bytes));
+        recv(srcDockAddress, fromDappAddress, toDappAddress, messagePayload);
     }
 }

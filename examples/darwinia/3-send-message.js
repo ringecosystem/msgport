@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { getMsgport } = require("../helper");
+const { getMsgport, deployReceiver } = require("../helper");
 
 function buildEstimateFeeFunction(network, feeMarketAddress) {
   hre.changeNetwork(network);
@@ -21,13 +21,7 @@ async function main() {
   const goerliMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7";
 
   // Deploy receiver
-  hre.changeNetwork(receiverChain);
-  const ExampleReceiverDapp = await hre.ethers.getContractFactory(
-    "ExampleReceiverDapp"
-  );
-  const receiver = await ExampleReceiverDapp.deploy();
-  await receiver.deployed();
-  console.log(`receiver: ${receiver.address}`);
+  await deployReceiver(receiverChain);
 
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
@@ -35,7 +29,7 @@ async function main() {
     "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
   );
   const msgport = await getMsgport(senderChain, goerliMsgportAddress);
-  msgport.send(receiver.address, "0x12345678", estimateFee);
+  msgport.send(receiver.address, "0x12345678", estimateFee, "");
 }
 
 main().catch((error) => {

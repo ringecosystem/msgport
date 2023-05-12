@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { getMsgport } = require("../helper");
+const { getMsgport, deployReceiver } = require("../helper");
 const { buildEstimateFeeFunction } = require("../celer/celer-helper");
 
 async function main() {
@@ -9,13 +9,7 @@ async function main() {
   const fantomMsgportAddress = "0x7bB47867d8BA255c79e6f5BaCAC6e3194D05C273";
 
   // Deploy receiver
-  hre.changeNetwork(receiverChain);
-  const ExampleReceiverDapp = await hre.ethers.getContractFactory(
-    "ExampleReceiverDapp"
-  );
-  const receiver = await ExampleReceiverDapp.deploy();
-  await receiver.deployed();
-  console.log(`${receiverChain} receiver: ${receiver.address}`);
+  await deployReceiver(receiverChain);
 
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
@@ -23,7 +17,7 @@ async function main() {
     "0xFF4E183a0Ceb4Fa98E63BbF8077B929c8E5A2bA4" // fantom message bus address
   );
   const msgport = await getMsgport(senderChain, fantomMsgportAddress);
-  msgport.send(receiver.address, "0x12345678", estimateFee);
+  msgport.send(receiver.address, "0x12345678", estimateFee, "");
 }
 
 main().catch((error) => {

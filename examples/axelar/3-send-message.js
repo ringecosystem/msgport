@@ -1,5 +1,4 @@
-const hre = require("hardhat");
-const { getMsgport } = require("../helper");
+const { getMsgport, deployReceiver } = require("../helper");
 const {
   AxelarQueryAPI,
   EvmChain,
@@ -26,6 +25,7 @@ function buildEstimateFeeFunction(
   };
 }
 
+// moonbaseAlpha receiver: 0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";
@@ -33,13 +33,7 @@ async function main() {
   const fantomMsgportAddress = "0x0B4972B183C19B615658a928e6cB606D76B18dEd";
 
   // Deploy receiver
-  hre.changeNetwork(receiverChain);
-  const ExampleReceiverDapp = await hre.ethers.getContractFactory(
-    "ExampleReceiverDapp"
-  );
-  const receiver = await ExampleReceiverDapp.deploy();
-  await receiver.deployed();
-  console.log(`${receiverChain} receiver: ${receiver.address}`);
+  await deployReceiver(receiverChain);
 
   // Send message to receiver
   const estimateFee = buildEstimateFeeFunction(
@@ -48,7 +42,7 @@ async function main() {
     GasToken.FTM
   );
   const msgport = await getMsgport(senderChain, fantomMsgportAddress);
-  msgport.send(receiver.address, "0x12345678", estimateFee);
+  msgport.send(receiver.address, "0x12345678", estimateFee, "");
 }
 
 main().catch((error) => {

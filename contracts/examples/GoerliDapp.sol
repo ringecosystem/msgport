@@ -16,7 +16,8 @@ contract GoerliDapp {
         IMsgport(msgportAddress).send{value: msg.value}(
             pangolinDapp,
             message,
-            50_000 * 2457757432886
+            50_000 * 2457757432886,
+            hex""
         );
     }
 }

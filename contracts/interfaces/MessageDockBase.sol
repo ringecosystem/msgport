@@ -19,14 +19,15 @@ abstract contract MessageDockBase {
     function allowToRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory _messagePayload
     ) internal virtual returns (bool);
 
     // For sending
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory _messagePayload,
+        bytes memory _params
     ) internal virtual returns (uint256);
 
     function getRemoteDockAddress() public virtual returns (address);
@@ -38,7 +39,8 @@ abstract contract MessageDockBase {
     function send(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes calldata _messagePayload
+        bytes calldata _messagePayload,
+        bytes memory _params
     ) public payable returns (uint256) {
         // check this is called by local msgport
         require(
@@ -52,7 +54,8 @@ abstract contract MessageDockBase {
             callRemoteDockRecv(
                 _fromDappAddress,
                 _toDappAddress,
-                _messagePayload
+                _messagePayload,
+                _params
             );
     }
 

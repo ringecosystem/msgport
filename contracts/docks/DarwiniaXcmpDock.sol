@@ -1,63 +1,81 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity >=0.8.9;
 
-import "./interfaces/IMessageReceiver.sol";
-import "./interfaces/IMsgport.sol";
+import "../interfaces/MessageDockBase.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaMessageHub is IMessageReceiver {
-    bytes2 public immutable DARWINIA_PARAID;
-    bytes2 public immutable SEND_CALL_INDEX;
+contract DarwiniaXcmpDock is MessageDockBase, Ownable2Step {
+    address public remoteDockAddress;
+
+    bytes2 public immutable SRC_PARAID;
+    bytes2 public immutable TGT_PARAID;
+    bytes2 public immutable POLKADOT_XCM_SEND_CALL_INDEX;
     address public constant DISPATCH =
         0x0000000000000000000000000000000000000401;
 
-    address public immutable MSGPORT_ADDRESS;
-
     constructor(
-        bytes2 _darwiniaParaId,
-        bytes2 _sendCallIndex,
-        address _msgportAddress
-    ) {
-        DARWINIA_PARAID = _darwiniaParaId;
-        SEND_CALL_INDEX = _sendCallIndex;
-        MSGPORT_ADDRESS = _msgportAddress;
+        address _msgportAddress,
+        bytes2 _srcParaId,
+        bytes2 _tgtParaId,
+        bytes2 _polkadotXcmSendCallIndex
+    ) MessageDockBase(_msgportAddress) {
+        SRC_PARAID = _srcParaId;
+        TGT_PARAID = _tgtParaId;
+        POLKADOT_XCM_SEND_CALL_INDEX = _polkadotXcmSendCallIndex;
     }
 
-    //////////////////////////
-    // To Parachain
-    //////////////////////////
-    // message format:
-    //  - paraId: bytes2
-    //  - call: bytes
-    //  - refTime: uint64
-    //  - proofSize: uint64
-    //  - fungible: uint128
-    function recv(address _fromDappAddress, bytes calldata _message) external {
-        (
-            bytes2 paraId,
-            bytes memory call,
-            uint64 refTime,
-            uint64 proofSize,
-            uint128 fungible
-        ) = abi.decode(_message, (bytes2, bytes, uint64, uint64, uint128));
-        require(
-            msg.sender == MSGPORT_ADDRESS,
-            "DarwiniaMessageHub: only accept message from msgport"
+    function setRemoteDockAddress(
+        address _remoteDockAddress
+    ) external onlyOwner {
+        remoteDockAddress = _remoteDockAddress;
+    }
+
+    function allowToRecv(
+        address _fromDappAddress,
+        address _toDappAddress,
+        bytes memory _messagePayload
+    ) internal override returns (bool) {
+        return true;
+    }
+
+    function callRemoteDockRecv(
+        address _fromDappAddress,
+        address _toDappAddress,
+        bytes memory _messagePayload,
+        bytes memory _params
+    ) internal override returns (uint256) {
+        (uint64 refTime, uint64 proofSize, uint128 fungible) = abi.decode(
+            _params,
+            (uint64, uint64, uint128)
+        );
+
+        bytes memory call = abi.encodeWithSignature(
+            "recv(address,address,address,bytes)",
+            address(this),
+            _fromDappAddress,
+            _toDappAddress,
+            _messagePayload
         );
 
         transactOnParachain(
-            paraId,
             _fromDappAddress,
             call,
             refTime,
             proofSize,
             fungible
         );
+        return 0;
     }
 
+    function getRemoteDockAddress() public override returns (address) {
+        return remoteDockAddress;
+    }
+
+    /////////////////////////////////////////
+    // Lib
+    /////////////////////////////////////////
     function transactOnParachain(
-        bytes2 paraId,
         address fromDappAddress,
         bytes memory call,
         uint64 refTime,
@@ -65,7 +83,7 @@ contract DarwiniaMessageHub is IMessageReceiver {
         uint128 fungible
     ) internal {
         bytes memory message = buildXcmPayload(
-            DARWINIA_PARAID,
+            SRC_PARAID,
             fromDappAddress,
             call,
             refTime,
@@ -75,10 +93,10 @@ contract DarwiniaMessageHub is IMessageReceiver {
 
         bytes memory polkadotXcmSendCall = abi.encodePacked(
             // call index of `polkadotXcm.send`
-            SEND_CALL_INDEX,
+            POLKADOT_XCM_SEND_CALL_INDEX,
             // dest: V2(01, X1(Parachain(ParaId)))
             hex"00010100",
-            paraId,
+            TGT_PARAID,
             message
         );
 
@@ -133,31 +151,6 @@ contract DarwiniaMessageHub is IMessageReceiver {
                 ScaleCodec.encodeUintCompact(proofSize),
                 ScaleCodec.encodeUintCompact(call.length),
                 call
-            );
-    }
-
-    //////////////////////////
-    // To Ethereum
-    //////////////////////////
-    function send(
-        address _toDappAddress, // address on Ethereum
-        bytes calldata _messagePayload,
-        uint256 _fee
-    ) external payable returns (uint256 nonce) {
-        uint256 paid = msg.value;
-
-        require(paid >= _fee, "!fee");
-        if (paid > _fee) {
-            // refund fee to Dapp.
-            payable(msg.sender).transfer(paid - _fee);
-        }
-
-        return
-            IMsgport(MSGPORT_ADDRESS).send{value: _fee}(
-                _toDappAddress,
-                _messagePayload,
-                _fee,
-                hex""
             );
     }
 }

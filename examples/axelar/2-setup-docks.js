@@ -1,8 +1,8 @@
 const { deployDock, setRemoteDock } = require("../helper");
 const { EvmChain } = require("@axelar-network/axelarjs-sdk");
 
-// fantomTestnet AxelarDock: 0x14c3f58eA1054Fba834e801856F2985DEFe410f3
-// moonbaseAlpha AxelarDock: 0x000dFde2A09e3b8C303B3174B5b4C91B22eE8bb2
+// fantomTestnet AxelarDock: 0xE80266BDfF9CD848309a2A5580f7695fa496c40d
+// moonbaseAlpha AxelarDock: 0x8669BC1898283A5fBa18BBe1dD86D96d6B6E6aEe
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";

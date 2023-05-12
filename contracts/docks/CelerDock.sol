@@ -43,7 +43,8 @@ contract CelerDock is MessageDockBase, MessageSenderApp, MessageReceiverApp {
     function callRemoteDockRecv(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory _messagePayload
+        bytes memory _messagePayload,
+        bytes memory _params
     ) internal override returns (uint256) {
         bytes memory celerMessage = abi.encode(
             address(this),

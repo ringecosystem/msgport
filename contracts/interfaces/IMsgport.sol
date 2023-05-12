@@ -28,7 +28,8 @@ interface IMsgport {
     function send(
         address _toDappAddress,
         bytes memory _messagePayload,
-        uint256 _fee
+        uint256 _fee,
+        bytes memory _params
     ) external payable returns (uint256);
 
     function recv(
