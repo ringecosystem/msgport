@@ -10,10 +10,14 @@ async function main() {
     "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
   );
 
+  // Deploy receiver
+  const receiverAddress = await deployReceiver(receiverChain);
+
   await sendMessage(
     senderChain,
     senderMsgportAddress,
     receiverChain,
+    receiverAddress,
     "0x12345678",
     estimateFee
   );

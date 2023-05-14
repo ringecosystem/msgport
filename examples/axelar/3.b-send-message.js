@@ -15,10 +15,14 @@ async function main() {
     GasToken.GLMR
   );
 
+  // Deploy receiver
+  const receiverAddress = await deployReceiver(receiverChain);
+
   await sendMessage(
     senderChain,
     senderMsgportAddress,
     receiverChain,
+    receiverAddress,
     "0x12345678",
     estimateFee
   );

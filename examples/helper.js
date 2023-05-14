@@ -25,7 +25,8 @@ async function deployDock(
     remoteChainId,
     ...dockArgs,
     {
-      gasLimit: 2000000,
+      gasLimit: 3000000,
+      gasPrice: hre.ethers.utils.parseUnits("2", "gwei"),
     }
   );
   await dock.deployed();
@@ -171,13 +172,11 @@ async function sendMessage(
   senderChain,
   senderMsgportAddress,
   receiverChain,
+  receiverAddress,
   message,
   estimateFee,
   params = "0x"
 ) {
-  // Deploy receiver
-  const receiverAddress = await deployReceiver(receiverChain);
-
   // Send message to receiver
   const receiverChainId = await getChainId(receiverChain);
   const msgport = await getMsgport(senderChain, senderMsgportAddress);

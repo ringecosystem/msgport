@@ -10,10 +10,14 @@ async function main() {
     "0xAd204986D6cB67A5Bc76a3CB8974823F43Cb9AAA" // bnbChainTestnet message bus address
   );
 
+  // Deploy receiver
+  const receiverAddress = await deployReceiver(receiverChain);
+
   await sendMessage(
     senderChain,
     senderMsgportAddress,
     receiverChain,
+    receiverAddress,
     "0x12345678",
     estimateFee
   );

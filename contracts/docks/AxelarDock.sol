@@ -39,7 +39,7 @@ contract AxelarDock is MessageDock, AxelarExecutable, Ownable2Step {
         remoteDockAddress = _remoteDockAddress;
     }
 
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
@@ -47,7 +47,7 @@ contract AxelarDock is MessageDock, AxelarExecutable, Ownable2Step {
         return true;
     }
 
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,

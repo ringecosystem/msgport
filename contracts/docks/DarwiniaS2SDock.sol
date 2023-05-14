@@ -38,7 +38,7 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
         return remoteDockAddress;
     }
 
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload,
@@ -63,7 +63,7 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
             }(specVersion, remoteDockAddress, recvCall, gasLimit);
     }
 
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message

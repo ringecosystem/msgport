@@ -41,7 +41,7 @@ contract CelerDock is MessageDock, MessageSenderApp, MessageReceiverApp {
     }
 
     // override MessageDock
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -81,7 +81,7 @@ contract CelerDock is MessageDock, MessageSenderApp, MessageReceiverApp {
     }
 
     // override MessageDock
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload

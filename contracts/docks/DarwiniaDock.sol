@@ -41,7 +41,7 @@ contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
     }
 
     // For sending
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload,
@@ -61,7 +61,7 @@ contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
     }
 
     // For receiving
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory messagePayload
