@@ -1,23 +1,25 @@
-import { ethers } from "ethers";
+// import { ethers } from "ethers";
 import { getMsgport, DockType } from "./msgport";
 
-async function main(): Promise<void> {
-  const provider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.testnet.fantom.network"
-  );
+export { getMsgport, DockType };
 
-  const msgport = await getMsgport(
-    provider,
-    "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"
-  );
+// async function main(): Promise<void> {
+//   const provider = new ethers.providers.JsonRpcProvider(
+//     "https://rpc.testnet.fantom.network"
+//   );
 
-  const dock = await msgport.getDock(
-    84531, // Base testnet chain ID
-    DockType.LayerZero
-  );
+//   const msgport = await getMsgport(
+//     provider,
+//     "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"
+//   );
 
-  const fee = await dock.estimateFee("0x12345678");
-  console.log(`cross-chain fee: ${fee} wei.`);
-}
+//   const dock = await msgport.getDock(
+//     84531, // Base testnet chain ID
+//     DockType.LayerZero // or, add dock type to contract
+//   );
 
-main();
+//   const fee = await dock.estimateFee("0x12345678");
+//   console.log(`cross-chain fee: ${fee} wei.`);
+// }
+
+// main();
