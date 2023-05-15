@@ -132,7 +132,7 @@ module.exports = {
       accounts: [PRIVATE_KEY],
     },
     fantomTestnet: {
-      url: "https://rpc.ankr.com/fantom_testnet",
+      url: "https://rpc.testnet.fantom.network",
       network_id: "4002",
       accounts: [PRIVATE_KEY],
     },
@@ -144,6 +144,16 @@ module.exports = {
     moonbaseAlpha: {
       url: "https://rpc.testnet.moonbeam.network",
       network_id: "1287",
+      accounts: [PRIVATE_KEY],
+    },
+    zkSyncEraTestnet: {
+      url: "https://testnet.era.zksync.dev",
+      network_id: "280",
+      accounts: [PRIVATE_KEY],
+    },
+    baseGoerliTestnet: {
+      url: "https://goerli.base.org",
+      network_id: "84531",
       accounts: [PRIVATE_KEY],
     },
     fantom: {

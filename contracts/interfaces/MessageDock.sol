@@ -25,19 +25,21 @@ abstract contract MessageDock {
     // Abstract functions
     ////////////////////////////////////////
     // For receiving
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal virtual returns (bool);
 
     // For sending
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
     ) internal virtual returns (uint256);
+
+    function setRemoteDockAddress(address _remoteDockAddress) public virtual;
 
     function getRemoteDockAddress() public virtual returns (address);
 
@@ -60,7 +62,7 @@ abstract contract MessageDock {
         require(remoteDockAddress != address(0), "remote dock not set");
 
         return
-            callRemoteDockRecv(
+            callRemoteRecv(
                 _fromDappAddress,
                 _toDappAddress,
                 _messagePayload,
@@ -76,7 +78,7 @@ abstract contract MessageDock {
         bytes memory _messagePayload
     ) public {
         require(
-            allowToRecv(_fromDappAddress, _toDappAddress, _messagePayload),
+            approveToRecv(_fromDappAddress, _toDappAddress, _messagePayload),
             "!permitted"
         );
 

@@ -28,11 +28,11 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
 
     function setRemoteDockAddress(
         address _remoteDockAddress
-    ) external onlyOwner {
+    ) public override onlyOwner {
         remoteDockAddress = _remoteDockAddress;
     }
 
-    function allowToRecv(
+    function approveToRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
@@ -40,7 +40,7 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
         return true;
     }
 
-    function callRemoteDockRecv(
+    function callRemoteRecv(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,

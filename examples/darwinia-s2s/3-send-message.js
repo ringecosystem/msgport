@@ -10,6 +10,9 @@ async function main() {
     "0xE8C0d3dF83a07892F912a71927F4740B8e0e04ab" // pangolin endpoint address
   );
 
+  // Deploy receiver
+  const receiverAddress = await deployReceiver(receiverChain);
+
   const params = hre.ethers.utils.defaultAbiCoder.encode(
     ["uint32", "uint256"], // specVersion, gasLimit
     ["6021", "3000000"]
@@ -18,6 +21,7 @@ async function main() {
     senderChain,
     senderMsgportAddress,
     receiverChain,
+    receiverAddress,
     "0x12345678",
     estimateFee,
     params
