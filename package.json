@@ -25,15 +25,19 @@
   "devDependencies": {
     "@darwinia/contracts-periphery": "2.1.0-pre6",
     "@darwinia/contracts-utils": "^1.0.0",
+    "@layerzerolabs/solidity-examples": "latest",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "hardhat": "^2.14.0",
     "@openzeppelin/contracts": "^4.3.2",
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.1.4",
     "dotenv": "^10.0.0",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.14.0",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-change-network": "^0.0.7",
     "hardhat-gas-reporter": "^1.0.6",
-    "shx": "^0.3.3",
     "sgn-v2-contracts": "^0.2.0",
-    "@layerzerolabs/solidity-examples": "latest"
+    "shx": "^0.3.3",
+    "typescript": "^5.0.4"
   }
 }
