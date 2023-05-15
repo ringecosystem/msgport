@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 import { IEstimateFee } from "./interfaces/IEstimateFee";
-import { buildEstimateFeeFunction as buildEstimateFeeFunctionLayerZero } from "./layerzero/EstimateFee";
+import { getDock, DockType } from "./dock";
+
+export { DockType };
 
 export async function getMsgport(
   provider: ethers.providers.Provider,
@@ -25,34 +27,9 @@ export async function getMsgport(
       return await msgport.dockAddresses(chainId);
     },
 
-    getDock: async (chainId: number) => {
+    getDock: async (chainId: number, dockType: DockType) => {
       const dockAddress = await msgport.dockAddresses(chainId);
-      const dock = new ethers.Contract(
-        dockAddress,
-        ["function getRemoteDockAddress() public view returns (address)"],
-        provider
-      );
-      return {
-        address: dockAddress,
-
-        getRemoteDockAddress: async () => {
-          return await dock.getRemoteDockAddress();
-        },
-
-        // TODO: add dock type
-        estimateFee: async (messagePayload: string) => {
-          const remoteDockAddress = await dock.getRemoteDockAddress();
-
-          const estimateFee: IEstimateFee =
-            await buildEstimateFeeFunctionLayerZero(provider, dockAddress);
-
-          return await estimateFee(
-            dockAddress,
-            remoteDockAddress,
-            messagePayload
-          );
-        },
-      };
+      return await getDock(provider, dockAddress, dockType);
     },
 
     send: async (
