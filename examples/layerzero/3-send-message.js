@@ -9,7 +9,7 @@ async function main() {
     senderChain,
     "0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf", // sender endpoint address
     10160, // dstChainId
-    "0x567016a2c29bcc6f2c45bb476607972676dC4366" // userApplication, fantomTestnet LayerZeroDock
+    "0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e" // userApplication, fantomTestnet LayerZeroDock
   );
 
   // Deploy receiver

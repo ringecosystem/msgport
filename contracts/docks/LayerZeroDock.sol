@@ -27,8 +27,12 @@ contract LayerZeroDock is MessageDock, NonblockingLzApp {
 
     function setRemoteDockAddress(
         address _remoteDockAddress
-    ) external onlyOwner {
+    ) public override onlyOwner {
         remoteDockAddress = _remoteDockAddress;
+        trustedRemoteLookup[LZ_TGT_CHAIN_ID] = abi.encodePacked(
+            _remoteDockAddress,
+            address(this)
+        );
     }
 
     function approveToRecv(

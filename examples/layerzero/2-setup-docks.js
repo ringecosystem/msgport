@@ -1,8 +1,7 @@
 const { setupDocks } = require("../helper");
-const { EvmChain } = require("@axelar-network/axelarjs-sdk");
 
-// fantomTestnet LayerZeroDock: 0x567016a2c29bcc6f2c45bb476607972676dC4366
-// baseGoerliTestnet LayerZeroDock: 0xAc100BE5bC97871Be400E31D29A5582C4853E598
+// fantomTestnet LayerZeroDock: 0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e
+// baseGoerliTestnet LayerZeroDock: 0xeE61384eA18F0C4771FB6f85300D7a9F988a948d
 async function main() {
   const senderChain = "fantomTestnet";
   const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <---- This is the sender msgport address from 1-setup-msgports.js
@@ -30,7 +29,8 @@ async function main() {
     receiverChain,
     receiverMsgportAddress,
     receiverDockName,
-    receiverDockParams
+    receiverDockParams,
+    200000
   );
 }
 

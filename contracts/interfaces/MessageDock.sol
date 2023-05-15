@@ -39,6 +39,8 @@ abstract contract MessageDock {
         bytes memory _params
     ) internal virtual returns (uint256);
 
+    function setRemoteDockAddress(address _remoteDockAddress) public virtual;
+
     function getRemoteDockAddress() public virtual returns (address);
 
     ////////////////////////////////////////

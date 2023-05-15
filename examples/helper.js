@@ -49,13 +49,16 @@ async function setRemoteDock(
   network,
   dockName,
   dockAddress,
-  remoteDockAddress
+  remoteDockAddress,
+  gasLimit = 50000
 ) {
   hre.changeNetwork(network);
   let Dock = await hre.ethers.getContractFactory(dockName);
   let dock = await Dock.attach(dockAddress);
   await (
-    await dock.setRemoteDockAddress(remoteDockAddress, { gasLimit: 50000 })
+    await dock.setRemoteDockAddress(remoteDockAddress, {
+      gasLimit: gasLimit,
+    })
   ).wait();
   console.log(
     `${network} ${dockName} ${dockAddress} set remote dock ${remoteDockAddress}`
@@ -129,7 +132,8 @@ async function setupDocks(
   receiverChain,
   receiverMsgportAddress,
   receiverDockName,
-  receiverDockParams
+  receiverDockParams,
+  gasLimit = 50000
 ) {
   // Prepare sender and receiver info
   const senderChainId = await getChainId(senderChain);
@@ -158,13 +162,15 @@ async function setupDocks(
     senderChain,
     senderDockName,
     senderDockAddress,
-    receiverDockAddress
+    receiverDockAddress,
+    gasLimit
   );
   await setRemoteDock(
     receiverChain,
     receiverDockName,
     receiverDockAddress,
-    senderDockAddress
+    senderDockAddress,
+    gasLimit
   );
 }
 

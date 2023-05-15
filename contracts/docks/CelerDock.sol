@@ -28,7 +28,7 @@ contract CelerDock is MessageDock, MessageSenderApp, MessageReceiverApp {
 
     function setRemoteDockAddress(
         address _remoteDockAddress
-    ) external onlyOwner {
+    ) public override onlyOwner {
         remoteDockAddress = _remoteDockAddress;
     }
 

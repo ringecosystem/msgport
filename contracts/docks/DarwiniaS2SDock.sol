@@ -30,7 +30,7 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
 
     function setRemoteDockAddress(
         address _remoteDockAddress
-    ) external onlyOwner {
+    ) public override onlyOwner {
         remoteDockAddress = _remoteDockAddress;
     }
 
