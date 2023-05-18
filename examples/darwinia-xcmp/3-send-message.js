@@ -1,11 +1,11 @@
 const hre = require("hardhat");
-const { sendMessage } = require("../helper");
+const { sendMessage, deployReceiver } = require("../helper");
 
 async function main() {
   const senderChain = "pangoro";
   const receiverChain = "moonbaseAlpha";
-  const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <------- change this
-  const estimateFee = async (_, _, _) => 0;
+  const senderMsgportAddress = "0x1D612F014BC3a1e7980dD0aE12D0d3d240864e83"; // <------- change this
+  const estimateFee = async (_fromDappAddress, _toDappAddress, _messagePayload) => 0;
 
   // Deploy receiver
   const receiverAddress = await deployReceiver(receiverChain);

@@ -76,6 +76,8 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
     /////////////////////////////////////////
     // Lib
     /////////////////////////////////////////
+    // TODO @jiguantong Testing
+    event PolkadotXcmSendCallEvent(bytes);
     function transactOnParachain(
         address fromDappAddress,
         bytes memory call,
@@ -100,19 +102,21 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
             TGT_PARAID,
             message
         );
+        // TODO @jiguantong Testing
+        emit PolkadotXcmSendCallEvent(polkadotXcmSendCall);
 
-        (bool success, bytes memory data) = DISPATCH.call(polkadotXcmSendCall);
+        // (bool success, bytes memory data) = DISPATCH.call(polkadotXcmSendCall);
 
-        if (!success) {
-            if (data.length > 0) {
-                assembly {
-                    let resultDataSize := mload(data)
-                    revert(add(32, data), resultDataSize)
-                }
-            } else {
-                revert("!dispatch");
-            }
-        }
+        // if (!success) {
+        //     if (data.length > 0) {
+        //         assembly {
+        //             let resultDataSize := mload(data)
+        //             revert(add(32, data), resultDataSize)
+        //         }
+        //     } else {
+        //         revert("!dispatch");
+        //     }
+        // }
     }
 
     function buildXcmPayload(

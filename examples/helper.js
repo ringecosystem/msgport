@@ -23,11 +23,7 @@ async function deployDock(
   let dock = await Dock.deploy(
     localMsgportAddress,
     remoteChainId,
-    ...dockArgs,
-    {
-      gasLimit: 3000000,
-      gasPrice: hre.ethers.utils.parseUnits("2", "gwei"),
-    }
+    ...dockArgs
   );
   await dock.deployed();
   console.log(`${localNetwork} ${dockName}: ${dock.address}`);
