@@ -4,7 +4,7 @@ async function main() {
   const senderChain = "pangoro";
   const senderChainId = await getChainId(senderChain);
 
-  const receiverChain = "moonbase";
+  const receiverChain = "moonbaseAlpha";
   const receiverChainId = await getChainId(receiverChain);
 
   await deployMsgport(senderChain, senderChainId);

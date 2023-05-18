@@ -2,7 +2,7 @@ const { setupDocks } = require("../helper");
 
 async function main() {
   const senderChain = "pangoro";
-  const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderMsgportAddress = "0x1D612F014BC3a1e7980dD0aE12D0d3d240864e83"; // <---- This is the sender msgport address from 1-setup-msgports.js
   const senderDockName = "DarwiniaXcmpDock";
   const senderDockParams = [
     "0xe520", // srcParaId
@@ -10,8 +10,8 @@ async function main() {
     "0x2100", // srcPolkadotXcmSendCallIndex
   ];
 
-  const receiverChain = "moonbase";
-  const receiverMsgportAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverChain = "moonbaseAlpha";
+  const receiverMsgportAddress = "0x1D612F014BC3a1e7980dD0aE12D0d3d240864e83"; // <---- This is the receiver msgport address from 1-setup-msgports.js
   const receiverDockName = "DarwiniaXcmpDock";
   const receiverDockParams = [
     "0xa10f", // srcParaId

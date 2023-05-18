@@ -3,7 +3,7 @@ const { sendMessage } = require("../helper");
 
 async function main() {
   const senderChain = "pangoro";
-  const receiverChain = "moonbase";
+  const receiverChain = "moonbaseAlpha";
   const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <------- change this
   const estimateFee = async (_, _, _) => 0;
 
