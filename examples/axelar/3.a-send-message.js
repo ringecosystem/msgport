@@ -1,9 +1,7 @@
-const { sendMessage } = require("../helper");
-const {
-  AxelarQueryAPI,
-  EvmChain,
-  GasToken,
-} = require("@axelar-network/axelarjs-sdk");
+const { getChainId } = require("../helper");
+const { EvmChain, GasToken } = require("@axelar-network/axelarjs-sdk");
+const hre = require("hardhat");
+const { getMsgport, DockType } = require("../dist/index");
 
 // moonbaseAlpha receiver: 0xAFb5F12C5F379431253159fae464572999E78485
 async function main() {
@@ -19,34 +17,20 @@ async function main() {
   // Deploy receiver
   const receiverAddress = await deployReceiver(receiverChain);
 
-  await sendMessage(
-    senderChain,
-    senderMsgportAddress,
-    receiverChain,
+  // Send message to receiver
+  const msgport = await getMsgport(
+    hre.ethers.getDefaultProvider(),
+    senderMsgportAddress
+  );
+  const receiverChainId = await getChainId(receiverChain);
+  const fromDappAddress = (await hre.ethers.getSigner()).address;
+  await msgport.send(
+    receiverChainId,
+    fromDappAddress,
     receiverAddress,
     "0x12345678",
     estimateFee
   );
-}
-
-function buildEstimateFeeFunction(
-  axelarSrcChainName,
-  axelarDstChainName,
-  axelarSrcGasToken
-) {
-  const sdk = new AxelarQueryAPI({
-    environment: "testnet",
-  });
-  return async (_fromDappAddress, _toDappAddress, _messagePayload) => {
-    return await sdk.estimateGasFee(
-      axelarSrcChainName,
-      axelarDstChainName,
-      axelarSrcGasToken,
-      100000,
-      1.1,
-      "2025000000"
-    );
-  };
 }
 
 main().catch((error) => {
