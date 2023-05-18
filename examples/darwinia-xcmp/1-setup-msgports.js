@@ -1,10 +1,10 @@
 const { deployMsgport, getChainId } = require("../helper");
 
 async function main() {
-  const senderChain = "pangolin";
+  const senderChain = "pangoro";
   const senderChainId = await getChainId(senderChain);
 
-  const receiverChain = "rocstar";
+  const receiverChain = "moonbase";
   const receiverChainId = await getChainId(receiverChain);
 
   await deployMsgport(senderChain, senderChainId);
