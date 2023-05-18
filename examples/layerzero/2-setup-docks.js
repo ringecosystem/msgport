@@ -2,6 +2,13 @@ const { setupDocks } = require("../helper");
 
 // fantomTestnet LayerZeroDock: 0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e
 // baseGoerliTestnet LayerZeroDock: 0xeE61384eA18F0C4771FB6f85300D7a9F988a948d
+
+// fantomTestnet LayerZeroDock: 0xdDE5a388B660520d23F418d3f3F7e38EF0CA30C6
+// ··fantomTestnet LayerZeroDock 0xdDE5a388B660520d23F418d3f3F7e38EF0CA30C6 set on msgport 0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599
+// baseGoerliTestnet LayerZeroDock: 0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626
+// ··baseGoerliTestnet LayerZeroDock 0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626 set on msgport 0xE669D751d2C79EA11a947aDE15eFb2720D7a6F94
+// fantomTestnet LayerZeroDock 0xdDE5a388B660520d23F418d3f3F7e38EF0CA30C6 set remote dock 0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626
+// baseGoerliTestnet LayerZeroDock 0x5068eb6ED371Bc9b1c76EaBB6B978CE12259F626 set remote dock 0xdDE5a388B660520d23F418d3f3F7e38EF0CA30C6
 async function main() {
   const senderChain = "fantomTestnet";
   const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <---- This is the sender msgport address from 1-setup-msgports.js
