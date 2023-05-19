@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/BaseMessageDock.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -16,7 +16,7 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2sDock is MessageDock, Ownable2Step {
+contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
     address public remoteDockAddress;
     address public immutable darwiniaEndpointAddress;
 
@@ -24,7 +24,7 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
         address _localMsgportAddress,
         uint _remoteChainId,
         address _darwiniaEndpointAddress
-    ) MessageDock(_localMsgportAddress, _remoteChainId) {
+    ) BaseMessageDock(_localMsgportAddress, _remoteChainId) {
         darwiniaEndpointAddress = _darwiniaEndpointAddress;
     }
 

@@ -5,7 +5,7 @@ pragma solidity >=0.8.9;
 import "./IMsgport.sol";
 
 // dock knows hot to send message to remote dock.
-abstract contract MessageDock {
+abstract contract BaseMessageDock {
     IMsgport public immutable localMsgport;
     uint public immutable localChainId;
     uint public immutable remoteChainId;

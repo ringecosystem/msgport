@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/BaseMessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
+contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     address public remoteDockAddress;
 
     bytes2 public immutable SRC_PARAID;
@@ -20,7 +20,7 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
         bytes2 _srcParaId,
         bytes2 _tgtParaId,
         bytes2 _polkadotXcmSendCallIndex
-    ) MessageDock(_localMsgportAddress, _remoteChainId) {
+    ) BaseMessageDock(_localMsgportAddress, _remoteChainId) {
         SRC_PARAID = _srcParaId;
         TGT_PARAID = _tgtParaId;
         POLKADOT_XCM_SEND_CALL_INDEX = _polkadotXcmSendCallIndex;
@@ -76,6 +76,12 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
     /////////////////////////////////////////
     // Lib
     /////////////////////////////////////////
+    event PolkadotXcmSendCallEvent(
+        bytes call,
+        bytes message,
+        bytes polkadotXcmSend
+    );
+
     function transactOnParachain(
         address fromDappAddress,
         bytes memory call,
@@ -100,6 +106,8 @@ contract DarwiniaXcmpDock is MessageDock, Ownable2Step {
             TGT_PARAID,
             message
         );
+
+        emit PolkadotXcmSendCallEvent(call, message, polkadotXcmSendCall);
 
         (bool success, bytes memory data) = DISPATCH.call(polkadotXcmSendCall);
 

@@ -1,7 +1,7 @@
 const { deployMsgport, getChainId } = require("../helper");
 
-// fantomTestnet msgport: 0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599
-// moonbaseAlpha msgport: 0x0E23B6e7009Ef520298ccFD8FC3F67E43223B77c
+// fantomTestnet msgport: 0x067442c619147f73c2cCdeC5A80A3B0DBD5dff34
+// moonbaseAlpha msgport: 0x6F9f7DCAc28F3382a17c11b53Bb11F20479754b1
 async function main() {
   const senderChain = "fantomTestnet";
   const senderChainId = await getChainId(senderChain);

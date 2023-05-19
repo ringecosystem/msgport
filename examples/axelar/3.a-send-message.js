@@ -1,35 +1,33 @@
-const { getChainId } = require("../helper");
-const { EvmChain, GasToken } = require("@axelar-network/axelarjs-sdk");
+const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
-const { getMsgport, DockType } = require("../dist/index");
+const { getMsgport, DockType } = require("../../dist/index");
 
-// moonbaseAlpha receiver: 0xAFb5F12C5F379431253159fae464572999E78485
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";
-  const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <------- change this
-  const estimateFee = buildEstimateFeeFunction(
-    EvmChain.FANTOM,
-    EvmChain.MOONBEAM,
-    GasToken.FTM
-  );
 
   // Deploy receiver
-  const receiverAddress = await deployReceiver(receiverChain);
+  hre.changeNetwork(receiverChain);
+  const receiverAddress = "0x347d0Cd647A2b4B70000072295A6e35C54B6CCf0"; //await deployReceiver(receiverChain);
+  const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
+  console.log(
+    `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
+  );
 
   // Send message to receiver
+  hre.changeNetwork(senderChain);
+  //  1. get msgport
   const msgport = await getMsgport(
-    hre.ethers.getDefaultProvider(),
-    senderMsgportAddress
+    await hre.ethers.getSigner(),
+    "0x067442c619147f73c2cCdeC5A80A3B0DBD5dff34" // <------- change this
   );
-  const receiverChainId = await getChainId(receiverChain);
-  const fromDappAddress = (await hre.ethers.getSigner()).address;
+
+  //  2. send message
   await msgport.send(
     receiverChainId,
-    fromDappAddress,
     receiverAddress,
     "0x12345678",
-    estimateFee
+    DockType.AxelarTestnet // this is used to look up the chain specific estimateFee function
   );
 }
 

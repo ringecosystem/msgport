@@ -2,10 +2,24 @@ const hre = require("hardhat");
 
 async function deployMsgport(network, localChainId) {
   hre.changeNetwork(network);
+
+  //
+  const DefaultDockSelectionStrategy = await hre.ethers.getContractFactory(
+    "DefaultDockSelectionStrategy"
+  );
+  const defaultDockSelectionStrategy =
+    await DefaultDockSelectionStrategy.deploy();
+  await defaultDockSelectionStrategy.deployed();
+
+  //
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.deploy(localChainId, {
-    gasLimit: 1000000,
-  });
+  const msgport = await DefaultMsgport.deploy(
+    localChainId,
+    defaultDockSelectionStrategy.address,
+    {
+      gasLimit: 2000000,
+    }
+  );
   await msgport.deployed();
   console.log(`${network} msgport: ${msgport.address}`);
 }
@@ -36,10 +50,10 @@ async function deployDock(
   let DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   const msgport = await DefaultMsgport.attach(localMsgportAddress);
   await (
-    await msgport.setDock(remoteChainId, dock.address, { gasLimit: 50000 })
+    await msgport.addDock(remoteChainId, dock.address, { gasLimit: 100000 })
   ).wait();
   console.log(
-    `··${localNetwork} ${dockName} ${dock.address} set on msgport ${localMsgportAddress}`
+    `  ${localNetwork} ${dockName} ${dock.address} set on msgport ${localMsgportAddress}`
   );
 
   return dock.address;
@@ -50,7 +64,7 @@ async function setRemoteDock(
   dockName,
   dockAddress,
   remoteDockAddress,
-  gasLimit = 50000
+  gasLimit = 100000
 ) {
   hre.changeNetwork(network);
   let Dock = await hre.ethers.getContractFactory(dockName);
@@ -61,7 +75,7 @@ async function setRemoteDock(
     })
   ).wait();
   console.log(
-    `${network} ${dockName} ${dockAddress} set remote dock ${remoteDockAddress}`
+    `  ${network} ${dockName} ${dockAddress} set remote dock ${remoteDockAddress}`
   );
 }
 
@@ -133,7 +147,7 @@ async function setupDocks(
   receiverMsgportAddress,
   receiverDockName,
   receiverDockParams,
-  gasLimit = 50000
+  gasLimit = 100000
 ) {
   // Prepare sender and receiver info
   const senderChainId = await getChainId(senderChain);
@@ -156,6 +170,8 @@ async function setupDocks(
     receiverDockName,
     receiverDockParams
   );
+
+  console.log(`Connect Docks`);
 
   // Configure remote Dock
   await setRemoteDock(

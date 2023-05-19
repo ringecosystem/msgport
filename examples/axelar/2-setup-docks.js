@@ -1,11 +1,11 @@
 const { setupDocks } = require("../helper");
 const { EvmChain } = require("@axelar-network/axelarjs-sdk");
 
-// fantomTestnet AxelarDock: 0xD461E0fFC07672416d9Ec21d1929b20D931885A6
-// moonbaseAlpha AxelarDock: 0x6c3af2A2DB9c8CE7F698FC866eaC6E5ed7C24D9f
+// fantomTestnet AxelarDock: 0x8CaC9B7D58068D549074a4EdaE2e9dBfbc9e0Bc3
+// moonbaseAlpha AxelarDock: 0xdB2CDe10BE8517566B36A7561B2Cd0607A610836
 async function main() {
   const senderChain = "fantomTestnet";
-  const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderMsgportAddress = "0x067442c619147f73c2cCdeC5A80A3B0DBD5dff34"; // <---- This is the sender msgport address from 1-setup-msgports.js
   const senderDockName = "AxelarDock";
   const senderDockParams = [
     "0x97837985Ec0494E7b9C71f5D3f9250188477ae14", // senderGateway
@@ -15,7 +15,7 @@ async function main() {
   ];
 
   const receiverChain = "moonbaseAlpha";
-  const receiverMsgportAddress = "0x0E23B6e7009Ef520298ccFD8FC3F67E43223B77c"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverMsgportAddress = "0x6F9f7DCAc28F3382a17c11b53Bb11F20479754b1"; // <---- This is the receiver msgport address from 1-setup-msgports.js
   const receiverDockName = "AxelarDock";
   const receiverDockParams = [
     "0x5769D84DD62a6fD969856c75c7D321b84d455929", // receiverGateway

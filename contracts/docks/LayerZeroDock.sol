@@ -2,10 +2,10 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/BaseMessageDock.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
-contract LayerZeroDock is MessageDock, NonblockingLzApp {
+contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
     address public lzEndpointAddress;
     uint16 public immutable lzSrcChainId;
     uint16 public immutable lzTgtChainId;
@@ -19,7 +19,7 @@ contract LayerZeroDock is MessageDock, NonblockingLzApp {
         uint16 _lzSrcChainId,
         uint16 _lzTgtChainId
     )
-        MessageDock(_localMsgportAddress, _remoteChainId)
+        BaseMessageDock(_localMsgportAddress, _remoteChainId)
         NonblockingLzApp(_lzEndpoint)
     {
         lzEndpointAddress = _lzEndpoint;

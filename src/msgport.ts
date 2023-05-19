@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { getDock, DockType } from "./dock";
 
 export { DockType };
@@ -12,7 +11,7 @@ export async function getMsgport(
     msgportAddress,
     [
       "function send(uint _toChainId, address _toDappAddress, bytes memory _messagePayload, uint256 _fee, bytes memory _params) external payable returns (uint256)",
-      "function dockAddresses(uint256) public view returns (address)",
+      "function getDockAddress(uint256 _toChainId) public view returns (address)",
       "function localChainId() public view returns (uint256)",
     ],
     provider
@@ -24,44 +23,43 @@ export async function getMsgport(
     },
 
     getDockAddress: async (chainId: number) => {
-      return await msgport.dockAddresses(chainId);
+      return await msgport.getDockAddress(chainId);
     },
 
     getDock: async (chainId: number, dockType: DockType) => {
-      const dockAddress = await msgport.dockAddresses(chainId);
+      const dockAddress = await msgport.getDockAddress(chainId);
+      console.log(`dock address: ${dockAddress}`);
       return await getDock(provider, dockAddress, dockType);
     },
 
     send: async (
       toChainId: number,
-      fromDappAddress: string,
       toDappAddress: string,
       messagePayload: string,
-      estimateFee: IEstimateFee,
+      dockType: DockType,
       params = "0x"
     ) => {
-      // Estimate fee
-      const fee = await estimateFee(
-        fromDappAddress,
-        toDappAddress,
-        messagePayload
-      );
-      console.log(`cross-chain fee: ${fee} wei.`);
+      // Estimate fee through dock
+      const dockAddress = await msgport.getDockAddress(toChainId);
+      const dock = await getDock(provider, dockAddress, dockType);
+      const fee = await dock.estimateFee("messagePayload");
+      const feeBN = ethers.BigNumber.from(`${fee}`);
+      console.log(`cross-chain fee: ${fee / 1e18} units.`);
 
       // Send message
       const tx = await msgport.send(
         toChainId,
         toDappAddress,
         messagePayload,
-        fee,
+        feeBN,
         params,
         {
-          value: ethers.BigNumber.from(fee),
+          value: feeBN,
         }
       );
 
       console.log(
-        `message "${messagePayload}" sent to ${toDappAddress} through ${await provider.getNetwork()}'s msgport ${msgportAddress}`
+        `message "${messagePayload}" sent to ${toDappAddress} through msgport ${msgportAddress}`
       );
 
       console.log(`tx hash: ${(await tx.wait()).transactionHash}`);

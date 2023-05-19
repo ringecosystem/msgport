@@ -2,14 +2,14 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/BaseMessageDock.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
+contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
     address public remoteDockAddress;
     address public immutable outboundLane;
     address public immutable inboundLane;
@@ -21,7 +21,7 @@ contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
         address _outboundLane,
         address _inboundLane,
         address _feeMarket
-    ) MessageDock(_localMsgportAddress, _remoteChainId) {
+    ) BaseMessageDock(_localMsgportAddress, _remoteChainId) {
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
         feeMarket = _feeMarket;
@@ -34,7 +34,7 @@ contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
     }
 
     //////////////////////////////////////////
-    // override MessageDock
+    // override BaseMessageDock
     //////////////////////////////////////////
     function getRemoteDockAddress() public view override returns (address) {
         return remoteDockAddress;
