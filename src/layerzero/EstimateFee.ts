@@ -25,7 +25,9 @@ async function buildEstimateFeeFunction(
 
   // estimateFee function
   const estimateFee: IEstimateFee = async (
+    fromChainId,
     fromDappAddress,
+    toChainId,
     toDappAddress,
     messagePayload
   ) => {

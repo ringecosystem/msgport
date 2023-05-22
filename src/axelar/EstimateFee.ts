@@ -6,6 +6,7 @@ import {
   EvmChain,
   GasToken,
 } from "@axelar-network/axelarjs-sdk";
+import AxelarDockContract from "../../artifacts/contracts/docks/AxelarDock.sol/AxelarDock.json";
 
 const axelarNativeTokens: { [chainName: string]: string } = {};
 axelarNativeTokens[EvmChain.ETHEREUM] = GasToken.ETH;
@@ -17,6 +18,7 @@ async function buildEstimateFeeFunction(
   senderDockAddress: string,
   environment: Environment
 ) {
+  console.log(`buildEstimateFeeFunction: ${senderDockAddress}`);
   const sdk = new AxelarQueryAPI({
     environment: environment,
   });
@@ -24,21 +26,25 @@ async function buildEstimateFeeFunction(
   // dock
   const dock = new ethers.Contract(
     senderDockAddress,
-    [
-      "function sourceChain() public view returns (string)",
-      "function destinationChain() public view returns (string)",
-    ],
+    AxelarDockContract.abi,
     provider
   );
-  const axelarSrcChainName = await dock.sourceChain();
-  const axelarDstChainName = await dock.destinationChain();
-  const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName];
 
   const estimateFee: IEstimateFee = async (
+    _fromChainId,
     _fromDappAddress,
+    _toChainId,
     _toDappAddress,
     _messagePayload
   ) => {
+    console.log(`estimateFee: ${_fromChainId}, ${_toChainId}`);
+    const axelarSrcChainName = await dock.chainIdDown(_fromChainId);
+    console.log(`axelarSrcChainName: ${axelarSrcChainName}`);
+    const axelarDstChainName = await dock.chainIdDown(_toChainId);
+    console.log(`axelarDstChainName: ${axelarDstChainName}`);
+
+    const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName];
+
     return parseInt(
       (await sdk.estimateGasFee(
         axelarSrcChainName,

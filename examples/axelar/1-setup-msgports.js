@@ -1,19 +1,25 @@
+const hre = require("hardhat");
 const { deployMsgport, getChainId } = require("../helper");
+const { ChainId } = require("../../dist/src/index");
 
-// fantomTestnet msgport: 0x067442c619147f73c2cCdeC5A80A3B0DBD5dff34
-// moonbaseAlpha msgport: 0x6F9f7DCAc28F3382a17c11b53Bb11F20479754b1
+// On fantomTestnet, msgport deployed to: 0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a
+// On moonbaseAlpha, msgport deployed to: 0xa2E9301Cc669e7162FCd02cBEC9FDdb010B1dF8E
 async function main() {
+  ///////////////////////////////////////
   const senderChain = "fantomTestnet";
-  const senderChainId = await getChainId(senderChain);
+  hre.changeNetwork(senderChain);
 
+  // deploy fantom msgport
+  let addr = await deployMsgport(ChainId.FANTOM_TESTNET);
+  console.log(`On ${senderChain}, msgport deployed to: ${addr}`);
+
+  ///////////////////////////////////////
   const receiverChain = "moonbaseAlpha";
-  const receiverChainId = await getChainId(receiverChain);
+  hre.changeNetwork(receiverChain);
 
-  await deployMsgport(senderChain, senderChainId);
-  await deployMsgport(receiverChain, receiverChainId);
+  // deploy moonbaseAlpha msgport
+  addr = await deployMsgport(ChainId.MOONBASE_ALPHA);
+  console.log(`On ${receiverChain}, msgport deployed to: ${addr}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main();

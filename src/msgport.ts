@@ -26,7 +26,7 @@ export async function getMsgport(
       toChainId: number,
       selectDock: IDockSelectionStrategy
     ) => {
-      const localDockAddresses = await msgport.localDockAddressesByToChainId(
+      const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
         toChainId
       );
       return await selectDock(localDockAddresses);
@@ -38,8 +38,9 @@ export async function getMsgport(
         selectDock
       );
 
-      console.log(`Local dock address: ${localDockAddress}`);
+      console.log(`localDockAddress: ${localDockAddress}`);
       const dockType = dockTypeRegistry[localDockAddress];
+      console.log(`dockType: ${dockType}`);
       return await getDock(provider, localDockAddress, dockType);
     },
 
@@ -57,7 +58,7 @@ export async function getMsgport(
       // Estimate fee through dock
       const dockAddresses = await msgport.dockAddresses(toChainId);
       const dock = await getDock(provider, dockAddresses[0], dockType);
-      const fee = await dock.estimateFee(messagePayload);
+      const fee = await dock.estimateFee(toChainId, messagePayload);
       const feeBN = ethers.BigNumber.from(`${fee}`);
       console.log(`cross-chain fee: ${fee / 1e18} units.`);
 

@@ -1,7 +1,12 @@
 export type IDock = {
-  remoteChainId: number;
-
   address: string;
 
-  estimateFee: (messagePayload: string) => Promise<number>;
+  getLocalChainId: () => Promise<number>;
+
+  getRemoteDockAddress: (remoteChainId: number) => Promise<string>;
+
+  estimateFee: (
+    remoteChainId: number,
+    messagePayload: string
+  ) => Promise<number>;
 };
