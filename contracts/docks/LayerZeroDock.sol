@@ -25,11 +25,11 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(uint16 _chainId) public returns (uint256) {
+    function chainIdUp(uint16 _chainId) public view returns (uint256) {
         return chainIdMapping.up(Utils.uint16ToBytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public returns (uint16) {
+    function chainIdDown(uint256 _chainId) public view returns (uint16) {
         return Utils.bytesToUint16(chainIdMapping.down(_chainId));
     }
 

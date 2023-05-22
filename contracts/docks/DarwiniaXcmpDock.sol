@@ -26,11 +26,11 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(bytes2 _chainId) public returns (uint256) {
+    function chainIdUp(bytes2 _chainId) public view returns (uint256) {
         return chainIdMapping.up(abi.encodePacked(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public returns (bytes2) {
+    function chainIdDown(uint256 _chainId) public view returns (bytes2) {
         return bytes2(chainIdMapping.down(_chainId));
     }
 

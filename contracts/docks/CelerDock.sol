@@ -25,11 +25,11 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(uint64 _chainId) public returns (uint256) {
+    function chainIdUp(uint64 _chainId) public view returns (uint256) {
         return chainIdMapping.up(Utils.uint64ToBytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public returns (uint64) {
+    function chainIdDown(uint256 _chainId) public view returns (uint64) {
         return Utils.bytesToUint64(chainIdMapping.down(_chainId));
     }
 

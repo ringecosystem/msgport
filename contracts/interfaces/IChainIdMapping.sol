@@ -20,9 +20,9 @@ pragma solidity >=0.8.9;
 interface IChainIdMapping {
     function down(
         uint256 msgportChainId
-    ) external returns (bytes memory lowLevelChainId);
+    ) external view returns (bytes memory lowLevelChainId);
 
     function up(
         bytes memory lowLevelChainId
-    ) external returns (uint256 msgportChainId);
+    ) external view returns (uint256 msgportChainId);
 }

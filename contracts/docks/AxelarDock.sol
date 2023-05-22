@@ -31,11 +31,11 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(string memory _chainId) public returns (uint256) {
+    function chainIdUp(string memory _chainId) public view returns (uint256) {
         return chainIdMapping.up(bytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public returns (string memory) {
+    function chainIdDown(uint256 _chainId) public view returns (string memory) {
         return string(chainIdMapping.down(_chainId));
     }
 
