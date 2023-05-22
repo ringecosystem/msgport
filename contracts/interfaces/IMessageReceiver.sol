@@ -18,5 +18,9 @@
 pragma solidity >=0.8.9;
 
 interface IMessageReceiver {
-    function recv(address _fromDappAddress, bytes calldata _message) external;
+    function recv(
+        uint256 _fromChainId,
+        address _fromDappAddress,
+        bytes calldata _message
+    ) external;
 }

@@ -19,24 +19,25 @@ pragma solidity >=0.8.9;
 
 interface IMsgport {
     event DappError(
+        uint256 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes _message,
         string _reason
     );
 
-    function getLocalChainId() external view returns (uint);
+    function getLocalChainId() external view returns (uint256);
 
     function send(
-        uint _toChainId,
+        address _throughLocalDockAddress,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
-        uint256 _fee,
         bytes memory _params
     ) external payable returns (uint256);
 
     function recv(
-        uint _fromChainId,
+        uint256 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message

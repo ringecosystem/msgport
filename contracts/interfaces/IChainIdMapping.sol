@@ -17,9 +17,12 @@
 
 pragma solidity >=0.8.9;
 
-interface IDockSelectionStrategy {
-    function best(
-        address dappAddress,
-        address[] memory dockAddresses
-    ) external view returns (address);
+interface IChainIdMapping {
+    function down(
+        uint256 msgportChainId
+    ) external returns (bytes memory lowLevelChainId);
+
+    function up(
+        bytes memory lowLevelChainId
+    ) external returns (uint256 msgportChainId);
 }

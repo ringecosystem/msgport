@@ -7,80 +7,90 @@ import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contract
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "../utils/Utils.sol";
 
-contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable2Step {
-    string public sourceChain;
-    string public destinationChain;
+contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
     IAxelarGasService public immutable gasService;
 
-    address public remoteDockAddress;
     uint64 public nextNonce;
 
     constructor(
         address _localMsgportAddress,
-        uint _remoteChainId,
+        address _chainIdConverter,
         address _gateway,
-        address _gasReceiver,
-        string memory _sourceChain,
-        string memory _destinationChain
+        address _gasReceiver
     )
-        BaseMessageDock(_localMsgportAddress, _remoteChainId)
+        BaseMessageDock(_localMsgportAddress, _chainIdConverter)
         AxelarExecutable(_gateway)
     {
         gasService = IAxelarGasService(_gasReceiver);
-        sourceChain = _sourceChain;
-        destinationChain = _destinationChain;
     }
 
-    function setRemoteDockAddress(
+    function setChainIdConverter(address _chainIdConverter) external onlyOwner {
+        setChainIdConverterInternal(_chainIdConverter);
+    }
+
+    function chainIdUp(string memory _chainId) public returns (uint256) {
+        return chainIdMapping.up(bytes(_chainId));
+    }
+
+    function chainIdDown(uint256 _chainId) public returns (string memory) {
+        return string(chainIdMapping.down(_chainId));
+    }
+
+    function addRemoteDock(
+        uint256 _remoteChainId,
         address _remoteDockAddress
-    ) public override onlyOwner {
-        remoteDockAddress = _remoteDockAddress;
+    ) external onlyOwner {
+        addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
     }
 
     function approveToRecv(
+        uint256 _fromChainId,
+        address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
-    ) internal virtual override returns (bool) {
-        return true;
+        bytes memory _messagePayload
+    ) internal override returns (bool) {
+        // because dock is called by low-level gateway, we need to check the sender is correct.
+        if (msg.sender != address(gateway)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     function callRemoteRecv(
         address _fromDappAddress,
+        uint256 _toChainId,
+        address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
     ) internal override returns (uint256) {
         bytes memory axelarMessage = abi.encode(
-            address(this),
             _fromDappAddress,
             _toDappAddress,
             _messagePayload
         );
 
+        string memory toChainId = chainIdDown(_toChainId);
+        string memory toDockAddress = Utils.addressToHexString(_toDockAddress);
+
         if (msg.value > 0) {
             gasService.payNativeGasForContractCall{value: msg.value}(
                 address(this),
-                destinationChain,
-                Strings.toHexString(uint256(uint160(remoteDockAddress)), 20),
+                toChainId,
+                toDockAddress,
                 axelarMessage,
                 msg.sender
             );
         }
 
-        gateway.callContract(
-            destinationChain,
-            Strings.toHexString(uint256(uint160(remoteDockAddress)), 20),
-            axelarMessage
-        );
+        gateway.callContract(toChainId, toDockAddress, axelarMessage);
 
         return nextNonce++;
-    }
-
-    function getRemoteDockAddress() public virtual override returns (address) {
-        return remoteDockAddress;
     }
 
     function _execute(
@@ -89,11 +99,16 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable2Step {
         bytes calldata payload_
     ) internal override {
         (
-            address srcDockAddress,
             address fromDappAddress,
             address toDappAddress,
             bytes memory messagePayload
-        ) = abi.decode(payload_, (address, address, address, bytes));
-        recv(srcDockAddress, fromDappAddress, toDappAddress, messagePayload);
+        ) = abi.decode(payload_, (address, address, bytes));
+        recv(
+            chainIdUp(sourceChain_),
+            Utils.hexStringToAddress(sourceAddress_),
+            fromDappAddress,
+            toDappAddress,
+            messagePayload
+        );
     }
 }

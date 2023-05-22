@@ -4,44 +4,50 @@ pragma solidity >=0.8.9;
 import "../interfaces/BaseMessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "../utils/Utils.sol";
 
+// TODO: extract abstract base contract
 contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     address public remoteDockAddress;
 
-    bytes2 public immutable SRC_PARAID;
-    bytes2 public immutable TGT_PARAID;
     bytes2 public immutable POLKADOT_XCM_SEND_CALL_INDEX;
     address public constant DISPATCH =
         0x0000000000000000000000000000000000000401;
 
     constructor(
         address _localMsgportAddress,
-        uint _remoteChainId,
-        bytes2 _srcParaId,
-        bytes2 _tgtParaId,
+        address _chainIdConverter,
         bytes2 _polkadotXcmSendCallIndex
-    ) BaseMessageDock(_localMsgportAddress, _remoteChainId) {
-        SRC_PARAID = _srcParaId;
-        TGT_PARAID = _tgtParaId;
+    ) BaseMessageDock(_localMsgportAddress, _chainIdConverter) {
         POLKADOT_XCM_SEND_CALL_INDEX = _polkadotXcmSendCallIndex;
     }
 
-    function setRemoteDockAddress(
-        address _remoteDockAddress
-    ) public override onlyOwner {
-        remoteDockAddress = _remoteDockAddress;
+    function setChainIdConverter(address _chainIdConverter) external onlyOwner {
+        setChainIdConverterInternal(_chainIdConverter);
+    }
+
+    function chainIdUp(bytes2 _chainId) public returns (uint256) {
+        return chainIdMapping.up(abi.encodePacked(_chainId));
+    }
+
+    function chainIdDown(uint256 _chainId) public returns (bytes2) {
+        return bytes2(chainIdMapping.down(_chainId));
     }
 
     function approveToRecv(
+        uint256 _fromChainId,
+        address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
-    ) internal override returns (bool) {
+    ) internal pure override returns (bool) {
         return true;
     }
 
     function callRemoteRecv(
         address _fromDappAddress,
+        uint256 _toChainId,
+        address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -52,7 +58,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         );
 
         bytes memory call = abi.encodeWithSignature(
-            "recv(address,address,address,bytes)",
+            "recv(uint256,address,address,address,bytes)",
             address(this),
             _fromDappAddress,
             _toDappAddress,
@@ -61,16 +67,13 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
         transactOnParachain(
             _fromDappAddress,
+            _toChainId,
             call,
             refTime,
             proofSize,
             fungible
         );
         return 0;
-    }
-
-    function getRemoteDockAddress() public override returns (address) {
-        return remoteDockAddress;
     }
 
     /////////////////////////////////////////
@@ -84,13 +87,14 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
     function transactOnParachain(
         address fromDappAddress,
+        uint256 toChainId,
         bytes memory call,
         uint64 refTime,
         uint64 proofSize,
         uint128 fungible
     ) internal {
         bytes memory message = buildXcmPayload(
-            SRC_PARAID,
+            chainIdDown(getLocalChainId()),
             fromDappAddress,
             call,
             refTime,
@@ -103,7 +107,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
             POLKADOT_XCM_SEND_CALL_INDEX,
             // dest: V2(01, X1(Parachain(ParaId)))
             hex"00010100",
-            TGT_PARAID,
+            chainIdDown(toChainId),
             message
         );
 
@@ -112,14 +116,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         (bool success, bytes memory data) = DISPATCH.call(polkadotXcmSendCall);
 
         if (!success) {
-            if (data.length > 0) {
-                assembly {
-                    let resultDataSize := mload(data)
-                    revert(add(32, data), resultDataSize)
-                }
-            } else {
-                revert("!dispatch");
-            }
+            Utils.revertWithMessage(data, "Dispatch failed");
         }
     }
 
