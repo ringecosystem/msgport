@@ -21,6 +21,12 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         return localChainId;
     }
 
+    function getLocalDockAddressesByToChainId(
+        uint256 _toChainId
+    ) external view returns (address[] memory) {
+        return localDockAddressesByToChainId[_toChainId];
+    }
+
     function addLocalDock(
         uint256 _remoteChainId,
         address _localDockAddress
