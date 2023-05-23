@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+// import { ethers } from "ethers";
 import { ChainId } from "./chain-ids";
 import { getMsgport, DockType } from "./msgport";
 import { axelar } from "./axelar/index";
@@ -6,10 +6,11 @@ import { layerzero } from "./layerzero/index";
 import { createDefaultDockSelectionStrategy } from "./DefaultDockSelectionStrategy";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
 
-export { getMsgport, DockType };
+export { getMsgport, ChainId, DockType };
+export { IDockSelectionStrategy, createDefaultDockSelectionStrategy };
 export { axelar, layerzero };
-export { ChainId };
 
+/*
 async function main(): Promise<void> {
   const provider = new ethers.providers.JsonRpcProvider(
     "https://rpc.testnet.fantom.network"
@@ -30,6 +31,18 @@ async function main(): Promise<void> {
 
   const fee = await dock.estimateFee(ChainId.MOONBASE_ALPHA, "0x12345678");
   console.log(`cross-chain fee: ${fee} wei.`);
+
+  // toChainId: number,
+  //     selectDock: IDockSelectionStrategy,
+  //     toDappAddress: string,
+  //     messagePayload: string,
+  //     params: string = "0x",
+  //     feeMultiplier: number = 1.1
+
+  // const tx = await msgport.send(
+  //   dockSelection,
+  //   1287, // target chain id
 }
 
 main();
+*/

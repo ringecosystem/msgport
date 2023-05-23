@@ -20,9 +20,10 @@ export type IMsgport = {
 
   send: (
     toChainId: number,
+    selectDock: IDockSelectionStrategy,
     toDappAddress: string,
     messagePayload: string,
-    dockType: DockType,
+    feeMultiplier: number,
     params: string
   ) => Promise<ethers.providers.TransactionResponse>;
 };
