@@ -12,7 +12,7 @@ library Utils {
     function bytesToUint64(
         bytes memory input
     ) internal pure returns (uint64 output) {
-        require(input.length > 8, "input must be at least 8 bytes");
+        require(input.length >= 8, "input must be at least 8 bytes");
         bytes memory inputWithLeftPadding = input;
         for (uint i = 0; i < 8 - input.length; i++) {
             inputWithLeftPadding = GNSPSBytesLib.concat(
@@ -24,18 +24,17 @@ library Utils {
     }
 
     // input: 1684104034
-    // return:  0x64616362
+    // return: 0x0000000064616362
     function uint64ToBytes(
         uint64 input
     ) internal pure returns (bytes memory output) {
         output = abi.encodePacked(input);
-        output = removeLeadingZero(output);
     }
 
     function bytesToUint16(
         bytes memory input
     ) internal pure returns (uint16 output) {
-        require(input.length > 2, "input must be at least 2 bytes");
+        require(input.length >= 2, "input must be at least 2 bytes");
         bytes memory inputWithLeftPadding = input;
         for (uint i = 0; i < 2 - input.length; i++) {
             inputWithLeftPadding = GNSPSBytesLib.concat(
@@ -50,7 +49,6 @@ library Utils {
         uint16 input
     ) internal pure returns (bytes memory output) {
         output = abi.encodePacked(input);
-        output = removeLeadingZero(output);
     }
 
     function removeLeadingZero(
