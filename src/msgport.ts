@@ -4,6 +4,7 @@ import DefaultMsgportContract from "../artifacts/contracts/DefaultMsgport.sol/De
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
 import { dockTypeRegistry } from "./dockTypeRegistry";
 import { IMsgport } from "./interfaces/IMsgport";
+import { ChainId } from "./chain-ids";
 
 export { DockType };
 
@@ -23,7 +24,7 @@ export async function getMsgport(
     },
 
     getLocalDockAddress: async (
-      toChainId: number,
+      toChainId: ChainId,
       selectDock: IDockSelectionStrategy
     ) => {
       const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
@@ -32,7 +33,7 @@ export async function getMsgport(
       return await selectDock(localDockAddresses);
     },
 
-    getDock: async (toChainId: number, selectDock: IDockSelectionStrategy) => {
+    getDock: async (toChainId: ChainId, selectDock: IDockSelectionStrategy) => {
       const localDockAddress = await result.getLocalDockAddress(
         toChainId,
         selectDock
@@ -44,12 +45,26 @@ export async function getMsgport(
       return await getDock(provider, localDockAddress, dockType);
     },
 
-    getLocalDockAddressesByToChainId: async (toChainId: number) => {
+    getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
       return await msgport.localDockAddressesByToChainId(toChainId);
     },
 
+    estimateFee: async (
+      toChainId: ChainId,
+      selectDock: IDockSelectionStrategy,
+      messagePayload: string,
+      feeMultiplier: number = 1.0
+    ) => {
+      const localDock = await result.getDock(toChainId, selectDock);
+      return await localDock.estimateFee(
+        toChainId,
+        messagePayload,
+        feeMultiplier
+      );
+    },
+
     send: async (
-      toChainId: number,
+      toChainId: ChainId,
       selectDock: IDockSelectionStrategy,
       toDappAddress: string,
       messagePayload: string,
