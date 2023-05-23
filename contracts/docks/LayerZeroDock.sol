@@ -62,7 +62,15 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal virtual override returns (uint256) {
+    ) internal override returns (uint256) {
+        // set remote dock address
+        uint16 remoteChainId = chainIdDown(_toChainId);
+        trustedRemoteLookup[remoteChainId] = abi.encodePacked(
+            _toDockAddress,
+            address(this)
+        );
+
+        // build layer zero message
         bytes memory layerZeroMessage = abi.encode(
             _fromDappAddress,
             _toDappAddress,
