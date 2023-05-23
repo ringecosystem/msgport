@@ -16,7 +16,7 @@ contract DarwiniaDock is
 {
     address public immutable outboundLane;
     address public immutable inboundLane;
-    address public immutable feeMarket;
+    IFeeMarket public immutable feeMarket;
 
     constructor(
         address _localMsgportAddress,
@@ -36,7 +36,7 @@ contract DarwiniaDock is
     {
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
-        feeMarket = _feeMarket;
+        feeMarket = IFeeMarket(_feeMarket);
     }
 
     //////////////////////////////////////////
@@ -49,6 +49,18 @@ contract DarwiniaDock is
         bytes memory _messagePayload,
         bytes memory _params
     ) internal override returns (uint256) {
+        // estimate fee on chain
+        uint256 fee = feeMarket.market_fee();
+
+        // check fee payed by caller is enough.
+        uint256 paid = msg.value;
+        require(paid >= fee, "!fee");
+
+        // refund fee
+        if (paid > fee) {
+            payable(msg.sender).transfer(paid - fee);
+        }
+
         return
             IOutboundLane(outboundLane).send_message{value: msg.value}(
                 remoteDockAddress,
