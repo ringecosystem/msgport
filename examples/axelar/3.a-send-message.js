@@ -1,6 +1,10 @@
 const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
-const { getMsgport, DockType } = require("../../dist/index");
+const {
+  getMsgport,
+  DockType,
+  createDefaultDockSelectionStrategy,
+} = require("../../dist/src/index");
 
 async function main() {
   const senderChain = "fantomTestnet";
@@ -23,15 +27,27 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0x565d2e330F0124aa471Be339b340C410C5f04B57" // <------- change this
+    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a" // <------- change this, see examples/axelar/1-setup-msgports.js
   );
 
-  //  2. send message
-  await msgport.send(
+  //  2. get the default dock selection strategy
+  const selectDockFunction = createDefaultDockSelectionStrategy(
+    hre.ethers.provider
+  );
+
+  //  3. send message
+  const tx = await msgport.send(
     receiverChainId,
+    selectDockFunction,
     receiverAddress,
     "0x12345678",
-    DockType.AxelarTestnet // this is used to look up the chain specific estimateFee function
+    1.1
+  );
+
+  console.log(
+    `Message sent: https://testnet.axelarscan.io/gmp/${
+      (await tx.wait()).transactionHash
+    }`
   );
 }
 
