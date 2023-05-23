@@ -74,6 +74,7 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
             layerZeroMessage,
             payable(msg.sender), // refund to msgport
             address(0x0), // zro payment address
+            _params, // adapter params
             msg.value
         );
 
