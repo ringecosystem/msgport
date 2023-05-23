@@ -1,4 +1,4 @@
-const { getMsgport, DockType } = require("../dist/index");
+const { getMsgport, ChainId } = require("../dist/src/index");
 const { ethers } = require("ethers");
 
 async function main() {
@@ -8,37 +8,50 @@ async function main() {
 
   const msgport = await getMsgport(
     provider,
-    "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"
+    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a"
   );
 
   const messagePayload = "0x12345678";
 
-  await layerZero_fantomTestnet_to_baseTestnet(msgport, messagePayload);
+  await layerZero_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload);
   await axelar_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload);
 }
 
-async function layerZero_fantomTestnet_to_baseTestnet(msgport, messagePayload) {
-  const dock = await msgport.getDock(
-    84531, // Base testnet chain ID
-    DockType.LayerZero // or, add dock type to contract
+async function layerZero_fantomTestnet_to_moonbaseAlpha(
+  msgport,
+  messagePayload
+) {
+  const dockSelection = async (_) =>
+    "0xbf8d576f4204774f1EAdF9C4480133EE486E649C";
+
+  const fee = await msgport.estimateFee(
+    ChainId.MOONBASE_ALPHA,
+    dockSelection,
+    messagePayload
   );
 
-  const fee = await dock.estimateFee(messagePayload);
   console.log(
-    `LayerZero: Fantom testnet => Base testnet cross-chain fee: ${fee} wei.`,
+    `> LayerZero: Fantom testnet => moonbase alpha cross-chain fee: ${
+      fee / 1e18
+    } FTMs.`,
     "\n--------------------"
   );
 }
 
 async function axelar_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload) {
-  const dock = await msgport.getDock(
-    1287, // moonbase alpha chain ID
-    DockType.AxelarTestnet
+  const dockSelection = async (_) =>
+    "0xE447B04655a1EaA0fE35C2aD126667CDa458b4aD";
+
+  const fee = await msgport.estimateFee(
+    ChainId.MOONBASE_ALPHA,
+    dockSelection,
+    messagePayload
   );
 
-  const fee = await dock.estimateFee(messagePayload);
   console.log(
-    `Axelar: Fantom testnet => moonbase alpha cross-chain fee: ${fee} wei.`,
+    `> Axelar: Fantom testnet => moonbase alpha cross-chain fee: ${
+      fee / 1e18
+    } FTMs.`,
     "\n--------------------"
   );
 }
