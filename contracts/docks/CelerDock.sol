@@ -57,6 +57,19 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
             _toDappAddress,
             _messagePayload
         );
+
+        // https://github.com/celer-network/sgn-v2-contracts/blob/1c65d5538ff8509c7e2626bb1a857683db775231/contracts/message/interfaces/IMessageBus.sol#LL122C17-L122C17
+        uint256 fee = IMessageBus(messageBus).calcFee(celerMessage);
+
+        // check fee payed by caller is enough.
+        uint256 paid = msg.value;
+        require(paid >= fee, "!fee");
+
+        // refund fee
+        if (paid > fee) {
+            payable(msg.sender).transfer(paid - fee);
+        }
+
         sendMessage(
             _toDockAddress,
             chainIdDown(_toChainId),
