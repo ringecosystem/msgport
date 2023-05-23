@@ -2,7 +2,6 @@ const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
 const {
   getMsgport,
-  DockType,
   createDefaultDockSelectionStrategy,
 } = require("../../dist/src/index");
 

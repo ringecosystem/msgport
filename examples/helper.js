@@ -8,12 +8,18 @@ async function deployMsgport(chainId, args = {}) {
 }
 
 async function deployDock(
+  // for deploy the dock
   dockName,
   localMsgportAddress,
   chainIdMappingAddress,
   dockArgs,
-  //
-  remoteChainId
+  // for adding the remote dock to the msgport
+  remoteChainId,
+  // deploy tx args
+  deployGasLimit = 4000000,
+  deployGasPrice = hre.ethers.utils.parseUnits("2", "gwei"),
+  // addRemoteDock tx args
+  addRemoteDockGasLimit = 100000
 ) {
   let Dock = await hre.ethers.getContractFactory(dockName);
   let dock = await Dock.deploy(
@@ -21,8 +27,8 @@ async function deployDock(
     chainIdMappingAddress,
     ...dockArgs,
     {
-      gasLimit: 3000000,
-      gasPrice: hre.ethers.utils.parseUnits("2", "gwei"),
+      gasLimit: deployGasLimit,
+      gasPrice: deployGasPrice,
     }
   );
   await dock.deployed();
@@ -32,7 +38,7 @@ async function deployDock(
   const msgport = await DefaultMsgport.attach(localMsgportAddress);
   await (
     await msgport.addLocalDock(remoteChainId, dock.address, {
-      gasLimit: 100000,
+      gasLimit: addRemoteDockGasLimit,
     })
   ).wait();
 

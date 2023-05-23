@@ -1,29 +1,52 @@
-const { getMsgport, getChainId, deployReceiver } = require("../helper");
+const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
+const {
+  getMsgport,
+  createDefaultDockSelectionStrategy,
+} = require("../../dist/src/index");
 
 async function main() {
   const senderChain = "fantomTestnet";
-  const receiverChain = "baseGoerliTestnet";
-  const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <------- change this
-  const estimateFee = buildEstimateFeeFunction(
-    senderChain,
-    "0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf", // sender endpoint address
-    10160, // dstChainId
-    "0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e" // userApplication, fantomTestnet LayerZeroDock
+  const receiverChain = "moonbaseAlpha";
+
+  ///////////////////////////////////////
+  // deploy receiver
+  ///////////////////////////////////////
+  hre.changeNetwork(receiverChain);
+  const receiverAddress = "0x8205b173786DC663d328D1CD9AdBCCb3877aBC6E"; // await deployReceiver(receiverChain);
+  const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
+  console.log(
+    `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
   );
 
-  // Deploy receiver
-  const receiverAddress = await deployReceiver(receiverChain);
+  ///////////////////////////////////////
+  // send message to receiver
+  ///////////////////////////////////////
+  hre.changeNetwork(senderChain);
+  //  1. get msgport
+  const msgport = await getMsgport(
+    await hre.ethers.getSigner(),
+    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a" // <------- change this, see examples/axelar/1-setup-msgports.js
+  );
 
-  // Send message to receiver
-  const receiverChainId = await getChainId(receiverChain);
-  const msgport = await getMsgport(senderChain, senderMsgportAddress);
-  msgport.send(
+  //  2. get the default dock selection strategy
+  const selectLastDock = createDefaultDockSelectionStrategy(
+    hre.ethers.provider
+  );
+
+  //  3. send message
+  const tx = await msgport.send(
     receiverChainId,
+    selectLastDock,
     receiverAddress,
     "0x12345678",
-    estimateFee,
-    "0x"
+    1.1
+  );
+
+  console.log(
+    `Message sent: https://testnet.layerzeroscan.com/tx/${
+      (await tx.wait()).transactionHash
+    }`
   );
 }
 

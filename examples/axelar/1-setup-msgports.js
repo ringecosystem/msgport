@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { deployMsgport, getChainId } = require("../helper");
+const { deployMsgport } = require("../helper");
 const { ChainId } = require("../../dist/src/index");
 
 // On fantomTestnet, msgport deployed to: 0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a
