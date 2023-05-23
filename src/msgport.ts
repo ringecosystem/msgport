@@ -59,14 +59,13 @@ export async function getMsgport(
       // Get local dock
       const localDock = await result.getDock(toChainId, selectDock);
 
-      // Get dock type, which is used to lookup the estimate fee function
-      // This is done through an offchain dock type registry
-      const dockType = dockTypeRegistry[localDock.address];
-      console.log(`dockType: ${dockType}`);
-
       // Estimate fee through dock
-      const fee = await localDock.estimateFee(toChainId, messagePayload);
-      const feeBN = ethers.BigNumber.from(`${fee * feeMultiplier}`);
+      const fee = await localDock.estimateFee(
+        toChainId,
+        messagePayload,
+        feeMultiplier
+      );
+      const feeBN = ethers.BigNumber.from(`${fee}`);
       console.log(`cross-chain fee: ${fee / 1e18} UNITS.`);
 
       // Send message

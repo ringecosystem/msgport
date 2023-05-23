@@ -35,9 +35,10 @@ async function buildEstimateFeeFunction(
     _fromDappAddress,
     _toChainId,
     _toDappAddress,
-    _messagePayload
+    _messagePayload,
+    feeMultiplier: number
   ) => {
-    console.log(`estimateFee: ${_fromChainId}, ${_toChainId}`);
+    console.log(`estimateFee: ${_fromChainId} > ${_toChainId}`);
     const axelarSrcChainName = await dock.chainIdDown(_fromChainId);
     console.log(`axelarSrcChainName: ${axelarSrcChainName}`);
     const axelarDstChainName = await dock.chainIdDown(_toChainId);
@@ -51,7 +52,7 @@ async function buildEstimateFeeFunction(
         axelarDstChainName,
         axelarSrcGasToken,
         100000,
-        1.1,
+        feeMultiplier,
         "2025000000"
       )) as string
     );

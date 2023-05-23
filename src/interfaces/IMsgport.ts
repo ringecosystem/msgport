@@ -25,5 +25,5 @@ export type IMsgport = {
     messagePayload: string,
     feeMultiplier: number,
     params: string
-  ) => Promise<ethers.providers.TransactionResponse>;
+  ) => Promise<ethers.providers.TransactionResponse | null>;
 };
