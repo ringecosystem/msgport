@@ -13,7 +13,8 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     // remoteChainId => localDockAddress[]
     mapping(uint256 => address[]) public localDockAddressesByToChainId;
 
-    constructor(uint256 _localChainId) {
+    // payable for refund
+    constructor(uint256 _localChainId) payable {
         localChainId = _localChainId;
     }
 
