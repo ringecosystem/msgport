@@ -11,7 +11,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     uint64 public localChainId;
 
     // remoteChainId => localDockAddress[]
-    mapping(uint256 => address[]) public localDockAddressesByToChainId;
+    mapping(uint64 => address[]) public localDockAddressesByToChainId;
 
     constructor(uint64 _localChainId) {
         localChainId = _localChainId;
@@ -35,7 +35,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     }
 
     function addLocalDock(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _localDockAddress
     ) external onlyOwner {
         require(
@@ -47,7 +47,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     }
 
     function localDockExists(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _localDockAddress
     ) public view returns (bool) {
         address[] memory localDockAddresses = localDockAddressesByToChainId[
@@ -92,7 +92,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     // catch the error if user's recv function failed with uncaught error.
     // store the message and error for the user to do something like retry.
     function recv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
