@@ -26,21 +26,26 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a" // <------- change this, see examples/axelar/1-setup-msgports.js
+    "0x8FB4916669775c111dBC094F79941CaC1642C943" // <------- change this, see 0-setup-msgports.js
   );
 
-  //  2. get the default dock selection strategy
-  const selectLastDock = createDefaultDockSelectionStrategy(
-    hre.ethers.provider
-  );
+  //  2. get the dock selection strategy
+  const selectLastDock = async (_) =>
+    "0xB822E12dD225FBef8763325Aaf6F2cbCFe331c83";
 
   //  3. send message
+  // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters
+  let params = hre.ethers.utils.solidityPack(
+    ["uint16", "uint256"],
+    [1, 1000000]
+  );
   const tx = await msgport.send(
     receiverChainId,
     selectLastDock,
     receiverAddress,
     "0x12345678",
-    1.1
+    1.1,
+    params
   );
 
   console.log(
@@ -48,37 +53,6 @@ async function main() {
       (await tx.wait()).transactionHash
     }`
   );
-}
-
-function buildEstimateFeeFunction(
-  network,
-  endpointAddress,
-  dstChainId,
-  senderDockAddress
-) {
-  hre.changeNetwork(network);
-  const abi = [
-    "function estimateFees(uint16 _dstChainId, address _userApplication, bytes calldata _payload, bool _payInZRO, bytes calldata _adapterParams) external view returns (uint nativeFee, uint zroFee)",
-  ];
-  const endpoint = new hre.ethers.Contract(
-    endpointAddress,
-    abi,
-    hre.ethers.provider
-  );
-  return async (fromDappAddress, toDappAddress, messagePayload) => {
-    const payload = hre.ethers.utils.defaultAbiCoder.encode(
-      ["address", "address", "address", "bytes"],
-      [senderDockAddress, fromDappAddress, toDappAddress, messagePayload]
-    );
-    const result = await endpoint.estimateFees(
-      dstChainId,
-      senderDockAddress,
-      payload,
-      false,
-      "0x"
-    );
-    return result.nativeFee;
-  };
 }
 
 main().catch((error) => {

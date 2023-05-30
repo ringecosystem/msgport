@@ -26,7 +26,7 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a" // <------- change this, see examples/axelar/1-setup-msgports.js
+    "0x8FB4916669775c111dBC094F79941CaC1642C943" // <------- change this, see 0-setup-msgports.js
   );
 
   //  2. get the default dock selection strategy

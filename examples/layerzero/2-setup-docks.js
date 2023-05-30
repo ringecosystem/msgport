@@ -2,8 +2,8 @@ const hre = require("hardhat");
 const { deployDock } = require("../helper");
 const { ChainId } = require("../../dist/src/index");
 
-// On fantomTestnet, LayerZeroDock deployed to: 0xbf8d576f4204774f1EAdF9C4480133EE486E649C
-// On moonbaseAlpha, LayerZeroDock deployed to: 0x4B01CacED5AF03f29F22F402193cE1Fd704Ca705
+// On fantomTestnet, LayerZeroDock deployed to: 0xB822E12dD225FBef8763325Aaf6F2cbCFe331c83
+// On moonbaseAlpha, LayerZeroDock deployed to: 0xbEdd6D793D4B06512243072fd0D28722F994e2e3
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";
@@ -13,8 +13,8 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
 
-  const senderMsgportAddress = "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a"; // <---- This is the sender msgport address from 1-setup-msgports.js
-  const senderChainIdMapping = "0xF72C04C06513Af687CFaDbFcEe486E2ac156158D"; // <---- This is the sender chain id mapping contract address from 0-deploy-chain-id-mapping.js
+  const senderMsgportAddress = "0x8FB4916669775c111dBC094F79941CaC1642C943"; // <---- This is the sender msgport address from 0-setup-msgports.js
+  const senderChainIdMapping = "0xF72C04C06513Af687CFaDbFcEe486E2ac156158D"; // <---- This is the sender chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const senderDockName = "LayerZeroDock";
   const senderDockParams = [
     "0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf", // sender lzEndpoint
@@ -36,8 +36,8 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
 
-  const receiverMsgportAddress = "0xa2E9301Cc669e7162FCd02cBEC9FDdb010B1dF8E"; // <---- This is the receiver msgport address from 1-setup-msgports.js
-  const receiverChainIdMapping = "0x9286b7e01bA7d1157252c5cB1c1066E00F88f5Db"; // <---- This is the receiver chain id mapping contract address from 0-deploy-chain-id-mapping.js
+  const receiverMsgportAddress = "0xf27C964bF5e0939feD71b1c063A36175192ef754"; // <---- This is the receiver msgport address from 0-setup-msgports.js
+  const receiverChainIdMapping = "0x9286b7e01bA7d1157252c5cB1c1066E00F88f5Db"; // <---- This is the receiver chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const receiverDockName = "LayerZeroDock";
   const receiverDockParams = [
     "0xb23b28012ee92E8dE39DEb57Af31722223034747", // receiver lzEndpoint

@@ -1,9 +1,9 @@
 const hre = require("hardhat");
-const { deployMsgport } = require("../helper");
-const { ChainId } = require("../../dist/src/index");
+const { deployMsgport } = require("./helper");
+const { ChainId } = require("../dist/src/index");
 
-// On fantomTestnet, msgport deployed to: 0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a
-// On moonbaseAlpha, msgport deployed to: 0xa2E9301Cc669e7162FCd02cBEC9FDdb010B1dF8E
+// On fantomTestnet, msgport deployed to: 0x8FB4916669775c111dBC094F79941CaC1642C943
+// On moonbaseAlpha, msgport deployed to: 0xf27C964bF5e0939feD71b1c063A36175192ef754
 async function main() {
   ///////////////////////////////////////
   const senderChain = "fantomTestnet";
