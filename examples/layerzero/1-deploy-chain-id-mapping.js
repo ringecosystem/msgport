@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
-// On fantomTestnet, chain id mapping contract deployed to: 0xF72C04C06513Af687CFaDbFcEe486E2ac156158D
-// On moonbaseAlpha, chain id mapping contract deployed to: 0x9286b7e01bA7d1157252c5cB1c1066E00F88f5Db
+// On fantomTestnet, LayerZeroChainIdMapping contract deployed to: 0x1D612F014BC3a1e7980dD0aE12D0d3d240864e83
+// On moonbaseAlpha, LayerZeroChainIdMapping contract deployed to: 0xFe89354a5ee07F66D9fB0DB2aDa67c1F09eF286c
 async function main() {
   ///////////////////////////////////////
   const senderChain = "fantomTestnet";

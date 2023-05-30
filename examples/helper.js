@@ -93,6 +93,7 @@ async function getChainId(network) {
   return (await hre.ethers.provider.getNetwork())["chainId"];
 }
 
+// Receiver Dapp for testing
 async function deployReceiver(network) {
   hre.changeNetwork(network);
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(
