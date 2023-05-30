@@ -13,6 +13,7 @@ contract LayerZeroDock is
     LayerZeroChainIdMapping
 {
     address public lzEndpointAddress;
+    uint64 public nextNonce;
 
     constructor(
         address _localMsgportAddress,
@@ -29,28 +30,28 @@ contract LayerZeroDock is
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(uint16 _chainId) public view returns (uint256) {
+    function chainIdUp(uint16 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint16ToBytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public view returns (uint16) {
+    function chainIdDown(uint64 _chainId) public view returns (uint16) {
         return Utils.bytesToUint16(chainIdMapping.down(_chainId));
     }
 
     function addRemoteDock(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) external onlyOwner {
         addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
     }
 
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
-    ) internal virtual override returns (bool) {
+    ) internal override returns (bool) {
         // because dock is called by low-level gateway, we need to check the sender is correct.
         // if (msg.sender != address(lzEndpointAddress)) {
         //     return false;
@@ -62,7 +63,7 @@ contract LayerZeroDock is
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -91,7 +92,7 @@ contract LayerZeroDock is
             msg.value
         );
 
-        return getOutboundNonce(remoteChainId, address(this));
+        return nextNonce++;
     }
 
     function _nonblockingLzReceive(
@@ -103,7 +104,7 @@ contract LayerZeroDock is
         uint256 srcChainId = chainIdUp(_srcChainId);
         address srcDockAddress = Utils.bytesToAddress(_srcAddress);
         require(
-            remoteDockExists(srcChainId, srcDockAddress),
+            remoteDockExists(_srcChainId, srcDockAddress),
             "Invalid remote dock address"
         );
 
@@ -113,7 +114,7 @@ contract LayerZeroDock is
             bytes memory messagePayload
         ) = abi.decode(_payload, (address, address, bytes));
         recv(
-            srcChainId,
+            chainIdUp(_srcChainId),
             srcDockAddress,
             fromDappAddress,
             toDappAddress,
