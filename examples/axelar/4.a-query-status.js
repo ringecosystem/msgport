@@ -11,14 +11,14 @@ async function main() {
     environment: Environment.TESTNET,
   });
   const txHash =
-    "0x88e1c783954d0cbccb02cf9c5b8d420b185b7fc485907cf8bea92c2c3f48c484"; // <------- change this
+    "0x8ce06e20ffeddac5fcd31fb891afdb3fbafaf4f82eefcda2bfd5cd7d757a037d"; // <------- change this
   const txStatus = await sdk.queryTransactionStatus(txHash);
   console.log(txStatus["status"]);
 
   // query the receiver's result
   // --------------------------------------
   const receiverChain = "moonbaseAlpha";
-  const receiverAddress = "0xAFb5F12C5F379431253159fae464572999E78485"; // <------- change this
+  const receiverAddress = "0x98845062E9D4fF5e52C942Dc6876037A2448DA64"; // <------- change this
 
   hre.changeNetwork(receiverChain);
   const ExampleReceiverDapp = await hre.ethers.getContractFactory(

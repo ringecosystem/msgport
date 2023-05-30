@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/SingleTargetMessageDock.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -16,32 +16,30 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2sDock is MessageDock, Ownable2Step {
-    address public remoteDockAddress;
+contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
     address public immutable darwiniaEndpointAddress;
 
     constructor(
         address _localMsgportAddress,
-        uint _remoteChainId,
+        address _chainIdConverter,
+        uint64 _remoteChainId,
+        address _remoteDockAddress,
         address _darwiniaEndpointAddress
-    ) MessageDock(_localMsgportAddress, _remoteChainId) {
+    )
+        SingleTargetMessageDock(
+            _localMsgportAddress,
+            _chainIdConverter,
+            _remoteChainId,
+            _remoteDockAddress
+        )
+    {
         darwiniaEndpointAddress = _darwiniaEndpointAddress;
     }
 
-    function setRemoteDockAddress(
-        address _remoteDockAddress
-    ) public override onlyOwner {
-        remoteDockAddress = _remoteDockAddress;
-    }
-
-    function getRemoteDockAddress() public view override returns (address) {
-        return remoteDockAddress;
-    }
-
-    function callRemoteRecv(
+    function callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload,
+        bytes memory _messagePayload,
         bytes memory _params
     ) internal override returns (uint256) {
         (uint32 specVersion, uint256 gasLimit) = abi.decode(
@@ -50,11 +48,12 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
         );
 
         bytes memory recvCall = abi.encodeWithSignature(
-            "recv(address,address,address,bytes)",
+            "recv(uint256,address,address,address,bytes)",
+            getLocalChainId(),
             address(this),
             _fromDappAddress,
             _toDappAddress,
-            messagePayload
+            _messagePayload
         );
 
         return
@@ -63,7 +62,7 @@ contract DarwiniaS2sDock is MessageDock, Ownable2Step {
             }(specVersion, remoteDockAddress, recvCall, gasLimit);
     }
 
-    function approveToRecv(
+    function approveToRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message

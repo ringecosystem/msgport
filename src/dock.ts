@@ -2,6 +2,8 @@ import { ethers } from "ethers";
 import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { layerzero } from "./layerzero/index";
 import { axelar } from "./axelar/index";
+import BaseMessageDockContract from "../artifacts/contracts/interfaces/BaseMessageDock.sol/BaseMessageDock.json";
+import { IDock } from "./interfaces/IDock";
 
 enum DockType {
   Axelar = 0,
@@ -20,15 +22,58 @@ async function getDock(
 ) {
   const dock = new ethers.Contract(
     dockAddress,
-    [
-      "function getRemoteDockAddress() public view returns (address)",
-      "function remoteChainId() public view returns (uint256)",
-    ],
+    BaseMessageDockContract.abi,
     provider
   );
 
-  const remoteChainId = await dock.remoteChainId();
+  let estimateFee: IEstimateFee = await buildEstimateFunction(
+    provider,
+    dockType,
+    dockAddress
+  );
 
+  const result: IDock = {
+    address: dockAddress,
+
+    getLocalChainId: async () => {
+      return await dock.getLocalChainId();
+    },
+
+    getRemoteDockAddress: async (remoteChainId: number) => {
+      return await dock.remoteDockAddresses(remoteChainId);
+    },
+
+    estimateFee: async (
+      remoteChainId: number,
+      messagePayload: string,
+      feeMultiplier: number,
+      params
+    ) => {
+      console.log(`Estimating fee for message payload: ${messagePayload}`);
+      const remoteDockAddress = await dock.remoteDockAddresses(remoteChainId);
+
+      console.log(`remoteDockAddress: ${remoteDockAddress}`);
+
+      return await estimateFee(
+        await dock.getLocalChainId(),
+        dockAddress,
+        remoteChainId,
+        remoteDockAddress,
+        messagePayload,
+        feeMultiplier,
+        params
+      );
+    },
+  };
+
+  return result;
+}
+
+async function buildEstimateFunction(
+  provider: ethers.providers.Provider,
+  dockType: DockType,
+  dockAddress: string
+) {
   let estimateFee: IEstimateFee;
   if (dockType == DockType.LayerZero) {
     estimateFee = await layerzero.buildEstimateFeeFunction(
@@ -50,22 +95,7 @@ async function getDock(
   } else {
     throw new Error("Unsupported dock type");
   }
-
-  return {
-    remoteChainId: remoteChainId,
-
-    address: dockAddress,
-
-    getRemoteDockAddress: async () => {
-      return await dock.getRemoteDockAddress();
-    },
-
-    estimateFee: async (messagePayload: string) => {
-      const remoteDockAddress = await dock.getRemoteDockAddress();
-
-      return await estimateFee(dockAddress, remoteDockAddress, messagePayload);
-    },
-  };
+  return estimateFee;
 }
 
 export { getDock, DockType };

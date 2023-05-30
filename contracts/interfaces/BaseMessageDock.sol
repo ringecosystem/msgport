@@ -3,22 +3,44 @@
 pragma solidity >=0.8.9;
 
 import "./IMsgport.sol";
+import "./IChainIdMapping.sol";
 
-// dock knows hot to send message to remote dock.
-abstract contract MessageDock {
+abstract contract BaseMessageDock {
     IMsgport public immutable localMsgport;
-    uint public immutable localChainId;
-    uint public immutable remoteChainId;
+    IChainIdMapping public chainIdMapping;
 
-    constructor(address _localMsgportAddress, uint _remoteChainId) {
+    // remoteChainId => remoteDockAddress
+    mapping(uint64 => address) public remoteDockAddresses;
+
+    constructor(address _localMsgportAddress, address _chainIdConverter) {
         localMsgport = IMsgport(_localMsgportAddress);
-        localChainId = localMsgport.getLocalChainId();
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
+    }
 
+    function getLocalChainId() public view returns (uint64) {
+        return localMsgport.getLocalChainId();
+    }
+
+    function remoteDockExists(
+        uint64 _remoteChainId,
+        address _remoteDockAddress
+    ) public view returns (bool) {
+        return remoteDockAddresses[_remoteChainId] == _remoteDockAddress;
+    }
+
+    function addRemoteDockInternal(
+        uint64 _remoteChainId,
+        address _remoteDockAddress
+    ) internal {
         require(
-            localChainId != _remoteChainId,
-            "!remoteChainId == localChainId"
+            remoteDockAddresses[_remoteChainId] == address(0),
+            "remote dock already exists"
         );
-        remoteChainId = _remoteChainId;
+        remoteDockAddresses[_remoteChainId] = _remoteDockAddress;
+    }
+
+    function setChainIdConverterInternal(address _chainIdConverter) public {
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     ////////////////////////////////////////
@@ -26,6 +48,8 @@ abstract contract MessageDock {
     ////////////////////////////////////////
     // For receiving
     function approveToRecv(
+        uint64 _fromChainId,
+        address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
@@ -34,14 +58,12 @@ abstract contract MessageDock {
     // For sending
     function callRemoteRecv(
         address _fromDappAddress,
+        uint64 _toChainId,
+        address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
     ) internal virtual returns (uint256);
-
-    function setRemoteDockAddress(address _remoteDockAddress) public virtual;
-
-    function getRemoteDockAddress() public virtual returns (address);
 
     ////////////////////////////////////////
     // Public functions
@@ -49,8 +71,9 @@ abstract contract MessageDock {
     // called by local msgport
     function send(
         address _fromDappAddress,
+        uint64 _toChainId,
         address _toDappAddress,
-        bytes calldata _messagePayload,
+        bytes memory _messagePayload,
         bytes memory _params
     ) public payable returns (uint256) {
         // check this is called by local msgport
@@ -58,12 +81,12 @@ abstract contract MessageDock {
             msg.sender == address(localMsgport),
             "not allowed to be called by others except local msgport"
         );
-        address remoteDockAddress = getRemoteDockAddress();
-        require(remoteDockAddress != address(0), "remote dock not set");
 
         return
             callRemoteRecv(
                 _fromDappAddress,
+                _toChainId,
+                remoteDockAddresses[_toChainId],
                 _toDappAddress,
                 _messagePayload,
                 _params
@@ -72,22 +95,26 @@ abstract contract MessageDock {
 
     // called by remote dock through low level messaging contract or self
     function recv(
-        address _toDockAddress,
+        uint64 _fromChainId,
+        address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
     ) public {
         require(
-            approveToRecv(_fromDappAddress, _toDappAddress, _messagePayload),
+            approveToRecv(
+                _fromChainId,
+                _fromDockAddress,
+                _fromDappAddress,
+                _toDappAddress,
+                _messagePayload
+            ),
             "!permitted"
         );
 
-        // only allow messages from remote dock
-        require(_toDockAddress == getRemoteDockAddress(), "!remoteDock");
-
         // call local msgport to receive message
         localMsgport.recv(
-            remoteChainId,
+            _fromChainId,
             _fromDappAddress,
             _toDappAddress,
             _messagePayload

@@ -1,35 +1,52 @@
-const { getChainId } = require("../helper");
-const { EvmChain, GasToken } = require("@axelar-network/axelarjs-sdk");
+const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
-const { getMsgport, DockType } = require("../dist/index");
+const {
+  getMsgport,
+  createDefaultDockSelectionStrategy,
+} = require("../../dist/src/index");
 
-// moonbaseAlpha receiver: 0xAFb5F12C5F379431253159fae464572999E78485
 async function main() {
   const senderChain = "fantomTestnet";
   const receiverChain = "moonbaseAlpha";
-  const senderMsgportAddress = "0x9434A7c2a656CD1B9d78c90369ADC0c2C54F5599"; // <------- change this
-  const estimateFee = buildEstimateFeeFunction(
-    EvmChain.FANTOM,
-    EvmChain.MOONBEAM,
-    GasToken.FTM
-  );
 
-  // Deploy receiver
+  ///////////////////////////////////////
+  // deploy receiver
+  ///////////////////////////////////////
+  hre.changeNetwork(receiverChain);
   const receiverAddress = await deployReceiver(receiverChain);
-
-  // Send message to receiver
-  const msgport = await getMsgport(
-    hre.ethers.getDefaultProvider(),
-    senderMsgportAddress
+  const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
+  console.log(
+    `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
   );
-  const receiverChainId = await getChainId(receiverChain);
-  const fromDappAddress = (await hre.ethers.getSigner()).address;
-  await msgport.send(
+
+  ///////////////////////////////////////
+  // send message to receiver
+  ///////////////////////////////////////
+  hre.changeNetwork(senderChain);
+  //  1. get msgport
+  const msgport = await getMsgport(
+    await hre.ethers.getSigner(),
+    "0x8FB4916669775c111dBC094F79941CaC1642C943" // <------- change this, see 0-setup-msgports.js
+  );
+
+  //  2. get the default dock selection strategy
+  const selectDockFunction = createDefaultDockSelectionStrategy(
+    hre.ethers.provider
+  );
+
+  //  3. send message
+  const tx = await msgport.send(
     receiverChainId,
-    fromDappAddress,
+    selectDockFunction,
     receiverAddress,
     "0x12345678",
-    estimateFee
+    1.1
+  );
+
+  console.log(
+    `Message sent: https://testnet.axelarscan.io/gmp/${
+      (await tx.wait()).transactionHash
+    }`
   );
 }
 

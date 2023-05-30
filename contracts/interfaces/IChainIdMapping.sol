@@ -17,10 +17,13 @@
 
 pragma solidity >=0.8.9;
 
-interface IMessageReceiver {
-    function recv(
-        uint256 _fromChainId,
-        address _fromDappAddress,
-        bytes calldata _message
-    ) external;
+// TODO: mapping or if else
+interface IChainIdMapping {
+    function down(
+        uint64 msgportChainId
+    ) external view returns (bytes memory lowLevelChainId);
+
+    function up(
+        bytes memory lowLevelChainId
+    ) external view returns (uint64 msgportChainId);
 }

@@ -1,68 +1,48 @@
 const hre = require("hardhat");
 
-async function deployMsgport(network, localChainId) {
-  hre.changeNetwork(network);
+async function deployMsgport(chainId, args = {}) {
   const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.deploy(localChainId, {
-    gasLimit: 1000000,
-  });
+  const msgport = await DefaultMsgport.deploy(chainId, args);
   await msgport.deployed();
-  console.log(`${network} msgport: ${msgport.address}`);
+  return msgport.address;
 }
 
 async function deployDock(
-  localNetwork,
-  localMsgportAddress,
-  remoteChainId,
+  // for deploy the dock
   dockName,
-  dockArgs
+  localMsgportAddress,
+  chainIdMappingAddress,
+  dockArgs,
+  // for adding the remote dock to the msgport
+  remoteChainId,
+  // deploy tx args
+  deployGasLimit = 4000000,
+  deployGasPrice = hre.ethers.utils.parseUnits("2", "gwei"),
+  // addRemoteDock tx args
+  addRemoteDockGasLimit = 100000
 ) {
-  // Deploy dock
-  hre.changeNetwork(localNetwork);
   let Dock = await hre.ethers.getContractFactory(dockName);
   let dock = await Dock.deploy(
     localMsgportAddress,
-    remoteChainId,
+    chainIdMappingAddress,
     ...dockArgs,
     {
-      gasLimit: 3000000,
-      gasPrice: hre.ethers.utils.parseUnits("2", "gwei"),
+      gasLimit: deployGasLimit,
+      gasPrice: deployGasPrice,
     }
   );
   await dock.deployed();
-  console.log(`${localNetwork} ${dockName}: ${dock.address}`);
 
   // Add it to the msgport
   let DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
   const msgport = await DefaultMsgport.attach(localMsgportAddress);
   await (
-    await msgport.setDock(remoteChainId, dock.address, { gasLimit: 50000 })
-  ).wait();
-  console.log(
-    `··${localNetwork} ${dockName} ${dock.address} set on msgport ${localMsgportAddress}`
-  );
-
-  return dock.address;
-}
-
-async function setRemoteDock(
-  network,
-  dockName,
-  dockAddress,
-  remoteDockAddress,
-  gasLimit = 50000
-) {
-  hre.changeNetwork(network);
-  let Dock = await hre.ethers.getContractFactory(dockName);
-  let dock = await Dock.attach(dockAddress);
-  await (
-    await dock.setRemoteDockAddress(remoteDockAddress, {
-      gasLimit: gasLimit,
+    await msgport.addLocalDock(remoteChainId, dock.address, {
+      gasLimit: addRemoteDockGasLimit,
     })
   ).wait();
-  console.log(
-    `${network} ${dockName} ${dockAddress} set remote dock ${remoteDockAddress}`
-  );
+
+  return dock;
 }
 
 async function getMsgport(network, msgportAddress) {
@@ -124,56 +104,6 @@ async function deployReceiver(network) {
   return receiver.address;
 }
 
-async function setupDocks(
-  senderChain,
-  senderMsgportAddress,
-  senderDockName,
-  senderDockParams,
-  receiverChain,
-  receiverMsgportAddress,
-  receiverDockName,
-  receiverDockParams,
-  gasLimit = 50000
-) {
-  // Prepare sender and receiver info
-  const senderChainId = await getChainId(senderChain);
-  const receiverChainId = await getChainId(receiverChain);
-
-  // Deploy sender Dock
-  const senderDockAddress = await deployDock(
-    senderChain,
-    senderMsgportAddress,
-    receiverChainId,
-    senderDockName,
-    senderDockParams
-  );
-
-  // Deploy receiver Dock
-  const receiverDockAddress = await deployDock(
-    receiverChain,
-    receiverMsgportAddress,
-    senderChainId,
-    receiverDockName,
-    receiverDockParams
-  );
-
-  // Configure remote Dock
-  await setRemoteDock(
-    senderChain,
-    senderDockName,
-    senderDockAddress,
-    receiverDockAddress,
-    gasLimit
-  );
-  await setRemoteDock(
-    receiverChain,
-    receiverDockName,
-    receiverDockAddress,
-    senderDockAddress,
-    gasLimit
-  );
-}
-
 async function sendMessage(
   senderChain,
   senderMsgportAddress,
@@ -191,9 +121,7 @@ async function sendMessage(
 
 exports.deployMsgport = deployMsgport;
 exports.deployDock = deployDock;
-exports.setRemoteDock = setRemoteDock;
 exports.getMsgport = getMsgport;
 exports.deployReceiver = deployReceiver;
 exports.getChainId = getChainId;
-exports.setupDocks = setupDocks;
 exports.sendMessage = sendMessage;

@@ -2,69 +2,84 @@
 
 pragma solidity >=0.8.9;
 
-import "../interfaces/MessageDock.sol";
+import "../interfaces/SingleTargetMessageDock.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaDock is MessageDock, ICrossChainFilter, Ownable2Step {
-    address public remoteDockAddress;
+contract DarwiniaDock is
+    SingleTargetMessageDock,
+    ICrossChainFilter,
+    Ownable2Step
+{
     address public immutable outboundLane;
     address public immutable inboundLane;
-    address public immutable feeMarket;
+    IFeeMarket public immutable feeMarket;
 
     constructor(
         address _localMsgportAddress,
-        uint _remoteChainId,
+        address _chainIdConverter,
+        uint64 _remoteChainId,
+        address _remoteDockAddress,
         address _outboundLane,
         address _inboundLane,
         address _feeMarket
-    ) MessageDock(_localMsgportAddress, _remoteChainId) {
+    )
+        SingleTargetMessageDock(
+            _localMsgportAddress,
+            _chainIdConverter,
+            _remoteChainId,
+            _remoteDockAddress
+        )
+    {
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
-        feeMarket = _feeMarket;
-    }
-
-    function setRemoteDockAddress(
-        address _remoteDockAddress
-    ) public override onlyOwner {
-        remoteDockAddress = _remoteDockAddress;
+        feeMarket = IFeeMarket(_feeMarket);
     }
 
     //////////////////////////////////////////
-    // override MessageDock
+    // override BaseMessageDock
     //////////////////////////////////////////
-    function getRemoteDockAddress() public view override returns (address) {
-        return remoteDockAddress;
-    }
-
     // For sending
-    function callRemoteRecv(
+    function callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload,
+        bytes memory _messagePayload,
         bytes memory _params
     ) internal override returns (uint256) {
+        // estimate fee on chain
+        uint256 fee = feeMarket.market_fee();
+
+        // check fee payed by caller is enough.
+        uint256 paid = msg.value;
+        require(paid >= fee, "!fee");
+
+        // refund fee
+        if (paid > fee) {
+            payable(msg.sender).transfer(paid - fee);
+        }
+
         return
             IOutboundLane(outboundLane).send_message{value: msg.value}(
                 remoteDockAddress,
                 abi.encodeWithSignature(
-                    "recv(address,address,address,bytes)",
+                    "recv(uint256,address,address,address,bytes)",
+                    getLocalChainId(),
                     address(this),
                     _fromDappAddress,
                     _toDappAddress,
-                    messagePayload
+                    _messagePayload
                 )
             );
     }
 
     // For receiving
-    function approveToRecv(
+    function approveToRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory messagePayload
+        bytes memory _messagePayload
     ) internal view override returns (bool) {
         require(msg.sender == inboundLane, "!inboundLane");
         return true;

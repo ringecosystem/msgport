@@ -1,6 +1,10 @@
 import { ethers } from "ethers";
-import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { getDock, DockType } from "./dock";
+import DefaultMsgportContract from "../artifacts/contracts/DefaultMsgport.sol/DefaultMsgport.json";
+import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
+import { dockTypeRegistry } from "./dockTypeRegistry";
+import { IMsgport } from "./interfaces/IMsgport";
+import { ChainId } from "./chain-ids";
 
 export { DockType };
 
@@ -10,61 +14,97 @@ export async function getMsgport(
 ) {
   const msgport = new ethers.Contract(
     msgportAddress,
-    [
-      "function send(uint _toChainId, address _toDappAddress, bytes memory _messagePayload, uint256 _fee, bytes memory _params) external payable returns (uint256)",
-      "function dockAddresses(uint256) public view returns (address)",
-      "function localChainId() public view returns (uint256)",
-    ],
+    DefaultMsgportContract.abi,
     provider
   );
 
-  return {
+  const result: IMsgport = {
     getLocalChainId: async () => {
-      return await msgport.localChainId();
+      return await msgport.getLocalChainId();
     },
 
-    getDockAddress: async (chainId: number) => {
-      return await msgport.dockAddresses(chainId);
+    getLocalDockAddress: async (
+      toChainId: ChainId,
+      selectDock: IDockSelectionStrategy
+    ) => {
+      const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
+        toChainId
+      );
+      return await selectDock(localDockAddresses);
     },
 
-    getDock: async (chainId: number, dockType: DockType) => {
-      const dockAddress = await msgport.dockAddresses(chainId);
-      return await getDock(provider, dockAddress, dockType);
+    getDock: async (toChainId: ChainId, selectDock: IDockSelectionStrategy) => {
+      const localDockAddress = await result.getLocalDockAddress(
+        toChainId,
+        selectDock
+      );
+
+      console.log(`localDockAddress: ${localDockAddress}`);
+      const dockType = dockTypeRegistry[localDockAddress];
+      console.log(`dockType: ${dockType}`);
+      return await getDock(provider, localDockAddress, dockType);
+    },
+
+    getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
+      return await msgport.localDockAddressesByToChainId(toChainId);
+    },
+
+    estimateFee: async (
+      toChainId: ChainId,
+      selectDock: IDockSelectionStrategy,
+      messagePayload: string,
+      feeMultiplier: number = 1.1,
+      params = "0x"
+    ) => {
+      const localDock = await result.getDock(toChainId, selectDock);
+      return await localDock.estimateFee(
+        toChainId,
+        messagePayload,
+        feeMultiplier,
+        params
+      );
     },
 
     send: async (
-      toChainId: number,
-      fromDappAddress: string,
+      toChainId: ChainId,
+      selectDock: IDockSelectionStrategy,
       toDappAddress: string,
       messagePayload: string,
-      estimateFee: IEstimateFee,
-      params = "0x"
+      feeMultiplier: number = 1.1,
+      params: string = "0x"
     ) => {
-      // Estimate fee
-      const fee = await estimateFee(
-        fromDappAddress,
-        toDappAddress,
-        messagePayload
+      // Get local dock
+      const localDock = await result.getDock(toChainId, selectDock);
+
+      // Estimate fee through dock
+      const fee = await localDock.estimateFee(
+        toChainId,
+        messagePayload,
+        feeMultiplier,
+        params
       );
-      console.log(`cross-chain fee: ${fee} wei.`);
+      const feeBN = ethers.BigNumber.from(`${fee}`);
+      console.log(`cross-chain fee: ${fee / 1e18} UNITS.`);
 
       // Send message
       const tx = await msgport.send(
+        localDock.address,
         toChainId,
         toDappAddress,
         messagePayload,
-        fee,
         params,
         {
-          value: ethers.BigNumber.from(fee),
+          value: feeBN,
         }
       );
 
       console.log(
-        `message "${messagePayload}" sent to ${toDappAddress} through ${await provider.getNetwork()}'s msgport ${msgportAddress}`
+        `message "${messagePayload}" has been sent to ${toDappAddress} through msgport ${msgportAddress}`
       );
 
-      console.log(`tx hash: ${(await tx.wait()).transactionHash}`);
+      return tx;
     },
   };
+
+  return result;
 }
