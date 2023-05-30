@@ -31,17 +31,18 @@ async function buildEstimateFeeFunction(
   );
 
   const estimateFee: IEstimateFee = async (
-    _fromChainId,
+    fromChainId,
     _fromDappAddress,
-    _toChainId,
+    toChainId,
     _toDappAddress,
     _messagePayload,
-    feeMultiplier: number
+    feeMultiplier,
+    _params
   ) => {
-    console.log(`estimateFee: ${_fromChainId} > ${_toChainId}`);
-    const axelarSrcChainName = await dock.chainIdDown(_fromChainId);
+    console.log(`estimateFee: ${fromChainId} > ${toChainId}`);
+    const axelarSrcChainName = await dock.chainIdDown(fromChainId);
     console.log(`axelarSrcChainName: ${axelarSrcChainName}`);
-    const axelarDstChainName = await dock.chainIdDown(_toChainId);
+    const axelarDstChainName = await dock.chainIdDown(toChainId);
     console.log(`axelarDstChainName: ${axelarDstChainName}`);
 
     const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName];

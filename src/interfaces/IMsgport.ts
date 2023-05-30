@@ -22,7 +22,8 @@ export type IMsgport = {
     toChainId: ChainId,
     selectDock: IDockSelectionStrategy,
     messagePayload: string,
-    feeMultiplier: number
+    feeMultiplier: number,
+    params: string
   ) => Promise<number>;
 
   send: (

@@ -4,5 +4,6 @@ export type IEstimateFee = (
   toChainId: number,
   toDappAddress: string,
   messagePayload: string,
-  feeMultiplier: number
+  feeMultiplier: number,
+  params: string
 ) => Promise<number>;

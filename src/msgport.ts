@@ -53,13 +53,15 @@ export async function getMsgport(
       toChainId: ChainId,
       selectDock: IDockSelectionStrategy,
       messagePayload: string,
-      feeMultiplier: number = 1.0
+      feeMultiplier: number = 1.1,
+      params = "0x"
     ) => {
       const localDock = await result.getDock(toChainId, selectDock);
       return await localDock.estimateFee(
         toChainId,
         messagePayload,
-        feeMultiplier
+        feeMultiplier,
+        params
       );
     },
 
@@ -78,7 +80,8 @@ export async function getMsgport(
       const fee = await localDock.estimateFee(
         toChainId,
         messagePayload,
-        feeMultiplier
+        feeMultiplier,
+        params
       );
       const feeBN = ethers.BigNumber.from(`${fee}`);
       console.log(`cross-chain fee: ${fee / 1e18} UNITS.`);

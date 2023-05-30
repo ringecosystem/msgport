@@ -27,7 +27,8 @@ async function buildEstimateFeeFunction(
     toChainId: number,
     toDappAddress: string,
     messagePayload: string,
-    feeMultiplier: number
+    feeMultiplier,
+    params
   ) => {
     console.log(`estimateFee: ${fromChainId} > ${toChainId}`);
     const lzSrcChainId = await senderDock.chainIdDown(fromChainId);
@@ -39,12 +40,14 @@ async function buildEstimateFeeFunction(
       ["address", "address", "address", "bytes"],
       [senderDockAddress, fromDappAddress, toDappAddress, messagePayload]
     );
+
+    console.log(`params: ${params}`);
     const result = await endpoint.estimateFees(
       lzDstChainId,
       senderDockAddress,
       payload,
       false,
-      "0x"
+      params
     );
     return result.nativeFee * feeMultiplier;
   };

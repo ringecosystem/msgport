@@ -1,6 +1,6 @@
 import { DockType } from "./dock";
 
 export const dockTypeRegistry: Record<string, DockType> = {
-  "0xE447B04655a1EaA0fE35C2aD126667CDa458b4aD": DockType.AxelarTestnet,
-  "0xbf8d576f4204774f1EAdF9C4480133EE486E649C": DockType.LayerZero,
+  "0xb2C5257c85692E348C65c19DA70dC708F43f3CbF": DockType.AxelarTestnet,
+  "0xB822E12dD225FBef8763325Aaf6F2cbCFe331c83": DockType.LayerZero,
 };

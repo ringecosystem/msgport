@@ -46,19 +46,22 @@ async function getDock(
     estimateFee: async (
       remoteChainId: number,
       messagePayload: string,
-      feeMultiplier: number
+      feeMultiplier: number,
+      params
     ) => {
       console.log(`Estimating fee for message payload: ${messagePayload}`);
       const remoteDockAddress = await dock.remoteDockAddresses(remoteChainId);
 
       console.log(`remoteDockAddress: ${remoteDockAddress}`);
+
       return await estimateFee(
         await dock.getLocalChainId(),
         dockAddress,
         remoteChainId,
         remoteDockAddress,
         messagePayload,
-        feeMultiplier
+        feeMultiplier,
+        params
       );
     },
   };
