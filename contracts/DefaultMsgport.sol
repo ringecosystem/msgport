@@ -17,6 +17,13 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         localChainId = _localChainId;
     }
 
+    // Function to receive Ether. msg.data must be empty
+    receive() external payable {}
+
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+
     function getLocalChainId() external view returns (uint64) {
         return localChainId;
     }
