@@ -7,13 +7,13 @@ import "./BaseMessageDock.sol";
 
 // dock knows hot to send message to remote dock.
 abstract contract SingleTargetMessageDock is BaseMessageDock {
-    uint256 public remoteChainId;
+    uint64 public remoteChainId;
     address public remoteDockAddress;
 
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) BaseMessageDock(_localMsgportAddress, _chainIdConverter) {
         remoteChainId = _remoteChainId;
@@ -35,7 +35,7 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -51,7 +51,7 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
     }
 
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,

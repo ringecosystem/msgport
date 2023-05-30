@@ -17,12 +17,13 @@
 
 pragma solidity >=0.8.9;
 
+// TODO: mapping or if else
 interface IChainIdMapping {
     function down(
-        uint256 msgportChainId
+        uint64 msgportChainId
     ) external view returns (bytes memory lowLevelChainId);
 
     function up(
         bytes memory lowLevelChainId
-    ) external view returns (uint256 msgportChainId);
+    ) external view returns (uint64 msgportChainId);
 }

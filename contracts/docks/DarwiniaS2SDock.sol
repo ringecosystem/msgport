@@ -22,7 +22,7 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress,
         address _darwiniaEndpointAddress
     )

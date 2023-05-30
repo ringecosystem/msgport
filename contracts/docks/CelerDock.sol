@@ -25,16 +25,16 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(uint64 _chainId) public view returns (uint256) {
+    function chainIdUp(uint64 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint64ToBytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public view returns (uint64) {
+    function chainIdDown(uint64 _chainId) public view returns (uint64) {
         return Utils.bytesToUint64(chainIdMapping.down(_chainId));
     }
 
     function addRemoteDock(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) external onlyOwner {
         addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
@@ -46,7 +46,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     // override BaseMessageDock
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -108,7 +108,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
 
     // override BaseMessageDock
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,

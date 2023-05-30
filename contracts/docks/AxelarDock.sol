@@ -31,23 +31,23 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(string memory _chainId) public view returns (uint256) {
+    function chainIdUp(string memory _chainId) public view returns (uint64) {
         return chainIdMapping.up(bytes(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public view returns (string memory) {
+    function chainIdDown(uint64 _chainId) public view returns (string memory) {
         return string(chainIdMapping.down(_chainId));
     }
 
     function addRemoteDock(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) external onlyOwner {
         addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
     }
 
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
@@ -63,7 +63,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,

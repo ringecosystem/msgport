@@ -22,8 +22,9 @@ import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
 
 contract LayerZeroChainIdMapping is IChainIdMapping {
+
     function down(
-        uint256 msgportChainId
+        uint64 msgportChainId
     ) external pure returns (bytes memory lowLevelChainId) {
         if (msgportChainId == 4002) {
             return Utils.uint16ToBytes(10112);
@@ -38,7 +39,7 @@ contract LayerZeroChainIdMapping is IChainIdMapping {
 
     function up(
         bytes memory lowLevelChainId
-    ) external pure returns (uint256 msgportChainId) {
+    ) external pure returns (uint64 msgportChainId) {
         uint16 lzChainId = Utils.bytesToUint16(lowLevelChainId);
         if (lzChainId == 10112) {
             return 4002;

@@ -5,10 +5,14 @@ pragma solidity >=0.8.9;
 import "../interfaces/BaseMessageDock.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "../utils/Utils.sol";
+import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 
-contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
+contract LayerZeroDock is
+    BaseMessageDock,
+    NonblockingLzApp,
+    LayerZeroChainIdMapping
+{
     address public lzEndpointAddress;
-    uint64 public nextNonce = 0;
 
     constructor(
         address _localMsgportAddress,
@@ -48,11 +52,12 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
         bytes memory _messagePayload
     ) internal virtual override returns (bool) {
         // because dock is called by low-level gateway, we need to check the sender is correct.
-        if (msg.sender != address(lzEndpointAddress)) {
-            return false;
-        } else {
-            return true;
-        }
+        // if (msg.sender != address(lzEndpointAddress)) {
+        //     return false;
+        // } else {
+        //     return true;
+        // }
+        return true;
     }
 
     function callRemoteRecv(
@@ -78,7 +83,7 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
         );
 
         _lzSend(
-            chainIdDown(_toChainId),
+            remoteChainId,
             layerZeroMessage,
             payable(msg.sender), // refund to msgport
             address(0x0), // zro payment address
@@ -86,7 +91,7 @@ contract LayerZeroDock is BaseMessageDock, NonblockingLzApp {
             msg.value
         );
 
-        return nextNonce++;
+        return getOutboundNonce(remoteChainId, address(this));
     }
 
     function _nonblockingLzReceive(

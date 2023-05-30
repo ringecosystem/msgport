@@ -8,22 +8,21 @@ import "./interfaces/BaseMessageDock.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract DefaultMsgport is IMsgport, Ownable2Step {
-    uint256 public localChainId;
+    uint64 public localChainId;
 
     // remoteChainId => localDockAddress[]
     mapping(uint256 => address[]) public localDockAddressesByToChainId;
 
-    // payable for refund
-    constructor(uint256 _localChainId) payable {
+    constructor(uint64 _localChainId) {
         localChainId = _localChainId;
     }
 
-    function getLocalChainId() external view returns (uint256) {
+    function getLocalChainId() external view returns (uint64) {
         return localChainId;
     }
 
     function getLocalDockAddressesByToChainId(
-        uint256 _toChainId
+        uint64 _toChainId
     ) external view returns (address[] memory) {
         return localDockAddressesByToChainId[_toChainId];
     }
@@ -60,7 +59,7 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
     // called by Dapp.
     function send(
         address _throughLocalDockAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params

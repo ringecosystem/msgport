@@ -8,6 +8,7 @@ export type IDock = {
   estimateFee: (
     remoteChainId: number,
     messagePayload: string,
-    feeMultiplier: number
+    feeMultiplier: number,
+    params: string
   ) => Promise<number>;
 };

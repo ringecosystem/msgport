@@ -5,36 +5,31 @@ pragma solidity >=0.8.9;
 import "./IMsgport.sol";
 import "./IChainIdMapping.sol";
 
-// dock knows hot to send message to remote dock.
 abstract contract BaseMessageDock {
     IMsgport public immutable localMsgport;
     IChainIdMapping public chainIdMapping;
 
     // remoteChainId => remoteDockAddress
-    mapping(uint256 => address) public remoteDockAddresses;
+    mapping(uint64 => address) public remoteDockAddresses;
 
     constructor(address _localMsgportAddress, address _chainIdConverter) {
         localMsgport = IMsgport(_localMsgportAddress);
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
-    function getLocalChainId() public view returns (uint256) {
+    function getLocalChainId() public view returns (uint64) {
         return localMsgport.getLocalChainId();
     }
 
     function remoteDockExists(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) public view returns (bool) {
         return remoteDockAddresses[_remoteChainId] == _remoteDockAddress;
     }
 
-    function setChainIdConverterInternal(address _chainIdConverter) internal {
-        chainIdMapping = IChainIdMapping(_chainIdConverter);
-    }
-
     function addRemoteDockInternal(
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress
     ) internal {
         require(
@@ -44,12 +39,16 @@ abstract contract BaseMessageDock {
         remoteDockAddresses[_remoteChainId] = _remoteDockAddress;
     }
 
+    function setChainIdConverterInternal(address _chainIdConverter) public {
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
+    }
+
     ////////////////////////////////////////
     // Abstract functions
     ////////////////////////////////////////
     // For receiving
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
@@ -59,7 +58,7 @@ abstract contract BaseMessageDock {
     // For sending
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -72,7 +71,7 @@ abstract contract BaseMessageDock {
     // called by local msgport
     function send(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -96,7 +95,7 @@ abstract contract BaseMessageDock {
 
     // called by remote dock through low level messaging contract or self
     function recv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,

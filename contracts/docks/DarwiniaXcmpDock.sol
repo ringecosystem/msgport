@@ -26,16 +26,16 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
-    function chainIdUp(bytes2 _chainId) public view returns (uint256) {
+    function chainIdUp(bytes2 _chainId) public view returns (uint64) {
         return chainIdMapping.up(abi.encodePacked(_chainId));
     }
 
-    function chainIdDown(uint256 _chainId) public view returns (bytes2) {
+    function chainIdDown(uint64 _chainId) public view returns (bytes2) {
         return bytes2(chainIdMapping.down(_chainId));
     }
 
     function approveToRecv(
-        uint256 _fromChainId,
+        uint64 _fromChainId,
         address _fromDockAddress,
         address _fromDappAddress,
         address _toDappAddress,
@@ -46,7 +46,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint256 _toChainId,
+        uint64 _toChainId,
         address _toDockAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -87,7 +87,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
     function transactOnParachain(
         address fromDappAddress,
-        uint256 toChainId,
+        uint64 toChainId,
         bytes memory call,
         uint64 refTime,
         uint64 proofSize,

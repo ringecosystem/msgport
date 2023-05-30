@@ -21,7 +21,7 @@ contract DarwiniaDock is
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
-        uint256 _remoteChainId,
+        uint64 _remoteChainId,
         address _remoteDockAddress,
         address _outboundLane,
         address _inboundLane,

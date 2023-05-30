@@ -24,7 +24,7 @@ import "../utils/GNSPSBytesLib.sol";
 // https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-docks-to-one-dest-chain/src/chain-ids.ts
 contract AxelarTestnetChainIdMapping is IChainIdMapping {
     function down(
-        uint256 msgportChainId
+        uint64 msgportChainId
     ) external pure returns (bytes memory lowLevelChainId) {
         if (msgportChainId == 4002) {
             return bytes("fantom");
@@ -39,7 +39,7 @@ contract AxelarTestnetChainIdMapping is IChainIdMapping {
 
     function up(
         bytes memory lowLevelChainId
-    ) external pure returns (uint256 msgportChainId) {
+    ) external pure returns (uint64 msgportChainId) {
         if (GNSPSBytesLib.equal(lowLevelChainId, bytes("fantom"))) {
             return 4002;
         } else if (GNSPSBytesLib.equal(lowLevelChainId, "moonbeam")) {
