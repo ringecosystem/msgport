@@ -29,6 +29,13 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
     function chainIdUp(string memory _chainId) public view returns (uint64) {
         return chainIdMapping.up(bytes(_chainId));
     }

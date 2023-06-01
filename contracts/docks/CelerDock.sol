@@ -24,6 +24,13 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
     function chainIdUp(uint64 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint64ToBytes(_chainId));
     }

@@ -30,6 +30,13 @@ contract LayerZeroDock is
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
     function chainIdUp(uint16 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint16ToBytes(_chainId));
     }
