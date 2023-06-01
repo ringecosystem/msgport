@@ -22,7 +22,6 @@ import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
 
 contract LayerZeroChainIdMapping is IChainIdMapping {
-
     function down(
         uint64 msgportChainId
     ) external pure returns (bytes memory lowLevelChainId) {

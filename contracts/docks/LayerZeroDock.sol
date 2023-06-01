@@ -13,7 +13,7 @@ contract LayerZeroDock is
     LayerZeroChainIdMapping
 {
     address public lzEndpointAddress;
-    uint64 public nextNonce;
+    mapping(uint64 => uint64) public nonces;
 
     constructor(
         address _localMsgportAddress,
@@ -92,7 +92,7 @@ contract LayerZeroDock is
             msg.value
         );
 
-        return nextNonce++;
+        return nonces[_toChainId]++;
     }
 
     function _nonblockingLzReceive(

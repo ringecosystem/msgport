@@ -14,6 +14,9 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     address public constant DISPATCH =
         0x0000000000000000000000000000000000000401;
 
+    // remote chainId => next nonce
+    mapping(uint64 => uint64) public nonces;
+
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
@@ -73,7 +76,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
             proofSize,
             fungible
         );
-        return 0;
+        return nonces[_toChainId]++;
     }
 
     /////////////////////////////////////////

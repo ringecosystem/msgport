@@ -11,7 +11,7 @@ import "../utils/Utils.sol";
 
 contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     address public remoteDockAddress;
-    uint64 public nextNonce = 0;
+    mapping(uint64 => uint64) public nonces;
 
     constructor(
         address _localMsgportAddress,
@@ -77,7 +77,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
             msg.value
         );
 
-        return nextNonce++;
+        return nonces[_toChainId]++;
     }
 
     //////////////////////////////////////////

@@ -13,7 +13,9 @@ import "../utils/Utils.sol";
 contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
     IAxelarGasService public immutable gasService;
 
-    uint64 public nextNonce;
+    // uint64 public nextNonce;
+    // remote chainId => next nonce
+    mapping(uint64 => uint64) public nonces;
 
     constructor(
         address _localMsgportAddress,
@@ -90,7 +92,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
 
         gateway.callContract(toChainId, toDockAddress, axelarMessage);
 
-        return nextNonce++;
+        return nonces[_toChainId]++;
     }
 
     function _execute(

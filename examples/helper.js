@@ -100,7 +100,6 @@ async function deployReceiver(network) {
   );
   const receiver = await ExampleReceiverDapp.deploy();
   await receiver.deployed();
-  console.log(`${network} receiver: ${receiver.address}`);
   return receiver.address;
 }
 

@@ -39,9 +39,10 @@ export async function getMsgport(
         selectDock
       );
 
-      console.log(`localDockAddress: ${localDockAddress}`);
       const dockType = dockTypeRegistry[localDockAddress];
-      console.log(`dockType: ${dockType}`);
+      console.log(
+        `localDockAddress: ${localDockAddress}, dockType: ${dockType}`
+      );
       return await getDock(provider, localDockAddress, dockType);
     },
 
@@ -84,7 +85,7 @@ export async function getMsgport(
         params
       );
       const feeBN = ethers.BigNumber.from(`${fee}`);
-      console.log(`cross-chain fee: ${fee / 1e18} UNITS.`);
+      console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
 
       // Send message
       const tx = await msgport.send(

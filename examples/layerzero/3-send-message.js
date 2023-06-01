@@ -13,7 +13,7 @@ async function main() {
   // deploy receiver
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
-  const receiverAddress = "0x8205b173786DC663d328D1CD9AdBCCb3877aBC6E"; // await deployReceiver(receiverChain);
+  const receiverAddress = await deployReceiver(receiverChain);
   const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
   console.log(
     `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
@@ -26,12 +26,12 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0x8FB4916669775c111dBC094F79941CaC1642C943" // <------- change this, see 0-setup-msgports.js
+    "0x05f8D1E45A04f5D7336c5BcabfCAc54Bd59c97f4" // <------- change this, see 0-setup-msgports.js
   );
 
   //  2. get the dock selection strategy
   const selectLastDock = async (_) =>
-    "0xB822E12dD225FBef8763325Aaf6F2cbCFe331c83";
+    "0x6c1D7335a362138e5E5c8831C838a46d88316f5C"; // <------- change this to the sender dock address, see 1-deploy-dock.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters
