@@ -25,7 +25,7 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal virtual returns (uint256);
+    ) internal virtual;
 
     function approveToRecvForSingle(
         address _fromDappAddress,
@@ -35,25 +35,22 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDockAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
-        return
-            callRemoteRecvForSingle(
-                _fromDappAddress,
-                _toDappAddress,
-                _messagePayload,
-                _params
-            );
+    ) internal override {
+        callRemoteRecvForSingle(
+            _fromDappAddress,
+            _toDappAddress,
+            _messagePayload,
+            _params
+        );
     }
 
     function approveToRecv(
-        uint64 _fromChainId,
-        address _fromDockAddress,
         address _fromDappAddress,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal override returns (bool) {

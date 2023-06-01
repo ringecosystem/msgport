@@ -38,17 +38,9 @@ contract LayerZeroDock is
         return Utils.bytesToUint16(chainIdMapping.down(_chainId));
     }
 
-    function addRemoteDock(
-        uint64 _remoteChainId,
-        address _remoteDockAddress
-    ) external onlyOwner {
-        addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
-    }
-
     function approveToRecv(
-        uint64 _fromChainId,
-        address _fromDockAddress,
         address _fromDappAddress,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal override returns (bool) {
@@ -63,16 +55,15 @@ contract LayerZeroDock is
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDockAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         // set remote dock address
-        uint16 remoteChainId = chainIdDown(_toChainId);
+        uint16 remoteChainId = chainIdDown(_outboundLane.toChainId);
         trustedRemoteLookup[remoteChainId] = abi.encodePacked(
-            _toDockAddress,
+            _outboundLane.toDockAddress,
             address(this)
         );
 
@@ -91,8 +82,6 @@ contract LayerZeroDock is
             _params, // adapter params
             msg.value
         );
-
-        return nonces[_toChainId]++;
     }
 
     function _nonblockingLzReceive(
@@ -101,24 +90,21 @@ contract LayerZeroDock is
         uint64 _nonce,
         bytes memory _payload
     ) internal virtual override {
-        uint256 srcChainId = chainIdUp(_srcChainId);
+        uint64 srcChainId = chainIdUp(_srcChainId);
         address srcDockAddress = Utils.bytesToAddress(_srcAddress);
-        require(
-            remoteDockExists(_srcChainId, srcDockAddress),
-            "Invalid remote dock address"
-        );
 
         (
             address fromDappAddress,
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode(_payload, (address, address, bytes));
-        recv(
-            chainIdUp(_srcChainId),
-            srcDockAddress,
-            fromDappAddress,
-            toDappAddress,
-            messagePayload
+
+        InboundLane memory inboundLane = inboundLanes[srcChainId];
+        require(
+            inboundLane.fromDockAddress == srcDockAddress,
+            "invalid source dock address"
         );
+
+        recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
     }
 }

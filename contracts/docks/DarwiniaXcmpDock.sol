@@ -38,9 +38,8 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     }
 
     function approveToRecv(
-        uint64 _fromChainId,
-        address _fromDockAddress,
         address _fromDappAddress,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal pure override returns (bool) {
@@ -49,12 +48,11 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDockAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         (uint64 refTime, uint64 proofSize, uint128 fungible) = abi.decode(
             _params,
             (uint64, uint64, uint128)
@@ -70,13 +68,12 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
         transactOnParachain(
             _fromDappAddress,
-            _toChainId,
+            _outboundLane.toChainId,
             call,
             refTime,
             proofSize,
             fungible
         );
-        return nonces[_toChainId]++;
     }
 
     /////////////////////////////////////////

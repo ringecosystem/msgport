@@ -40,6 +40,7 @@ interface IMsgport {
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory _message
+        bytes memory _message,
+        uint256 _nonce
     ) external;
 }

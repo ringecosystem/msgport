@@ -41,7 +41,7 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         (uint32 specVersion, uint256 gasLimit) = abi.decode(
             _params,
             (uint32, uint256)
@@ -56,10 +56,9 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
             _messagePayload
         );
 
-        return
-            IMessageEndpoint(darwiniaEndpointAddress).remoteExecute{
-                value: msg.value
-            }(specVersion, remoteDockAddress, recvCall, gasLimit);
+        IMessageEndpoint(darwiniaEndpointAddress).remoteExecute{
+            value: msg.value
+        }(specVersion, remoteDockAddress, recvCall, gasLimit);
     }
 
     function approveToRecvForSingle(

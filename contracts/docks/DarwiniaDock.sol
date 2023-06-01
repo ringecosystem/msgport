@@ -48,7 +48,7 @@ contract DarwiniaDock is
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         // estimate fee on chain
         uint256 fee = feeMarket.market_fee();
 
@@ -61,18 +61,17 @@ contract DarwiniaDock is
             payable(msg.sender).transfer(paid - fee);
         }
 
-        return
-            IOutboundLane(outboundLane).send_message{value: msg.value}(
-                remoteDockAddress,
-                abi.encodeWithSignature(
-                    "recv(uint256,address,address,address,bytes)",
-                    getLocalChainId(),
-                    address(this),
-                    _fromDappAddress,
-                    _toDappAddress,
-                    _messagePayload
-                )
-            );
+        IOutboundLane(outboundLane).send_message{value: msg.value}(
+            remoteDockAddress,
+            abi.encodeWithSignature(
+                "recv(uint256,address,address,address,bytes)",
+                getLocalChainId(),
+                address(this),
+                _fromDappAddress,
+                _toDappAddress,
+                _messagePayload
+            )
+        );
     }
 
     // For receiving
