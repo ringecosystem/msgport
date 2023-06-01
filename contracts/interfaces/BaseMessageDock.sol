@@ -121,6 +121,7 @@ abstract contract BaseMessageDock {
         OutboundLane memory outboundLane = outboundLanes[_toChainId];
         bytes memory message = abi.encode(outboundLane.nonce, _payload);
         outboundLane.nonce += 1;
+        outboundLanes[_toChainId] = outboundLane;
 
         callRemoteRecv(
             _fromDappAddress,
