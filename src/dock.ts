@@ -39,6 +39,17 @@ async function getDock(
       return await dock.getLocalChainId();
     },
 
+    getOutboundLane: async (remoteChainId: number) => {
+      const outboundLane = await dock.outboundLanes(remoteChainId);
+      return {
+        fromChainId: await result.getLocalChainId(),
+        fromDockAddress: dockAddress,
+        toChainId: outboundLane["toChainId"],
+        toDockAddress: outboundLane["toDockAddress"],
+        nonce: outboundLane["nonce"],
+      };
+    },
+
     getRemoteDockAddress: async (remoteChainId: number) => {
       const lane = await dock.outboundLanes(remoteChainId);
       return lane["toDockAddress"];

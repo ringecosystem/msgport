@@ -1,12 +1,14 @@
-// import { ethers } from "ethers";
+import { ethers } from "ethers";
 import { ChainId } from "./chain-ids";
-import { getMsgport, DockType } from "./msgport";
+import { getMsgport } from "./msgport";
+import { getDock, DockType } from "./dock";
 import { axelar } from "./axelar/index";
 import { layerzero } from "./layerzero/index";
 import { createDefaultDockSelectionStrategy } from "./DefaultDockSelectionStrategy";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
 
-export { getMsgport, ChainId, DockType };
+export { getMsgport, ChainId };
+export { getDock, DockType };
 export { IDockSelectionStrategy, createDefaultDockSelectionStrategy };
 export { axelar, layerzero };
 
@@ -42,7 +44,23 @@ async function main(): Promise<void> {
   // const tx = await msgport.send(
   //   dockSelection,
   //   1287, // target chain id
-}
+}*/
+// import IChainIdMapping from "../artifacts/contracts/interfaces/IChainIdMapping.sol/IChainIdMapping.json";
+// async function main(): Promise<void> {
+//   const chainIdMappingAddress = "0x7e75c06A6a79d35Cb6D4bE96c2626FBBFe37d548";
 
-main();
-*/
+//   const provider = new ethers.providers.JsonRpcProvider(
+//     "https://rpc.testnet.fantom.network"
+//   );
+
+//   const mapping = new ethers.Contract(
+//     chainIdMappingAddress,
+//     IChainIdMapping.abi,
+//     provider
+//   );
+
+//   const chainId = await mapping.down(4002);
+//   console.log(chainId);
+// }
+
+// main();

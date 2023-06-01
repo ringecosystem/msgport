@@ -18,7 +18,6 @@ async function buildEstimateFeeFunction(
   senderDockAddress: string,
   environment: Environment
 ) {
-  console.log(`buildEstimateFeeFunction: ${senderDockAddress}`);
   const sdk = new AxelarQueryAPI({
     environment: environment,
   });
@@ -39,11 +38,12 @@ async function buildEstimateFeeFunction(
     feeMultiplier,
     _params
   ) => {
-    console.log(`estimateFee: ${fromChainId} > ${toChainId}`);
+    console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
     const axelarSrcChainName = await dock.chainIdDown(fromChainId);
-    console.log(`axelarSrcChainName: ${axelarSrcChainName}`);
     const axelarDstChainName = await dock.chainIdDown(toChainId);
-    console.log(`axelarDstChainName: ${axelarDstChainName}`);
+    console.log(
+      `axelarSrcChainName: ${axelarSrcChainName}, axelarDstChainName: ${axelarDstChainName}`
+    );
 
     const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName];
 
@@ -52,7 +52,7 @@ async function buildEstimateFeeFunction(
         axelarSrcChainName,
         axelarDstChainName,
         axelarSrcGasToken,
-        100000,
+        1000000,
         feeMultiplier,
         "2025000000"
       )) as string
