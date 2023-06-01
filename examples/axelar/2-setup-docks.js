@@ -60,11 +60,11 @@ async function main() {
   // connect docks
   ///////////////////////////////////////
   // Add remote Dock to receiver
-  receiverDock.addRemoteDock(ChainId.FANTOM_TESTNET, senderDock.address);
+  receiverDock.newOutboundLane(ChainId.FANTOM_TESTNET, senderDock.address);
 
   // Add remote Dock to sender
   hre.changeNetwork(senderChain);
-  senderDock.addRemoteDock(ChainId.MOONBASE_ALPHA, receiverDock.address);
+  senderDock.newOutboundLane(ChainId.MOONBASE_ALPHA, receiverDock.address);
   console.log(`Connected`);
 }
 

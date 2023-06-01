@@ -18,7 +18,7 @@ async function deployDock(
   // deploy tx args
   deployGasLimit = 4000000,
   deployGasPrice = hre.ethers.utils.parseUnits("2", "gwei"),
-  // addRemoteDock tx args
+  // newOutboundLane tx args
   addRemoteDockGasLimit = 100000
 ) {
   let Dock = await hre.ethers.getContractFactory(dockName);
