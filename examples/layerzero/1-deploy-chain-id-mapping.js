@@ -1,36 +1,56 @@
 const hre = require("hardhat");
+const { ChainId, ChainListId } = require("@layerzerolabs/lz-sdk");
 
-// On fantomTestnet, chain id mapping contract deployed to: 0xF72C04C06513Af687CFaDbFcEe486E2ac156158D
-// On moonbaseAlpha, chain id mapping contract deployed to: 0x9286b7e01bA7d1157252c5cB1c1066E00F88f5Db
-async function main() {
-  ///////////////////////////////////////
-  const senderChain = "fantomTestnet";
-  hre.changeNetwork(senderChain);
+function getChainIdsList() {
+  const msgportChainids = [];
+  const lzChainIds = [];
+  Object.keys(ChainListId).forEach(function (chainKey) {
+    if (isNaN(parseInt(chainKey)) && !chainKey.endsWith("_SANDBOX")) {
+      const evmChainId = ChainListId[chainKey];
+      const chainId = ChainId[chainKey]; // ChainId: chain key => chain id, and chain id => chain key
+      if (evmChainId && chainId) {
+        msgportChainids.push(evmChainId);
+        lzChainIds.push(chainId);
+      }
+    }
+  });
 
-  // deploy chain id mapping contract
+  return [msgportChainids, lzChainIds];
+}
+
+async function deployChainIdMappingContract(
+  chainName,
+  msgportChainids,
+  lzChainIds
+) {
   let LayerZeroChainIdMapping = await hre.ethers.getContractFactory(
     "LayerZeroChainIdMapping"
   );
   let layerZeroChainIdMapping = await LayerZeroChainIdMapping.deploy();
   await layerZeroChainIdMapping.deployed();
-
+  await layerZeroChainIdMapping.setDownMapping(msgportChainids, lzChainIds);
+  await layerZeroChainIdMapping.setUpMapping(lzChainIds, msgportChainids);
   console.log(
-    `On ${senderChain}, LayerZeroChainIdMapping contract deployed to: ${layerZeroChainIdMapping.address}`
+    `On ${chainName}, LayerZeroChainIdMapping contract deployed to: ${layerZeroChainIdMapping.address}`
   );
+}
 
-  ///////////////////////////////////////
-  const receiverChain = "moonbaseAlpha";
+// On bnbChainTestnet, LayerZeroChainIdMapping contract deployed to: 0xA78aBD4CDAbCAf1A3Ae3F9105195E2c05810EE6E
+// On polygonTestnet, LayerZeroChainIdMapping contract deployed to: 0xAFb5F12C5F379431253159fae464572999E78485
+async function main() {
+  const [msgportChainids, lzChainIds] = getChainIdsList();
+
+  const senderChain = "bnbChainTestnet";
+  const receiverChain = "polygonTestnet";
+
+  hre.changeNetwork(senderChain);
+  await deployChainIdMappingContract(senderChain, msgportChainids, lzChainIds);
+
   hre.changeNetwork(receiverChain);
-
-  // deploy chain id mapping contract
-  LayerZeroChainIdMapping = await hre.ethers.getContractFactory(
-    "LayerZeroChainIdMapping"
-  );
-  layerZeroChainIdMapping = await LayerZeroChainIdMapping.deploy();
-  await layerZeroChainIdMapping.deployed();
-
-  console.log(
-    `On ${receiverChain}, LayerZeroChainIdMapping contract deployed to: ${layerZeroChainIdMapping.address}`
+  await deployChainIdMappingContract(
+    receiverChain,
+    msgportChainids,
+    lzChainIds
   );
 }
 

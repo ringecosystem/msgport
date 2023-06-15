@@ -29,7 +29,7 @@ interface IMsgport {
     function getLocalChainId() external view returns (uint64);
 
     function send(
-        address _throughLocalDockAddress,
+        address _throughLocalDock,
         uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -40,6 +40,7 @@ interface IMsgport {
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory _message
+        bytes memory _message,
+        uint256 _nonce
     ) external;
 }

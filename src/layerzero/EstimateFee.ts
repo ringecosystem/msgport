@@ -30,11 +30,10 @@ async function buildEstimateFeeFunction(
     feeMultiplier,
     params
   ) => {
-    console.log(`estimateFee: ${fromChainId} > ${toChainId}`);
+    console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
     const lzSrcChainId = await senderDock.chainIdDown(fromChainId);
-    console.log(`lzSrcChainId: ${lzSrcChainId}`);
     const lzDstChainId = await senderDock.chainIdDown(toChainId);
-    console.log(`lzDstChainId: ${lzDstChainId}`);
+    console.log(`lzSrcChainId: ${lzSrcChainId}, lzDstChainId: ${lzDstChainId}`);
 
     const payload = ethers.utils.defaultAbiCoder.encode(
       ["address", "address", "address", "bytes"],

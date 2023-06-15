@@ -14,6 +14,9 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     address public constant DISPATCH =
         0x0000000000000000000000000000000000000401;
 
+    // remote chainId => next nonce
+    mapping(uint64 => uint64) public nonces;
+
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
@@ -26,6 +29,20 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external override onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external override onlyOwner {
+        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+    }
+
     function chainIdUp(bytes2 _chainId) public view returns (uint64) {
         return chainIdMapping.up(abi.encodePacked(_chainId));
     }
@@ -35,9 +52,8 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     }
 
     function approveToRecv(
-        uint64 _fromChainId,
-        address _fromDockAddress,
         address _fromDappAddress,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal pure override returns (bool) {
@@ -46,12 +62,11 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDockAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         (uint64 refTime, uint64 proofSize, uint128 fungible) = abi.decode(
             _params,
             (uint64, uint64, uint128)
@@ -67,13 +82,12 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
 
         transactOnParachain(
             _fromDappAddress,
-            _toChainId,
+            _outboundLane.toChainId,
             call,
             refTime,
             proofSize,
             fungible
         );
-        return 0;
     }
 
     /////////////////////////////////////////

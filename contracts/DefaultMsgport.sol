@@ -17,7 +17,6 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         localChainId = _localChainId;
     }
 
-    // Function to receive Ether. msg.data must be empty
     receive() external payable {}
 
     function withdraw() external onlyOwner {
@@ -77,14 +76,17 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
             "Local dock not exists"
         );
 
-        return
-            BaseMessageDock(_throughLocalDockAddress).send{value: msg.value}(
-                msg.sender, // fromDappAddress
-                _toChainId,
-                _toDappAddress,
-                _messagePayload,
-                _params
-            );
+        BaseMessageDock dock = BaseMessageDock(_throughLocalDockAddress);
+
+        dock.send{value: msg.value}(
+            msg.sender, // fromDappAddress
+            _toChainId,
+            _toDappAddress,
+            _messagePayload,
+            _params
+        );
+
+        return dock.getOutboundLaneNonce(_toChainId);
     }
 
     // called by dock.
@@ -95,7 +97,8 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory _messagePayload
+        bytes memory _messagePayload,
+        uint256 _nonce
     ) external {
         require(
             localDockExists(_fromChainId, msg.sender),
@@ -106,7 +109,8 @@ contract DefaultMsgport is IMsgport, Ownable2Step {
             IMessageReceiver(_toDappAddress).recv(
                 _fromChainId,
                 _fromDappAddress,
-                _messagePayload
+                _messagePayload,
+                _nonce
             )
         {} catch Error(string memory reason) {
             emit DappError(

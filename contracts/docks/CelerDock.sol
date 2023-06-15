@@ -11,7 +11,6 @@ import "../utils/Utils.sol";
 
 contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     address public remoteDockAddress;
-    uint64 public nextNonce = 0;
 
     constructor(
         address _localMsgportAddress,
@@ -25,6 +24,20 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external override onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external override onlyOwner {
+        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+    }
+
     function chainIdUp(uint64 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint64ToBytes(_chainId));
     }
@@ -33,25 +46,17 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         return Utils.bytesToUint64(chainIdMapping.down(_chainId));
     }
 
-    function addRemoteDock(
-        uint64 _remoteChainId,
-        address _remoteDockAddress
-    ) external onlyOwner {
-        addRemoteDockInternal(_remoteChainId, _remoteDockAddress);
-    }
-
     //////////////////////////////////////////
     // For sending
     //////////////////////////////////////////
     // override BaseMessageDock
     function callRemoteRecv(
         address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDockAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) internal override returns (uint256) {
+    ) internal override {
         bytes memory celerMessage = abi.encode(
             _fromDappAddress,
             _toDappAddress,
@@ -71,13 +76,11 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         }
 
         sendMessage(
-            _toDockAddress,
-            chainIdDown(_toChainId),
+            _outboundLane.toDockAddress,
+            chainIdDown(_outboundLane.toChainId),
             celerMessage,
             msg.value
         );
-
-        return nextNonce++;
     }
 
     //////////////////////////////////////////
@@ -96,21 +99,22 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode((_celerMessage), (address, address, bytes));
-        recv(
-            chainIdUp(_srcChainId),
-            _srcContract,
-            fromDappAddress,
-            toDappAddress,
-            messagePayload
+
+        InboundLane memory inboundLane = inboundLanes[chainIdUp(_srcChainId)];
+        require(
+            inboundLane.fromDockAddress == _srcContract,
+            "invalid source dock address"
         );
+
+        recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
+
         return ExecutionStatus.Success;
     }
 
     // override BaseMessageDock
     function approveToRecv(
-        uint64 _fromChainId,
-        address _fromDockAddress,
         address _fromDappAddress,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal view override returns (bool) {

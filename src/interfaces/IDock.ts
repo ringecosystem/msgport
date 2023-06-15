@@ -3,6 +3,8 @@ export type IDock = {
 
   getLocalChainId: () => Promise<number>;
 
+  getOutboundLane: (remoteChainId: number) => Promise<any>;
+
   getRemoteDockAddress: (remoteChainId: number) => Promise<string>;
 
   estimateFee: (

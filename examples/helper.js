@@ -17,8 +17,8 @@ async function deployDock(
   remoteChainId,
   // deploy tx args
   deployGasLimit = 4000000,
-  deployGasPrice = hre.ethers.utils.parseUnits("2", "gwei"),
-  // addRemoteDock tx args
+  deployGasPrice = hre.ethers.utils.parseUnits("10", "gwei"),
+  // newOutboundLane tx args
   addRemoteDockGasLimit = 100000
 ) {
   let Dock = await hre.ethers.getContractFactory(dockName);
@@ -100,7 +100,6 @@ async function deployReceiver(network) {
   );
   const receiver = await ExampleReceiverDapp.deploy();
   await receiver.deployed();
-  console.log(`${network} receiver: ${receiver.address}`);
   return receiver.address;
 }
 
@@ -118,6 +117,12 @@ async function sendMessage(
   const msgport = await getMsgport(senderChain, senderMsgportAddress);
   msgport.send(receiverChainId, receiverAddress, message, estimateFee, params);
 }
+
+exports.puts = (obj) => {
+  for (const [key, value] of Object.entries(obj)) {
+    console.log(`  ${key}: ${value}`);
+  }
+};
 
 exports.deployMsgport = deployMsgport;
 exports.deployDock = deployDock;
