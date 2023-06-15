@@ -4,3 +4,4 @@ package-lock.json
 artifacts
 cache
 dist
+.DS_Store
