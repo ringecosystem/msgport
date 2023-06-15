@@ -5,9 +5,9 @@ require("hardhat-change-network");
 
 require("dotenv").config({ path: ".env" });
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL;
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL;
+const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342";
+const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || "https://mainnet.infura.io";
+const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "https://goerli.infura.io";
 
 task(
   "flat",
@@ -40,35 +40,41 @@ task(
     console.log(flattened);
   });
 
+const solcSettings = {
+  evmVersion: "london",
+  optimizer: {
+    enabled: true,
+    runs: 999999,
+  },
+  outputSelection: {
+    "*": {
+      "*": [
+        "abi",
+        "devdoc",
+        "metadata",
+        "evm.bytecode.object",
+        "evm.bytecode.sourceMap",
+        "evm.deployedBytecode.object",
+        "evm.deployedBytecode.sourceMap",
+        "evm.methodIdentifiers",
+      ],
+      "": ["ast"],
+    },
+  },
+}
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.9",
-        settings: {
-          evmVersion: "istanbul",
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-          outputSelection: {
-            "*": {
-              "*": [
-                "abi",
-                "devdoc",
-                "metadata",
-                "evm.bytecode.object",
-                "evm.bytecode.sourceMap",
-                "evm.deployedBytecode.object",
-                "evm.deployedBytecode.sourceMap",
-                "evm.methodIdentifiers",
-              ],
-              "": ["ast"],
-            },
-          },
-        },
+        version: "0.8.17",
+        settings: solcSettings,
       },
+      {
+        version: "0.8.9",
+        settings: solcSettings,
+      }
     ],
   },
   paths: {
