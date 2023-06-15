@@ -34,7 +34,7 @@ interface IMessagePort {
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) external payable returns (uint256);
+    ) external payable;
 
     function recv(
         uint64 _fromChainId,

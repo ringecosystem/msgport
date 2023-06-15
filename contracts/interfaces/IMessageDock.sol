@@ -9,6 +9,4 @@ interface IMessageDock {
         bytes memory _payload,
         bytes memory _params
     ) external payable;
-
-    function getOutboundLaneNonce(uint64 _toChainId) external view returns (uint256);
 }
