@@ -53,22 +53,14 @@ contract MessagePort is IMessagePort, Ownable2Step {
         uint64 remoteChainId_,
         address localDockAddress_
     ) external onlyOwner {
-        require(
-            !localDockExists(remoteChainId_, localDockAddress_),
-            "Dock already exists"
-        );
-        _localDockAddressesByToChainId[remoteChainId_].add(localDockAddress_);
+        require(_localDockAddressesByToChainId[remoteChainId_].add(localDockAddress_), "!add");
     }
 
     function removeLocalDock(
         uint64 remoteChainId_,
         address localDockAddress_
     ) external onlyOwner {
-        require(
-            localDockExists(remoteChainId_, localDockAddress_),
-            "Dock missing"
-        );
-        _localDockAddressesByToChainId[remoteChainId_].remove(localDockAddress_);
+        require(_localDockAddressesByToChainId[remoteChainId_].remove(localDockAddress_), "!rm");
     }
 
     function localDockExists(
