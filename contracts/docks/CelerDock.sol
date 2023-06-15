@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.9;
 
-import "../interfaces/BaseMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";

@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./IMessagePort.sol";
-import "./IChainIdMapping.sol";
+import "../../interfaces/IMessagePort.sol";
+import "../../interfaces/IChainIdMapping.sol";
 
 abstract contract BaseMessageDock {
     struct OutboundLane {

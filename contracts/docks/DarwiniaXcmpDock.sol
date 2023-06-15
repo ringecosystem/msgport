@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../interfaces/BaseMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../utils/Utils.sol";

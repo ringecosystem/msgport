@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 
 import "./interfaces/IMessagePort.sol";
 import "./interfaces/IMessageReceiver.sol";
-import "./interfaces/BaseMessageDock.sol";
+import "./interfaces/IMessageDock.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract MessagePort is IMessagePort, Ownable2Step {
@@ -76,7 +76,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
             "Local dock not exists"
         );
 
-        BaseMessageDock dock = BaseMessageDock(_throughLocalDockAddress);
+        IMessageDock dock = IMessageDock(_throughLocalDockAddress);
 
         dock.send{value: msg.value}(
             msg.sender, // fromDappAddress
