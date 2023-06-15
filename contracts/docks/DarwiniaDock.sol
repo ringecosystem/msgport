@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import "../interfaces/SingleTargetMessageDock.sol";
+import "./base/SingleTargetMessageDock.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
