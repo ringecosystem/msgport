@@ -62,10 +62,10 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
     }
 
     function approveToRecvForSingle(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _message
-    ) internal override returns (bool) {
+        address /*_fromDappAddress*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_message*/
+    ) internal pure override returns (bool) {
         return true;
     }
 }
