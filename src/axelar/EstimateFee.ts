@@ -36,7 +36,7 @@ async function buildEstimateFeeFunction(
     _toDappAddress,
     _messagePayload,
     feeMultiplier,
-    _params
+    params
   ) => {
     console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
     const axelarSrcChainName = await dock.chainIdDown(fromChainId);
@@ -45,6 +45,12 @@ async function buildEstimateFeeFunction(
       `axelarSrcChainName: ${axelarSrcChainName}, axelarDstChainName: ${axelarDstChainName}`
     );
 
+    const gasLimit = ethers.utils.defaultAbiCoder.decode(
+      ["uint256"],
+      params
+    )[0];
+    console.log(`gasLimit: ${gasLimit}`);
+
     const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName];
 
     return parseInt(
@@ -52,7 +58,7 @@ async function buildEstimateFeeFunction(
         axelarSrcChainName,
         axelarDstChainName,
         axelarSrcGasToken,
-        1000000,
+        gasLimit,
         feeMultiplier,
         "2025000000"
       )) as string

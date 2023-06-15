@@ -20,7 +20,8 @@
     "@axelar-network/axelar-cgp-solidity": "^4.5.0",
     "@axelar-network/axelar-gmp-sdk-solidity": "^3.2.0",
     "@axelar-network/axelar-local-dev": "^1.4.4",
-    "@axelar-network/axelarjs-sdk": "^0.12.5-alph.3"
+    "@axelar-network/axelarjs-sdk": "^0.12.5-alph.3",
+    "@layerzerolabs/lz-sdk": "^0.0.24"
   },
   "devDependencies": {
     "@darwinia/contracts-periphery": "2.1.0-pre6",

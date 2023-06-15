@@ -3,14 +3,14 @@ const hre = require("hardhat");
 const { getMsgport } = require("../../dist/src/index");
 
 async function main() {
-  const senderChain = "fantomTestnet";
-  const receiverChain = "moonbaseAlpha";
+  const senderChain = "bnbChainTestnet";
+  const receiverChain = "polygonTestnet";
 
   ///////////////////////////////////////
   // deploy receiver
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
-  const receiverAddress = await deployReceiver(receiverChain);
+  const receiverAddress = "0xe13084f8fF65B755E37d95F49edbD49ca26feE13"; // await deployReceiver(receiverChain);
   const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
   console.log(
     `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
@@ -23,18 +23,18 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F" // <------- change this, see 0-setup-msgports.js
+    "0xeF1c60AB9B902c13585411dC929005B98Ca44541" // <------- change this, see 0-setup-msgports.js
   );
 
   //  2. get the dock selection strategy
   const selectLastDock = async (_) =>
-    "0xDf2180554eFF86d0e910E8B6652EDf3c59C37e97"; // <------- change this to the sender dock address, see 1-deploy-dock.js
+    "0x98845062E9D4fF5e52C942Dc6876037A2448DA64"; // <------- change this to the sender dock address, see 2-deploy-dock.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters
   let params = hre.ethers.utils.solidityPack(
     ["uint16", "uint256"],
-    [1, 1000000]
+    [1, 300000]
   );
   const tx = await msgport.send(
     receiverChainId,

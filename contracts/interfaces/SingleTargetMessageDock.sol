@@ -61,4 +61,18 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
                 _messagePayload
             );
     }
+
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external override {
+        // do nothing
+    }
+
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external override {
+        // do nothing
+    }
 }

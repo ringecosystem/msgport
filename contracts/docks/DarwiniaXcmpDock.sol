@@ -29,6 +29,20 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         setChainIdConverterInternal(_chainIdConverter);
     }
 
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external override onlyOwner {
+        addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external override onlyOwner {
+        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+    }
+
     function chainIdUp(bytes2 _chainId) public view returns (uint64) {
         return chainIdMapping.up(abi.encodePacked(_chainId));
     }

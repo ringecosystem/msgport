@@ -33,7 +33,7 @@ contract AxelarTestnetChainIdMapping is IChainIdMapping {
         } else if (msgportChainId == 97) {
             return bytes("binance");
         } else {
-            revert("AxelarChainIdMapping: unknown msgport chain id");
+            revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
@@ -47,7 +47,7 @@ contract AxelarTestnetChainIdMapping is IChainIdMapping {
         } else if (GNSPSBytesLib.equal(lowLevelChainId, "binance")) {
             return 97;
         } else {
-            revert("AxelarChainIdMapping: unknown low level chain id");
+            revert LowLevelChainIdNotFound(lowLevelChainId);
         }
     }
 }

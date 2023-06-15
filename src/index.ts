@@ -12,27 +12,33 @@ export { getDock, DockType };
 export { IDockSelectionStrategy, createDefaultDockSelectionStrategy };
 export { axelar, layerzero };
 
-/*
 async function main(): Promise<void> {
   const provider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.testnet.fantom.network"
+    "https://bsc-testnet.publicnode.com"
   );
 
   const msgport = await getMsgport(
     provider,
-    "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a"
+    "0xeF1c60AB9B902c13585411dC929005B98Ca44541"
   );
 
-  const dockSelection: IDockSelectionStrategy =
-    createDefaultDockSelectionStrategy(provider);
+  const dockSelection: IDockSelectionStrategy = async (
+    dockAddresses: string[]
+  ) => "0x017D8C573a54cc43e2D23EC8Fa756D92777c3217";
 
-  const dock = await msgport.getDock(
-    1287, // target chain id
-    dockSelection
+  // const dock = await msgport.getDock(
+  //   ChainId.POLYGON_MUMBAI, // target chain id
+  //   dockSelection
+  // );
+  // console.log(`dock: ${dock}`);
+
+  const dockAddresses = await msgport.getLocalDockAddressesByToChainId(
+    ChainId.BNBCHAIN_TESTNET
   );
+  console.log(`dockAddresses: ${dockAddresses}`);
 
-  const fee = await dock.estimateFee(ChainId.MOONBASE_ALPHA, "0x12345678");
-  console.log(`cross-chain fee: ${fee} wei.`);
+  // const fee = await dock.estimateFee(ChainId.MOONBASE_ALPHA, "0x12345678");
+  // console.log(`cross-chain fee: ${fee} wei.`);
 
   // toChainId: number,
   //     selectDock: IDockSelectionStrategy,
@@ -44,7 +50,8 @@ async function main(): Promise<void> {
   // const tx = await msgport.send(
   //   dockSelection,
   //   1287, // target chain id
-}*/
+}
+
 // import IChainIdMapping from "../artifacts/contracts/interfaces/IChainIdMapping.sol/IChainIdMapping.json";
 // async function main(): Promise<void> {
 //   const chainIdMappingAddress = "0x7e75c06A6a79d35Cb6D4bE96c2626FBBFe37d548";
@@ -59,7 +66,7 @@ async function main(): Promise<void> {
 //     provider
 //   );
 
-//   const chainId = await mapping.down(4002);
+//   const chainId = await mapping.down(1287);
 //   console.log(chainId);
 // }
 

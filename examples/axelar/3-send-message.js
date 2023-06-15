@@ -27,7 +27,7 @@ async function main() {
 
   //  2. get the dock selection strategy
   const selectLastDock = async (_) =>
-    "0x20aE788f9E9F380Aa9d241e69Dfd816E078cE1e1"; // <------- change this to the sender dock address, see 1-deploy-dock.js
+    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99"; // <------- change this to the sender dock address, see 1-deploy-dock.js
 
   //  3. send message
   let params = hre.ethers.utils.solidityPack(["uint256"], [1000000]);
