@@ -104,7 +104,7 @@ contract LayerZeroDock is
     function _nonblockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
-        uint64 _nonce,
+        uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual override {
         uint64 srcChainId = chainIdUp(_srcChainId);
