@@ -92,6 +92,11 @@ abstract contract BaseMessageDock {
         bytes memory _messagePayload
     ) internal virtual returns (bool);
 
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external virtual;
+
     // For sending
     function callRemoteRecv(
         address _fromDappAddress,
@@ -100,6 +105,11 @@ abstract contract BaseMessageDock {
         bytes memory _messagePayload,
         bytes memory _params
     ) internal virtual;
+
+    function newOutboundLane(
+        uint64 _toChainId,
+        address _toDockAddress
+    ) external virtual;
 
     ////////////////////////////////////////
     // Public functions

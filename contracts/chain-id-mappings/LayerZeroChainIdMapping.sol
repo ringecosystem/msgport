@@ -21,33 +21,46 @@ import "../interfaces/IChainIdMapping.sol";
 import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
 
+// https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
 contract LayerZeroChainIdMapping is IChainIdMapping {
+    mapping(uint64 => uint16) public downMapping;
+    mapping(uint16 => uint64) public upMapping;
+
+    function setDownMapping(
+        uint64[] memory msgportChainIds,
+        uint16[] memory lzChainIds
+    ) external {
+        for (uint i = 0; i < msgportChainIds.length; i++) {
+            downMapping[msgportChainIds[i]] = lzChainIds[i];
+        }
+    }
+
+    function setUpMapping(
+        uint16[] memory lzChainIds,
+        uint64[] memory msgportChainIds
+    ) external {
+        for (uint i = 0; i < lzChainIds.length; i++) {
+            upMapping[lzChainIds[i]] = msgportChainIds[i];
+        }
+    }
+
     function down(
         uint64 msgportChainId
-    ) external pure returns (bytes memory lowLevelChainId) {
-        if (msgportChainId == 4002) {
-            return Utils.uint16ToBytes(10112);
-        } else if (msgportChainId == 1287) {
-            return Utils.uint16ToBytes(10126);
-        } else if (msgportChainId == 97) {
-            return Utils.uint16ToBytes(10102);
-        } else {
-            revert("LayerZeroChainIdMapping: unknown msgport chain id");
+    ) external view returns (bytes memory lowLevelChainId) {
+        uint16 lzChainId = downMapping[msgportChainId];
+        if (lzChainId == 0) {
+            revert MsgportChainIdNotFound(msgportChainId);
         }
+        lowLevelChainId = Utils.uint16ToBytes(lzChainId);
     }
 
     function up(
         bytes memory lowLevelChainId
-    ) external pure returns (uint64 msgportChainId) {
+    ) external view returns (uint64 msgportChainId) {
         uint16 lzChainId = Utils.bytesToUint16(lowLevelChainId);
-        if (lzChainId == 10112) {
-            return 4002;
-        } else if (lzChainId == 10126) {
-            return 1287;
-        } else if (lzChainId == 10102) {
-            return 97;
-        } else {
-            revert("LayerZeroChainIdMapping: unknown low level chain id");
+        if (lzChainId == 0) {
+            revert LowLevelChainIdNotFound(lowLevelChainId);
         }
+        msgportChainId = upMapping[lzChainId];
     }
 }

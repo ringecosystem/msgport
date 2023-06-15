@@ -47,7 +47,8 @@ export async function getMsgport(
     },
 
     getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
-      return await msgport.localDockAddressesByToChainId(toChainId);
+      console.log(`toChainId: ${toChainId}`);
+      return await msgport.getLocalDockAddressesByToChainId(toChainId);
     },
 
     estimateFee: async (

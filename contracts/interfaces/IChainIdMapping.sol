@@ -19,6 +19,9 @@ pragma solidity ^0.8.0;
 
 // TODO: mapping or if else
 interface IChainIdMapping {
+    error MsgportChainIdNotFound(uint64 msgportChainId);
+    error LowLevelChainIdNotFound(bytes lowLevelChainId);
+
     function down(
         uint64 msgportChainId
     ) external view returns (bytes memory lowLevelChainId);

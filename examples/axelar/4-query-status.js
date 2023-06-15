@@ -15,7 +15,7 @@ async function main() {
   hre.changeNetwork(senderChain);
   const dock = await getDock(
     await hre.ethers.provider,
-    "0x20aE788f9E9F380Aa9d241e69Dfd816E078cE1e1", // <------- change this, sender dock address,
+    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99", // <------- change this, sender dock address,
     DockType.AxelarTestnet
   );
   const outboundLane = await dock.getOutboundLane(1287);
@@ -30,7 +30,7 @@ async function main() {
     environment: Environment.TESTNET,
   });
   const txHash =
-    "0x0c0643e340f080c22d97150737af9fe051f3008630bbf75e5d4f113ac0d5b6ff"; // <------- change this
+    "0x2b9cdad2f666521f3ea41fe26d8797f1a88a3a8eae273c303ef6baf7b895903a"; // <------- change this
   const txStatus = await sdk.queryTransactionStatus(txHash);
   console.log(txStatus["status"]);
 

@@ -33,8 +33,15 @@ contract LayerZeroDock is
     function newOutboundLane(
         uint64 _toChainId,
         address _toDockAddress
-    ) external onlyOwner {
+    ) external override onlyOwner {
         addOutboundLaneInternal(_toChainId, _toDockAddress);
+    }
+
+    function newInboundLane(
+        uint64 _fromChainId,
+        address _fromDockAddress
+    ) external override onlyOwner {
+        addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
     function chainIdUp(uint16 _chainId) public view returns (uint64) {
