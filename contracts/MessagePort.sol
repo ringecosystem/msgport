@@ -6,7 +6,7 @@ import "./interfaces/IMessagePort.sol";
 import "./interfaces/IMessageReceiver.sol";
 import "./interfaces/IMessageDock.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "@openzeppelin/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 contract MessagePort is IMessagePort, Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -14,7 +14,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
     uint64 private _localChainId;
 
     // remoteChainId => localDockAddress[]
-    mapping(uint64 => EnumerableSet.AddressSet[]) private _localDockAddressesByToChainId;
+    mapping(uint64 => EnumerableSet.AddressSet) private _localDockAddressesByToChainId;
 
     constructor(uint64 localChainId_) {
         _localChainId = localChainId_;
@@ -116,18 +116,18 @@ contract MessagePort is IMessagePort, Ownable2Step {
             ) {
         } catch Error(string memory reason) {
             emit DappError(
-                _fromChainId,
-                _fromDappAddress,
-                _toDappAddress,
-                _messagePayload,
+                fromChainId_,
+                fromDappAddress_,
+                toDappAddress_,
+                messagePayload_,
                 reason
             );
         } catch (bytes memory reason) {
             emit DappError(
-                _fromChainId,
-                _fromDappAddress,
-                _toDappAddress,
-                _messagePayload,
+                fromChainId_,
+                fromDappAddress_,
+                toDappAddress_,
+                messagePayload_,
                 string(reason)
             );
         }
