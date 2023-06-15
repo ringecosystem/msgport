@@ -81,7 +81,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
             "Local dock not exists"
         );
 
-        return IMessageDock(throughLocalDockAddress_).send{value: msg.value}(
+        IMessageDock(throughLocalDockAddress_).send{value: msg.value}(
             msg.sender, // fromDappAddress
             toChainId_,
             toDappAddress_,
