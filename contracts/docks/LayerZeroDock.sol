@@ -46,11 +46,11 @@ contract LayerZeroDock is
     }
 
     function approveToRecv(
-        address _fromDappAddress,
-        InboundLane memory _inboundLane,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) internal override returns (bool) {
+        address /*_fromDappAddress*/,
+        InboundLane memory /*_inboundLane*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_messagePayload*/
+    ) internal pure override returns (bool) {
         // because dock is called by low-level gateway, we need to check the sender is correct.
         // if (msg.sender != address(lzEndpointAddress)) {
         //     return false;

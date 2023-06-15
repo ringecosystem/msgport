@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "./IMsgport.sol";
 import "./BaseMessageDock.sol";
 
 // dock knows hot to send message to remote dock.
@@ -35,7 +34,7 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
 
     function callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        OutboundLane memory /*_outboundLane*/,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -50,7 +49,7 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
 
     function approveToRecv(
         address _fromDappAddress,
-        InboundLane memory _inboundLane,
+        InboundLane memory /*_inboundLane*/,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal override returns (bool) {

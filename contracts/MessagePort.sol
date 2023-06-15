@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.17;
 
-import "./interfaces/IMsgport.sol";
+import "./interfaces/IMessagePort.sol";
 import "./interfaces/IMessageReceiver.sol";
 import "./interfaces/BaseMessageDock.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DefaultMsgport is IMsgport, Ownable2Step {
+contract MessagePort is IMessagePort, Ownable2Step {
     uint64 public localChainId;
 
     // remoteChainId => localDockAddress[]
