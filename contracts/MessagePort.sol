@@ -6,15 +6,18 @@ import "./interfaces/IMessagePort.sol";
 import "./interfaces/IMessageReceiver.sol";
 import "./interfaces/IMessageDock.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "@openzeppelin/utils/structs/EnumerableSet.sol";
 
 contract MessagePort is IMessagePort, Ownable2Step {
-    uint64 public localChainId;
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    uint64 private _localChainId;
 
     // remoteChainId => localDockAddress[]
-    mapping(uint64 => address[]) public localDockAddressesByToChainId;
+    mapping(uint64 => EnumerableSet.AddressSet[]) private _localDockAddressesByToChainId;
 
-    constructor(uint64 _localChainId) {
-        localChainId = _localChainId;
+    constructor(uint64 localChainId_) {
+        _localChainId = localChainId_;
     }
 
     receive() external payable {}
@@ -24,69 +27,67 @@ contract MessagePort is IMessagePort, Ownable2Step {
     }
 
     function getLocalChainId() external view returns (uint64) {
-        return localChainId;
+        return _localChainId;
     }
 
     function getLocalDockAddressesByToChainId(
-        uint64 _toChainId
+        uint64 toChainId_
     ) external view returns (address[] memory) {
-        return localDockAddressesByToChainId[_toChainId];
+        return _localDockAddressesByToChainId[toChainId_].values();
+    }
+
+    function getLocalDockAddressesLengthByToChainId(
+        uint64 toChainId_
+    ) external view returns (uint256) {
+        return _localDockAddressesByToChainId[toChainId_].length();
+    }
+
+    function getLocalDockAddressByToChainIdAndIndex(
+        uint64 toChainId_,
+        uint256 index_
+    ) external view returns (address) {
+        return _localDockAddressesByToChainId[toChainId_].at(index_);
     }
 
     function addLocalDock(
-        uint64 _remoteChainId,
-        address _localDockAddress
+        uint64 remoteChainId_,
+        address localDockAddress_
     ) external onlyOwner {
         require(
-            !localDockExists(_remoteChainId, _localDockAddress),
+            !localDockExists(remoteChainId_, localDockAddress_),
             "Dock already exists"
         );
-
-        localDockAddressesByToChainId[_remoteChainId].push(_localDockAddress);
+        _localDockAddressesByToChainId[remoteChainId_].add(localDockAddress_);
     }
 
     function localDockExists(
-        uint64 _remoteChainId,
-        address _localDockAddress
+        uint64 remoteChainId_,
+        address localDockAddress_
     ) public view returns (bool) {
-        address[] memory localDockAddresses = localDockAddressesByToChainId[
-            _remoteChainId
-        ];
-        bool exists = false;
-        for (uint i = 0; i < localDockAddresses.length; i++) {
-            if (localDockAddresses[i] == _localDockAddress) {
-                exists = true;
-                break;
-            }
-        }
-        return exists;
+        return _localDockAddressesByToChainId[remoteChainId_].contains(localDockAddress_);
     }
 
     // called by Dapp.
     function send(
-        address _throughLocalDockAddress,
-        uint64 _toChainId,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory _params
-    ) external payable returns (uint256) {
+        address throughLocalDockAddress_,
+        uint64 toChainId_,
+        address toDappAddress_,
+        bytes memory messagePayload_,
+        bytes memory params_
+    ) external payable {
         // check if local dock exists
         require(
-            localDockExists(_toChainId, _throughLocalDockAddress),
+            localDockExists(toChainId_, throughLocalDockAddress_),
             "Local dock not exists"
         );
 
-        IMessageDock dock = IMessageDock(_throughLocalDockAddress);
-
-        dock.send{value: msg.value}(
+        return IMessageDock(throughLocalDockAddress_).send{value: msg.value}(
             msg.sender, // fromDappAddress
-            _toChainId,
-            _toDappAddress,
-            _messagePayload,
-            _params
+            toChainId_,
+            toDappAddress_,
+            messagePayload_,
+            params_
         );
-
-        return dock.getOutboundLaneNonce(_toChainId);
     }
 
     // called by dock.
@@ -94,25 +95,26 @@ contract MessagePort is IMessagePort, Ownable2Step {
     // catch the error if user's recv function failed with uncaught error.
     // store the message and error for the user to do something like retry.
     function recv(
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        uint256 _nonce
+        uint64 fromChainId_,
+        address fromDappAddress_,
+        address toDappAddress_,
+        bytes memory messagePayload_,
+        // TO DISCUSS: dapp should deal with nonce?
+        uint256 nonce_
     ) external {
         require(
-            localDockExists(_fromChainId, msg.sender),
+            localDockExists(fromChainId_, msg.sender),
             "Local dock not exists"
         );
 
         try
-            IMessageReceiver(_toDappAddress).recv(
-                _fromChainId,
-                _fromDappAddress,
-                _messagePayload,
-                _nonce
-            )
-        {} catch Error(string memory reason) {
+            IMessageReceiver(toDappAddress_).recv(
+                fromChainId_,
+                fromDappAddress_,
+                messagePayload_,
+                nonce_
+            ) {
+        } catch Error(string memory reason) {
             emit DappError(
                 _fromChainId,
                 _fromDappAddress,
