@@ -5,7 +5,7 @@ pragma solidity ^0.8.17;
 import "../interfaces/IMessageReceiver.sol";
 
 contract ExampleReceiverDapp is IMessageReceiver {
-    uint256 fromChainId;
+    uint256 public fromChainId;
     address public fromDappAddress;
     bytes public message;
     uint256 public nonce;
