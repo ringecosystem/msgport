@@ -28,7 +28,7 @@ async function main() {
 
   //  2. get the dock selection strategy
   const selectLastDock = async (_) =>
-    "0x98845062E9D4fF5e52C942Dc6876037A2448DA64"; // <------- change this to the sender dock address, see 2-deploy-dock.js
+    "0x0C9549C21313cEdEb794816c534Dc71B0D94A21b"; // <------- change this to the sender dock address, see 2-deploy-dock.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters
@@ -40,7 +40,7 @@ async function main() {
     receiverChainId,
     selectLastDock,
     receiverAddress,
-    "0x12345678",
+    "0x1234",
     1.1,
     params
   );
