@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { ChainId, ChainListId, ChainKey, Ch } = require("@layerzerolabs/lz-sdk");
+const { ChainId, ChainListId } = require("@layerzerolabs/lz-sdk");
 
 let findDuplicates = (arr) =>
   arr.filter((item, index) => arr.indexOf(item) !== index);
