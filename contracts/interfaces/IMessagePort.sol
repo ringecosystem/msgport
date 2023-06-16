@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.0;
 
-interface IMsgport {
+interface IMessagePort {
     event DappError(
         uint64 _fromChainId,
         address _fromDappAddress,
@@ -34,7 +34,7 @@ interface IMsgport {
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
-    ) external payable returns (uint256);
+    ) external payable;
 
     function recv(
         uint64 _fromChainId,

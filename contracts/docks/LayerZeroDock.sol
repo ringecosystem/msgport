@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.17;
 
-import "../interfaces/BaseMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
@@ -56,11 +56,11 @@ contract LayerZeroDock is
     }
 
     function approveToRecv(
-        address _fromDappAddress,
-        InboundLane memory _inboundLane,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) internal override returns (bool) {
+        address /*_fromDappAddress*/,
+        InboundLane memory /*_inboundLane*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_messagePayload*/
+    ) internal pure override returns (bool) {
         // because dock is called by low-level gateway, we need to check the sender is correct.
         // if (msg.sender != address(lzEndpointAddress)) {
         //     return false;
@@ -104,7 +104,7 @@ contract LayerZeroDock is
     function _nonblockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
-        uint64 _nonce,
+        uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual override {
         uint64 srcChainId = chainIdUp(_srcChainId);
@@ -123,31 +123,5 @@ contract LayerZeroDock is
         );
 
         recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
-    }
-
-    event Debug(bytes);
-
-    function lzReceive(
-        uint16 _srcChainId,
-        bytes calldata _srcAddress,
-        uint64 _nonce,
-        bytes calldata _payload
-    ) public override {
-        // lzReceive must be called by the endpoint for security
-        require(
-            _msgSender() == address(lzEndpoint),
-            "LayerZeroDock: invalid endpoint caller"
-        );
-
-        bytes memory trustedRemote = trustedRemoteLookup[_srcChainId];
-        // if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
-        require(
-            _srcAddress.length == trustedRemote.length &&
-                trustedRemote.length > 0 &&
-                keccak256(_srcAddress) == keccak256(trustedRemote),
-            "LzApp: invalid source sending contract"
-        );
-
-        _blockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
 }

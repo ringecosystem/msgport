@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.17;
 
-import "../interfaces/SingleTargetMessageDock.sol";
+import "./base/SingleTargetMessageDock.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
@@ -47,7 +47,7 @@ contract DarwiniaDock is
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
-        bytes memory _params
+        bytes memory /*_params*/
     ) internal override {
         // estimate fee on chain
         uint256 fee = feeMarket.market_fee();
@@ -76,9 +76,9 @@ contract DarwiniaDock is
 
     // For receiving
     function approveToRecvForSingle(
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _messagePayload
+        address /*_fromDappAddress*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_messagePayload*/
     ) internal view override returns (bool) {
         require(msg.sender == inboundLane, "!inboundLane");
         return true;
@@ -88,10 +88,10 @@ contract DarwiniaDock is
     // implement ICrossChainFilter
     //////////////////////////////////////////
     function cross_chain_filter(
-        uint32 bridgedChainPosition,
-        uint32 bridgedLanePosition,
+        uint32 /*bridgedChainPosition*/,
+        uint32 /*bridgedLanePosition*/,
         address sourceAccount,
-        bytes calldata payload
+        bytes calldata /*payload*/
     ) external view returns (bool) {
         // check remote dock address is set.
         // this check is not necessary, but it can provide an more understandable err.

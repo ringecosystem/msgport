@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.17;
 
-import "../interfaces/BaseMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../utils/Utils.sol";
@@ -52,10 +52,10 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
     }
 
     function approveToRecv(
-        address _fromDappAddress,
-        InboundLane memory _inboundLane,
-        address _toDappAddress,
-        bytes memory _messagePayload
+        address /*_fromDappAddress*/,
+        InboundLane memory /*_inboundLane*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_messagePayload*/
     ) internal pure override returns (bool) {
         return true;
     }

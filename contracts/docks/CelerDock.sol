@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.9;
+pragma solidity 0.8.9;
 
-import "../interfaces/BaseMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
@@ -55,7 +55,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
-        bytes memory _params
+        bytes memory /*_params*/
     ) internal override {
         bytes memory celerMessage = abi.encode(
             _fromDappAddress,
@@ -113,10 +113,10 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
 
     // override BaseMessageDock
     function approveToRecv(
-        address _fromDappAddress,
-        InboundLane memory _inboundLane,
-        address _toDappAddress,
-        bytes memory _messagePayload
+        address /*_fromDappAddress*/,
+        InboundLane memory /*_inboundLane*/,
+        address /*_toDappAddress*/,
+        bytes memory /*_messagePayload*/
     ) internal view override returns (bool) {
         require(
             msg.sender == address(this),

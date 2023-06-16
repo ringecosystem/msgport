@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.0;
 
-import "./IMsgport.sol";
-import "./IChainIdMapping.sol";
+import "../../interfaces/IMessagePort.sol";
+import "../../interfaces/IChainIdMapping.sol";
 
 abstract contract BaseMessageDock {
     struct OutboundLane {
@@ -17,7 +17,7 @@ abstract contract BaseMessageDock {
         address fromDockAddress;
     }
 
-    IMsgport public immutable localMsgport;
+    IMessagePort public immutable localMsgport;
     IChainIdMapping public chainIdMapping;
 
     // tgtChainId => OutboundLane
@@ -26,7 +26,7 @@ abstract contract BaseMessageDock {
     mapping(uint64 => InboundLane) public inboundLanes;
 
     constructor(address _localMsgportAddress, address _chainIdConverter) {
-        localMsgport = IMsgport(_localMsgportAddress);
+        localMsgport = IMessagePort(_localMsgportAddress);
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
