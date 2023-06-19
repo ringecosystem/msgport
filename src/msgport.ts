@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { getDock, DockType } from "./dock";
-import DefaultMsgportContract from "../artifacts/contracts/DefaultMsgport.sol/DefaultMsgport.json";
+import DefaultMsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
 import { dockTypeRegistry } from "./dockTypeRegistry";
 import { IMsgport } from "./interfaces/IMsgport";

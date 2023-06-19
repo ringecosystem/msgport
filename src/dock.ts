@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { layerzero } from "./layerzero/index";
 import { axelar } from "./axelar/index";
-import BaseMessageDockContract from "../artifacts/contracts/interfaces/BaseMessageDock.sol/BaseMessageDock.json";
+import BaseMessageDockContract from "../artifacts/contracts/docks/base/BaseMessageDock.sol/BaseMessageDock.json";
 import { IDock } from "./interfaces/IDock";
 
 enum DockType {

@@ -2,7 +2,7 @@
   "name": "darwinia-msgport",
   "version": "0.1.0",
   "description": "A general omnichain messages transport framework",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "npx hardhat compile",
     "test": "npx hardhat test",
