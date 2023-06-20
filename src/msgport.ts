@@ -1,4 +1,4 @@
-import { WalletClient, getContract } from "viem";
+import { PublicClient, WalletClient, getContract, parseUnits } from "viem";
 import { getDock, DockType } from "./dock";
 import DefaultMsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
@@ -9,13 +9,14 @@ import { ChainId } from "./chain-ids";
 export { DockType };
 
 export async function getMsgport(
-  provider: WalletClient,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   msgportAddress: string
 ) {
   const msgport = getContract({
     address: msgportAddress as `0x${string}`,
     abi: DefaultMsgportContract.abi,
-    walletClient: provider,
+    publicClient: publicClient,
   });
 
   const result: IMsgport = {
@@ -44,7 +45,7 @@ export async function getMsgport(
       console.log(
         `localDockAddress: ${localDockAddress}, dockType: ${dockType}`
       );
-      return await getDock(provider, localDockAddress, dockType);
+      return await getDock(publicClient, localDockAddress, dockType);
     },
 
     getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
@@ -88,28 +89,32 @@ export async function getMsgport(
         feeMultiplier,
         params
       );
-      const feeBN = ethers.BigNumber.from(`${fee}`);
+      const feeBN = parseUnits(`${fee}`, 0);
       console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
 
-      await msgport.simulate.send({ account: "" });
-
-      // Send message
-      const tx = await msgport.send(
-        localDock.address,
-        toChainId,
-        toDappAddress,
-        messagePayload,
-        params,
-        {
-          value: feeBN,
-        }
-      );
+      // Send message through msgport
+      const { request } = await publicClient.simulateContract({
+        address: msgportAddress as `0x${string}`,
+        account: walletClient.account,
+        abi: DefaultMsgportContract.abi,
+        functionName: "send",
+        args: [
+          localDock.address,
+          toChainId,
+          toDappAddress,
+          messagePayload,
+          params,
+        ],
+        value: feeBN,
+      });
+      const txHash = await walletClient.writeContract(request);
+      console.log(`txHash: ${txHash}`);
 
       console.log(
         `message "${messagePayload}" has been sent to ${toDappAddress} through msgport ${msgportAddress}`
       );
 
-      return tx;
+      return txHash;
     },
   };
 
