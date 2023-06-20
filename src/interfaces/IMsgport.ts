@@ -24,7 +24,7 @@ export type IMsgport = {
     messagePayload: string,
     feeMultiplier: number,
     params: string
-  ) => Promise<number>;
+  ) => Promise<BigInt>;
 
   send: (
     toChainId: ChainId,

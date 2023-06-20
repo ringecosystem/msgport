@@ -89,8 +89,7 @@ export async function getMsgport(
         feeMultiplier,
         params
       );
-      const feeBN = parseUnits(`${fee}`, 0);
-      console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
+      console.log(`fee: ${fee.valueOf()}`);
 
       // Send message through msgport
       const { request } = await publicClient.simulateContract({
@@ -105,7 +104,7 @@ export async function getMsgport(
           messagePayload,
           params,
         ],
-        value: feeBN,
+        value: fee.valueOf(),
       });
       const txHash = await walletClient.writeContract(request);
       console.log(`txHash: ${txHash}`);

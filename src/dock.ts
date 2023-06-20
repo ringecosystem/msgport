@@ -40,25 +40,28 @@ async function getDock(
     },
 
     getOutboundLane: async (remoteChainId: number) => {
-      const outboundLane = (await dock.read.outboundLanes([remoteChainId])) as {
-        toChainId: number;
-        toDockAddress: string;
-        nonce: number;
-      };
+      const outboundLane = (await dock.read.outboundLanes([remoteChainId])) as [
+        number,
+        string,
+        number
+      ];
+
       return {
         fromChainId: await result.getLocalChainId(),
         fromDockAddress: dockAddress,
-        toChainId: outboundLane["toChainId"],
-        toDockAddress: outboundLane["toDockAddress"],
-        nonce: outboundLane["nonce"],
+        toChainId: outboundLane[0],
+        toDockAddress: outboundLane[1],
+        nonce: outboundLane[2],
       };
     },
 
     getRemoteDockAddress: async (remoteChainId: number) => {
-      const lane = (await dock.read.outboundLanes([remoteChainId])) as {
-        toDockAddress: string;
-      };
-      return lane["toDockAddress"];
+      const lane = (await dock.read.outboundLanes([remoteChainId])) as [
+        number,
+        string,
+        number
+      ];
+      return lane[1];
     },
 
     estimateFee: async (
@@ -71,7 +74,6 @@ async function getDock(
         remoteChainId
       );
       console.log(`remoteDockAddress: ${remoteDockAddress}`);
-
       return await estimateFee(
         (await dock.read.getLocalChainId()) as number,
         dockAddress,

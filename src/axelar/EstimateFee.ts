@@ -56,7 +56,7 @@ async function buildEstimateFeeFunction(
 
     const axelarSrcGasToken = axelarNativeTokens[axelarSrcChainName as string];
 
-    return parseInt(
+    return BigInt(
       (await sdk.estimateGasFee(
         axelarSrcChainName as string,
         axelarDstChainName as string,
