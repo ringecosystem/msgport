@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { PublicClient, getContract } from "viem";
 import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { layerzero } from "./layerzero/index";
 import { axelar } from "./axelar/index";
@@ -16,15 +16,15 @@ enum DockType {
 }
 
 async function getDock(
-  provider: ethers.providers.Provider,
+  provider: PublicClient,
   dockAddress: string,
   dockType: DockType
 ) {
-  const dock = new ethers.Contract(
-    dockAddress,
-    BaseMessageDockContract.abi,
-    provider
-  );
+  const dock = getContract({
+    address: dockAddress as `0x${string}`,
+    abi: BaseMessageDockContract.abi,
+    publicClient: provider,
+  });
 
   let estimateFee: IEstimateFee = await buildEstimateFunction(
     provider,
@@ -36,11 +36,15 @@ async function getDock(
     address: dockAddress,
 
     getLocalChainId: async () => {
-      return await dock.getLocalChainId();
+      return (await dock.read.getLocalChainId()) as number;
     },
 
     getOutboundLane: async (remoteChainId: number) => {
-      const outboundLane = await dock.outboundLanes(remoteChainId);
+      const outboundLane = (await dock.read.outboundLanes([remoteChainId])) as {
+        toChainId: number;
+        toDockAddress: string;
+        nonce: number;
+      };
       return {
         fromChainId: await result.getLocalChainId(),
         fromDockAddress: dockAddress,
@@ -51,7 +55,9 @@ async function getDock(
     },
 
     getRemoteDockAddress: async (remoteChainId: number) => {
-      const lane = await dock.outboundLanes(remoteChainId);
+      const lane = (await dock.read.outboundLanes([remoteChainId])) as {
+        toDockAddress: string;
+      };
       return lane["toDockAddress"];
     },
 
@@ -67,7 +73,7 @@ async function getDock(
       console.log(`remoteDockAddress: ${remoteDockAddress}`);
 
       return await estimateFee(
-        await dock.getLocalChainId(),
+        (await dock.read.getLocalChainId()) as number,
         dockAddress,
         remoteChainId,
         remoteDockAddress,
@@ -82,7 +88,7 @@ async function getDock(
 }
 
 async function buildEstimateFunction(
-  provider: ethers.providers.Provider,
+  provider: PublicClient,
   dockType: DockType,
   dockAddress: string
 ) {

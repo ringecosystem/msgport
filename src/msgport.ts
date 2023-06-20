@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { WalletClient, getContract } from "viem";
 import { getDock, DockType } from "./dock";
 import DefaultMsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
@@ -9,27 +9,28 @@ import { ChainId } from "./chain-ids";
 export { DockType };
 
 export async function getMsgport(
-  provider: ethers.providers.Provider,
+  provider: WalletClient,
   msgportAddress: string
 ) {
-  const msgport = new ethers.Contract(
-    msgportAddress,
-    DefaultMsgportContract.abi,
-    provider
-  );
+  const msgport = getContract({
+    address: msgportAddress as `0x${string}`,
+    abi: DefaultMsgportContract.abi,
+    walletClient: provider,
+  });
 
   const result: IMsgport = {
     getLocalChainId: async () => {
-      return await msgport.getLocalChainId();
+      return (await msgport.read.getLocalChainId()) as number;
     },
 
     getLocalDockAddress: async (
       toChainId: ChainId,
       selectDock: IDockSelectionStrategy
     ) => {
-      const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
-        toChainId
-      );
+      const localDockAddresses =
+        (await msgport.read.getLocalDockAddressesByToChainId([
+          toChainId,
+        ])) as string[];
       return await selectDock(localDockAddresses);
     },
 
@@ -48,7 +49,9 @@ export async function getMsgport(
 
     getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
       console.log(`toChainId: ${toChainId}`);
-      return await msgport.getLocalDockAddressesByToChainId(toChainId);
+      return (await msgport.read.getLocalDockAddressesByToChainId([
+        toChainId,
+      ])) as string[];
     },
 
     estimateFee: async (
@@ -87,6 +90,8 @@ export async function getMsgport(
       );
       const feeBN = ethers.BigNumber.from(`${fee}`);
       console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
+
+      await msgport.simulate.send({ account: "" });
 
       // Send message
       const tx = await msgport.send(
