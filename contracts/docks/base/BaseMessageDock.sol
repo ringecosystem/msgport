@@ -77,7 +77,7 @@ abstract contract BaseMessageDock {
         });
     }
 
-    function setChainIdConverterInternal(address _chainIdConverter) public {
+    function setChainIdConverterInternal(address _chainIdConverter) internal {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
