@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../utils/Utils.sol";
 
 contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
-    IAxelarGasService public immutable gasService;
+    IAxelarGasService public immutable GAS_SERVICE;
 
     constructor(
         address _localMsgportAddress,
@@ -22,7 +22,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         BaseMessageDock(_localMsgportAddress, _chainIdConverter)
         AxelarExecutable(_gateway)
     {
-        gasService = IAxelarGasService(_gasReceiver);
+        GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
     function setChainIdConverter(address _chainIdConverter) external onlyOwner {
@@ -84,7 +84,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         );
 
         if (msg.value > 0) {
-            gasService.payNativeGasForContractCall{value: msg.value}(
+            GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
                 address(this),
                 toChainId,
                 toDockAddress,
