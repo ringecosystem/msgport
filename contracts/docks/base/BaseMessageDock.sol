@@ -17,7 +17,7 @@ abstract contract BaseMessageDock {
         address fromDockAddress;
     }
 
-    IMessagePort public immutable localMsgport;
+    IMessagePort public immutable LOCAL_MSGPORT;
     IChainIdMapping public chainIdMapping;
 
     // tgtChainId => OutboundLane
@@ -26,12 +26,12 @@ abstract contract BaseMessageDock {
     mapping(uint64 => InboundLane) public inboundLanes;
 
     constructor(address _localMsgportAddress, address _chainIdConverter) {
-        localMsgport = IMessagePort(_localMsgportAddress);
+        LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     function getLocalChainId() public view returns (uint64) {
-        return localMsgport.getLocalChainId();
+        return LOCAL_MSGPORT.getLocalChainId();
     }
 
     function outboundLaneExists(uint64 _toChainId) public view returns (bool) {
@@ -124,7 +124,7 @@ abstract contract BaseMessageDock {
     ) public payable {
         // check this is called by local msgport
         require(
-            msg.sender == address(localMsgport),
+            msg.sender == address(LOCAL_MSGPORT),
             "not allowed to be called by others except local msgport"
         );
 
@@ -164,7 +164,7 @@ abstract contract BaseMessageDock {
         );
 
         // call local msgport to receive message
-        localMsgport.recv(
+        LOCAL_MSGPORT.recv(
             _inboundLane.fromChainId,
             _fromDappAddress,
             _toDappAddress,
