@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.0;
 
+import "../../interfaces/IMessageDock.sol";
 import "../../interfaces/IMessagePort.sol";
 import "../../interfaces/IChainIdMapping.sol";
 
-abstract contract BaseMessageDock {
+abstract contract BaseMessageDock is IMessageDock {
     struct OutboundLane {
         uint64 toChainId;
         address toDockAddress;
@@ -29,6 +30,8 @@ abstract contract BaseMessageDock {
         localMsgport = IMessagePort(_localMsgportAddress);
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
+
+    receive() external payable {}
 
     function getLocalChainId() public view returns (uint64) {
         return localMsgport.getLocalChainId();

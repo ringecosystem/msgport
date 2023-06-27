@@ -75,6 +75,7 @@ export async function getMsgport(
       feeMultiplier: number = 1.1,
       params: string = "0x"
     ) => {
+      console.log("Prepare sending");
       // Get local dock
       const localDock = await result.getDock(toChainId, selectDock);
 

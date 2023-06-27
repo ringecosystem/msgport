@@ -12,6 +12,7 @@ import "../utils/Utils.sol";
 
 contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
     IAxelarGasService public immutable gasService;
+    event Log(uint16 indexed pos);
 
     constructor(
         address _localMsgportAddress,
@@ -101,6 +102,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         string calldata sourceAddress_,
         bytes calldata payload_
     ) internal override {
+        emit Log(1);
         (
             address fromDappAddress,
             address toDappAddress,
@@ -108,12 +110,15 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         ) = abi.decode(payload_, (address, address, bytes));
 
         InboundLane memory inboundLane = inboundLanes[chainIdUp(sourceChain_)];
+        emit Log(2);
         require(
             inboundLane.fromDockAddress ==
                 Utils.hexStringToAddress(sourceAddress_),
             "invalid source dock address"
         );
+        emit Log(3);
 
         recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
+        emit Log(4);
     }
 }
