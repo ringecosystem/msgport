@@ -79,7 +79,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
             _outboundLane.toDockAddress,
             chainIdDown(_outboundLane.toChainId),
             celerMessage,
-            msg.value
+            fee
         );
     }
 

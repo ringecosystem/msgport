@@ -61,7 +61,7 @@ contract DarwiniaDock is
             payable(msg.sender).transfer(paid - fee);
         }
 
-        IOutboundLane(outboundLane).send_message{value: msg.value}(
+        IOutboundLane(outboundLane).send_message{value: fee}(
             remoteDockAddress,
             abi.encodeWithSignature(
                 "recv(uint256,address,address,address,bytes)",
