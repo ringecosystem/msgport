@@ -152,5 +152,14 @@ contract MessagePort is IMessagePort, Ownable2Step {
                 messageId
             );
         }
+        
+        emit ReceiveMessage(
+            messageId,
+            fromChainId_,
+            fromDappAddress_,
+            toDappAddress_,
+            messagePayload_,
+            msg.sender
+        );
     }
 }

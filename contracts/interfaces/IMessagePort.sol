@@ -35,6 +35,15 @@ interface IMessagePort {
         bytes _params,
         address _dockAddress
     );
+    event ReceiveMessage(
+        uint256 indexed _messageId,
+        uint64 _fromChainId,
+        address _fromDappAddress,
+        address _toDappAddress,
+        bytes _message,
+        address _dockAddress
+    );
+
 
     function getLocalChainId() external view returns (uint64);
 
