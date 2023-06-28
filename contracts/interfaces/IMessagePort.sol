@@ -23,7 +23,8 @@ interface IMessagePort {
         address _fromDappAddress,
         address _toDappAddress,
         bytes _message,
-        string _reason
+        string _reason,
+        uint256 _messageId
     );
 
     function getLocalChainId() external view returns (uint64);

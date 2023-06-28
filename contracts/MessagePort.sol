@@ -12,6 +12,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint64 private _localChainId;
+    uint128 private _nonce;
 
     // remoteChainId => localDockAddress[]
     mapping(uint64 => EnumerableSet.AddressSet) private _localDockAddressesByToChainId;
@@ -83,12 +84,16 @@ contract MessagePort is IMessagePort, Ownable2Step {
             localDockExists(toChainId_, throughLocalDockAddress_),
             "Local dock not exists"
         );
+        
+        _nonce++;
+        uint256 messageId = (_localChainId << 128) + _nonce;
+        bytes memory messagePayloadWithId = abi.encode(messageId, messagePayload_);
 
         IMessageDock(throughLocalDockAddress_).send{value: msg.value}(
             msg.sender, // fromDappAddress
             toChainId_,
             toDappAddress_,
-            messagePayload_,
+            messagePayloadWithId,
             params_
         );
     }
@@ -101,18 +106,24 @@ contract MessagePort is IMessagePort, Ownable2Step {
         uint64 fromChainId_,
         address fromDappAddress_,
         address toDappAddress_,
-        bytes memory messagePayload_
+        bytes memory messagePayloadWithId_
     ) external {
         require(
             localDockExists(fromChainId_, msg.sender),
             "Local dock not exists"
         );
 
+        (uint256 messageId, bytes memory messagePayload_) = abi.decode(
+            messagePayloadWithId_,
+            (uint256, bytes)
+        );
+
         try
             IMessageReceiver(toDappAddress_).recv(
                 fromChainId_,
                 fromDappAddress_,
-                messagePayload_
+                messagePayload_,
+                messageId
             ) {
         } catch Error(string memory reason) {
             emit DappError(
@@ -120,7 +131,8 @@ contract MessagePort is IMessagePort, Ownable2Step {
                 fromDappAddress_,
                 toDappAddress_,
                 messagePayload_,
-                reason
+                reason,
+                messageId
             );
         } catch (bytes memory reason) {
             emit DappError(
@@ -128,7 +140,8 @@ contract MessagePort is IMessagePort, Ownable2Step {
                 fromDappAddress_,
                 toDappAddress_,
                 messagePayload_,
-                string(reason)
+                string(reason),
+                messageId
             );
         }
     }
