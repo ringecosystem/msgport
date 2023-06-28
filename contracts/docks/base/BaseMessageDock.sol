@@ -9,7 +9,6 @@ abstract contract BaseMessageDock {
     struct OutboundLane {
         uint64 toChainId;
         address toDockAddress;
-        uint256 nonce;
     }
 
     struct InboundLane {
@@ -48,15 +47,8 @@ abstract contract BaseMessageDock {
         );
         outboundLanes[_toChainId] = OutboundLane({
             toChainId: _toChainId,
-            toDockAddress: _toDockAddress,
-            nonce: 0
+            toDockAddress: _toDockAddress
         });
-    }
-
-    function getOutboundLaneNonce(
-        uint64 _toChainId
-    ) public view returns (uint256) {
-        return outboundLanes[_toChainId].nonce;
     }
 
     function inboundLaneExists(uint64 _fromChainId) public view returns (bool) {
@@ -128,16 +120,11 @@ abstract contract BaseMessageDock {
             "not allowed to be called by others except local msgport"
         );
 
-        OutboundLane memory outboundLane = outboundLanes[_toChainId];
-        bytes memory message = abi.encode(outboundLane.nonce, _payload);
-        outboundLane.nonce += 1;
-        outboundLanes[_toChainId] = outboundLane;
-
         callRemoteRecv(
             _fromDappAddress,
             outboundLanes[_toChainId],
             _toDappAddress,
-            message,
+            _payload,
             _params
         );
     }
@@ -149,16 +136,12 @@ abstract contract BaseMessageDock {
         address _toDappAddress,
         bytes memory _message
     ) public {
-        (uint256 nonce, bytes memory payload) = abi.decode(
-            _message,
-            (uint256, bytes)
-        );
         require(
             approveToRecv(
                 _fromDappAddress,
                 _inboundLane,
                 _toDappAddress,
-                payload
+                _message
             ),
             "!permitted"
         );
@@ -168,8 +151,7 @@ abstract contract BaseMessageDock {
             _inboundLane.fromChainId,
             _fromDappAddress,
             _toDappAddress,
-            payload,
-            nonce
+            _message
         );
     }
 }
