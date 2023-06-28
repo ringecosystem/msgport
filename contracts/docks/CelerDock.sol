@@ -2,39 +2,41 @@
 
 pragma solidity 0.8.9;
 
-import "./base/MultiTargetMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerDock is MultiTargetMessageDock, MessageSenderApp, MessageReceiverApp {
+contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     address public remoteDockAddress;
+
+    IChainIdMapping public chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdConverter,
+        address _chainIdMapping,
         address _messageBus
-    ) MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter) {
-        messageBus = _messageBus;
+    ) BaseMessageDock(_localMsgportAddress, _messageBus) {
+        chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
-    function setChainIdConverter(address _chainIdConverter) external onlyOwner {
-        setChainIdConverterInternal(_chainIdConverter);
+    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     function newOutboundLane(
         uint64 _toChainId,
         address _toDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
@@ -117,11 +119,7 @@ contract CelerDock is MultiTargetMessageDock, MessageSenderApp, MessageReceiverA
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
         bytes memory /*_messagePayload*/
-    ) internal view override returns (bool) {
-        require(
-            msg.sender == address(this),
-            "only self contract can call recv"
-        );
+    ) internal pure override returns (bool) {
         return true;
     }
 }

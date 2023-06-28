@@ -2,44 +2,47 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/MultiTargetMessageDock.sol";
+import "./base/BaseMessageDock.sol";
+import "../utils/Utils.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../utils/Utils.sol";
 
-contract AxelarDock is MultiTargetMessageDock, AxelarExecutable, Ownable {
+contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
     IAxelarGasService public immutable GAS_SERVICE;
+
+    IChainIdMapping public chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdConverter,
+        address _chainIdMapping,
         address _gateway,
         address _gasReceiver
     )
-        MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter)
+        BaseMessageDock(_localMsgportAddress, _gateway)
         AxelarExecutable(_gateway)
     {
+        chainIdMapping = IChainIdMapping(_chainIdMapping);
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function setChainIdConverter(address _chainIdConverter) external onlyOwner {
-        setChainIdConverterInternal(_chainIdConverter);
+    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     function newOutboundLane(
         uint64 _toChainId,
         address _toDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
@@ -56,13 +59,8 @@ contract AxelarDock is MultiTargetMessageDock, AxelarExecutable, Ownable {
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
         bytes memory /*_messagePayload*/
-    ) internal view override returns (bool) {
-        // because dock is called by low-level gateway, we need to check the sender is correct.
-        if (msg.sender != address(gateway)) {
-            return false;
-        } else {
-            return true;
-        }
+    ) internal pure override returns (bool) {
+        return true;
     }
 
     function _callRemoteRecv(
