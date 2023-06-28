@@ -97,13 +97,13 @@ contract MessagePort is IMessagePort, Ownable2Step {
             params_
         );
         emit SendMessage(
-            _localChainId,
+            messageId,
             toChainId_,
             msg.sender,
             toDappAddress_,
             messagePayload_,
             params_,
-            messageId
+            throughLocalDockAddress_
         );
     }
 

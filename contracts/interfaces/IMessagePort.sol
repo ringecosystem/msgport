@@ -27,13 +27,13 @@ interface IMessagePort {
         uint256 _messageId
     );
     event SendMessage(
-        uint64 _fromChainId,
+        uint256 indexed _messageId,
         uint64 _toChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes _message,
         bytes _params,
-        uint256 _messageId
+        address _dockAddress
     );
 
     function getLocalChainId() external view returns (uint64);
