@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./base/SingleTargetMessageDock.sol";
+import "./base/BaseMessageDock.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -16,28 +16,25 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
-    address public immutable darwiniaEndpointAddress;
+contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
+    IChainIdMapping public chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdConverter,
+        address _darwiniaEndpointAddress,
+        address _chainIdMapping,
         uint64 _remoteChainId,
-        address _remoteDockAddress,
-        address _darwiniaEndpointAddress
-    )
-        SingleTargetMessageDock(
-            _localMsgportAddress,
-            _chainIdConverter,
-            _remoteChainId,
-            _remoteDockAddress
-        )
-    {
-        darwiniaEndpointAddress = _darwiniaEndpointAddress;
+        address _remoteDockAddress
+    ) BaseMessageDock(_localMsgportAddress, _darwiniaEndpointAddress) {
+        chainIdMapping = IChainIdMapping(_chainIdMapping);
+        // add outbound and inbound lane
+        _addOutboundLaneInternal(_remoteChainId, _remoteDockAddress);
+        _addInboundLaneInternal(_remoteChainId, _remoteDockAddress);
     }
 
-    function _callRemoteRecvForSingle(
+    function _callRemoteRecv(
         address _fromDappAddress,
+        OutboundLane memory _outboundLane,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -56,15 +53,16 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
             _messagePayload
         );
 
-        IMessageEndpoint(darwiniaEndpointAddress).remoteExecute{
+        IMessageEndpoint(localLevelMessagingContractAddress).remoteExecute{
             value: msg.value
-        }(specVersion, remoteDockAddress, recvCall, gasLimit);
+        }(specVersion, _outboundLane.toDockAddress, recvCall, gasLimit);
     }
 
-    function _approveToRecvForSingle(
+    function _approveToRecv(
         address /*_fromDappAddress*/,
+        InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
-        bytes memory /*_message*/
+        bytes memory /*_messagePayload*/
     ) internal pure override returns (bool) {
         return true;
     }

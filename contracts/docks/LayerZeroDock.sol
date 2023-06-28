@@ -2,47 +2,47 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/MultiTargetMessageDock.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
+import "./base/BaseMessageDock.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "../utils/GNSPSBytesLib.sol";
+import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract LayerZeroDock is
-    MultiTargetMessageDock,
+    BaseMessageDock,
     NonblockingLzApp,
     LayerZeroChainIdMapping
 {
     using GNSPSBytesLib for bytes;
 
-    address public lzEndpointAddress;
+    IChainIdMapping public chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdConverter,
-        address _lzEndpoint
+        address _lzEndpoingAddress,
+        address _chainIdMapping
     )
-        MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter)
-        NonblockingLzApp(_lzEndpoint)
+        BaseMessageDock(_localMsgportAddress, _lzEndpoingAddress)
+        NonblockingLzApp(_lzEndpoingAddress)
     {
-        lzEndpointAddress = _lzEndpoint;
+        chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
-    function setChainIdConverter(address _chainIdConverter) external onlyOwner {
-        setChainIdConverterInternal(_chainIdConverter);
+    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
+        chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     function newOutboundLane(
         uint64 _toChainId,
         address _toDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
@@ -60,12 +60,6 @@ contract LayerZeroDock is
         address /*_toDappAddress*/,
         bytes memory /*_messagePayload*/
     ) internal pure override returns (bool) {
-        // because dock is called by low-level gateway, we need to check the sender is correct.
-        // if (msg.sender != address(lzEndpointAddress)) {
-        //     return false;
-        // } else {
-        //     return true;
-        // }
         return true;
     }
 
