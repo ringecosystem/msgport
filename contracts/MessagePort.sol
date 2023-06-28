@@ -84,9 +84,9 @@ contract MessagePort is IMessagePort, Ownable2Step {
             localDockExists(toChainId_, throughLocalDockAddress_),
             "Local dock not exists"
         );
-        
+
         _nonce++;
-        uint256 messageId = (_localChainId << 128) + _nonce;
+        uint256 messageId = (uint256(_localChainId) << 128) + uint256(_nonce);
         bytes memory messagePayloadWithId = abi.encode(messageId, messagePayload_);
 
         IMessageDock(throughLocalDockAddress_).send{value: msg.value}(
@@ -95,6 +95,15 @@ contract MessagePort is IMessagePort, Ownable2Step {
             toDappAddress_,
             messagePayloadWithId,
             params_
+        );
+        emit SendMessage(
+            _localChainId,
+            toChainId_,
+            msg.sender,
+            toDappAddress_,
+            messagePayload_,
+            params_,
+            messageId
         );
     }
 
@@ -122,8 +131,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
             IMessageReceiver(toDappAddress_).recv(
                 fromChainId_,
                 fromDappAddress_,
-                messagePayload_,
-                messageId
+                messagePayload_
             ) {
         } catch Error(string memory reason) {
             emit DappError(

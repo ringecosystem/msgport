@@ -21,7 +21,6 @@ interface IMessageReceiver {
     function recv(
         uint256 _fromChainId,
         address _fromDappAddress,
-        bytes calldata _message,
-        uint256 _messageId
+        bytes calldata _message
     ) external;
 }
