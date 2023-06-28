@@ -15,7 +15,7 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
 
-  const senderMsgportAddress = "0xeF1c60AB9B902c13585411dC929005B98Ca44541"; // <---- This is the sender msgport address from 0-setup-msgports.js
+  const senderMsgportAddress = "0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF"; // <---- This is the sender msgport address from 0-setup-msgports.js
   const senderChainIdMapping = "0x7Ac2cd64B0F9DF41694E917CC436D1392ad91152"; // <---- This is the sender chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const senderDockName = "LayerZeroDock";
   const senderDockParams = [
@@ -38,7 +38,7 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
 
-  const receiverMsgportAddress = "0x122e4b302a11ABb9Bb6f267B09f2AE77fF9a0B5B"; // <---- This is the receiver msgport address from 0-setup-msgports.js
+  const receiverMsgportAddress = "0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF"; // <---- This is the receiver msgport address from 0-setup-msgports.js
   const receiverChainIdMapping = "0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e"; // <---- This is the receiver chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const receiverDockName = "LayerZeroDock";
   const receiverDockParams = [
