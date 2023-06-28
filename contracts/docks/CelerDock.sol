@@ -2,21 +2,21 @@
 
 pragma solidity 0.8.9;
 
-import "./base/BaseMessageDock.sol";
+import "./base/MultiTargetMessageDock.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
+contract CelerDock is MultiTargetMessageDock, MessageSenderApp, MessageReceiverApp {
     address public remoteDockAddress;
 
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,
         address _messageBus
-    ) BaseMessageDock(_localMsgportAddress, _chainIdConverter) {
+    ) MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter) {
         messageBus = _messageBus;
     }
 
@@ -28,14 +28,14 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         uint64 _toChainId,
         address _toDockAddress
     ) external override onlyOwner {
-        addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
     ) external override onlyOwner {
-        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
     function chainIdUp(uint64 _chainId) public view returns (uint64) {
@@ -50,7 +50,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     // For sending
     //////////////////////////////////////////
     // override BaseMessageDock
-    function callRemoteRecv(
+    function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,
         address _toDappAddress,
@@ -112,7 +112,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     }
 
     // override BaseMessageDock
-    function approveToRecv(
+    function _approveToRecv(
         address /*_fromDappAddress*/,
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,

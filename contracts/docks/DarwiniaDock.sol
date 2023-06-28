@@ -43,7 +43,7 @@ contract DarwiniaDock is
     // override BaseMessageDock
     //////////////////////////////////////////
     // For sending
-    function callRemoteRecvForSingle(
+    function _callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -75,7 +75,7 @@ contract DarwiniaDock is
     }
 
     // For receiving
-    function approveToRecvForSingle(
+    function _approveToRecvForSingle(
         address /*_fromDappAddress*/,
         address /*_toDappAddress*/,
         bytes memory /*_messagePayload*/

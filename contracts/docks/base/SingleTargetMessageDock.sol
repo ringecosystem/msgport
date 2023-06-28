@@ -19,59 +19,63 @@ abstract contract SingleTargetMessageDock is BaseMessageDock {
         remoteDockAddress = _remoteDockAddress;
     }
 
-    function callRemoteRecvForSingle(
+    function _callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
     ) internal virtual;
 
-    function approveToRecvForSingle(
+    function _approveToRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload
     ) internal virtual returns (bool);
 
-    function callRemoteRecv(
+    function send(
         address _fromDappAddress,
-        OutboundLane memory /*_outboundLane*/,
+        uint64 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
+        bytes memory _payload,
         bytes memory _params
-    ) internal override {
-        callRemoteRecvForSingle(
+    ) public payable virtual override {
+        // check this is called by local msgport
+        super.send(
+            _fromDappAddress,
+            _toChainId,
+            _toDappAddress,
+            _payload,
+            _params
+        );
+
+        _callRemoteRecvForSingle(
             _fromDappAddress,
             _toDappAddress,
-            _messagePayload,
+            _payload,
             _params
         );
     }
 
-    function approveToRecv(
+    function recv(
         address _fromDappAddress,
-        InboundLane memory /*_inboundLane*/,
+        InboundLane memory _inboundLane,
         address _toDappAddress,
-        bytes memory _messagePayload
-    ) internal override returns (bool) {
-        return
-            approveToRecvForSingle(
+        bytes memory _message
+    ) public virtual override {
+        require(
+            _approveToRecvForSingle(
                 _fromDappAddress,
                 _toDappAddress,
-                _messagePayload
-            );
-    }
+                _message
+            ),
+            "!permitted"
+        );
 
-    function newOutboundLane(
-        uint64 _toChainId,
-        address _toDockAddress
-    ) external override {
-        // do nothing
-    }
-
-    function newInboundLane(
-        uint64 _fromChainId,
-        address _fromDockAddress
-    ) external override {
-        // do nothing
+        super.recv(
+            _fromDappAddress,
+            _inboundLane,
+            _toDappAddress,
+            _message
+        );
     }
 }

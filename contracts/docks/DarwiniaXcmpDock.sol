@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/MultiTargetMessageDock.sol";
 import "@darwinia/contracts-utils/contracts/ScaleCodec.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../utils/Utils.sol";
 
 // TODO: extract abstract base contract
-contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
+contract DarwiniaXcmpDock is MultiTargetMessageDock, Ownable2Step {
     address public remoteDockAddress;
 
     bytes2 public immutable POLKADOT_XCM_SEND_CALL_INDEX;
@@ -21,7 +21,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         address _localMsgportAddress,
         address _chainIdConverter,
         bytes2 _polkadotXcmSendCallIndex
-    ) BaseMessageDock(_localMsgportAddress, _chainIdConverter) {
+    ) MultiTargetMessageDock (_localMsgportAddress, _chainIdConverter) {
         POLKADOT_XCM_SEND_CALL_INDEX = _polkadotXcmSendCallIndex;
     }
 
@@ -33,14 +33,14 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         uint64 _toChainId,
         address _toDockAddress
     ) external override onlyOwner {
-        addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
     ) external override onlyOwner {
-        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
     function chainIdUp(bytes2 _chainId) public view returns (uint64) {
@@ -51,7 +51,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         return bytes2(chainIdMapping.down(_chainId));
     }
 
-    function approveToRecv(
+    function _approveToRecv(
         address /*_fromDappAddress*/,
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
@@ -60,7 +60,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         return true;
     }
 
-    function callRemoteRecv(
+    function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,
         address _toDappAddress,
@@ -80,7 +80,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
             _messagePayload
         );
 
-        transactOnParachain(
+        _transactOnParachain(
             _fromDappAddress,
             _outboundLane.toChainId,
             call,
@@ -99,7 +99,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         bytes polkadotXcmSend
     );
 
-    function transactOnParachain(
+    function _transactOnParachain(
         address fromDappAddress,
         uint64 toChainId,
         bytes memory call,
@@ -107,7 +107,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         uint64 proofSize,
         uint128 fungible
     ) internal {
-        bytes memory message = buildXcmPayload(
+        bytes memory message = _buildXcmPayload(
             chainIdDown(getLocalChainId()),
             fromDappAddress,
             call,
@@ -134,7 +134,7 @@ contract DarwiniaXcmpDock is BaseMessageDock, Ownable2Step {
         }
     }
 
-    function buildXcmPayload(
+    function _buildXcmPayload(
         bytes2 fromParachain,
         address fromDappAddress,
         bytes memory call,

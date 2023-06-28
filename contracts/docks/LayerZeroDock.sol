@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/MultiTargetMessageDock.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "../utils/GNSPSBytesLib.sol";
 
 contract LayerZeroDock is
-    BaseMessageDock,
+    MultiTargetMessageDock,
     NonblockingLzApp,
     LayerZeroChainIdMapping
 {
@@ -23,7 +23,7 @@ contract LayerZeroDock is
         address _chainIdConverter,
         address _lzEndpoint
     )
-        BaseMessageDock(_localMsgportAddress, _chainIdConverter)
+        MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter)
         NonblockingLzApp(_lzEndpoint)
     {
         lzEndpointAddress = _lzEndpoint;
@@ -37,14 +37,14 @@ contract LayerZeroDock is
         uint64 _toChainId,
         address _toDockAddress
     ) external override onlyOwner {
-        addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
     ) external override onlyOwner {
-        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
     function chainIdUp(uint16 _chainId) public view returns (uint64) {
@@ -55,7 +55,7 @@ contract LayerZeroDock is
         return Utils.bytesToUint16(chainIdMapping.down(_chainId));
     }
 
-    function approveToRecv(
+    function _approveToRecv(
         address /*_fromDappAddress*/,
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
@@ -70,7 +70,7 @@ contract LayerZeroDock is
         return true;
     }
 
-    function callRemoteRecv(
+    function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,
         address _toDappAddress,

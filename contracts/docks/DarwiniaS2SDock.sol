@@ -36,7 +36,7 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
         darwiniaEndpointAddress = _darwiniaEndpointAddress;
     }
 
-    function callRemoteRecvForSingle(
+    function _callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -61,7 +61,7 @@ contract DarwiniaS2sDock is SingleTargetMessageDock, Ownable2Step {
         }(specVersion, remoteDockAddress, recvCall, gasLimit);
     }
 
-    function approveToRecvForSingle(
+    function _approveToRecvForSingle(
         address /*_fromDappAddress*/,
         address /*_toDappAddress*/,
         bytes memory /*_message*/
