@@ -14,9 +14,6 @@ contract DarwiniaXcmpDock is MultiTargetMessageDock, Ownable2Step {
     address public constant DISPATCH =
         0x0000000000000000000000000000000000000401;
 
-    // remote chainId => next nonce
-    mapping(uint64 => uint64) public nonces;
-
     constructor(
         address _localMsgportAddress,
         address _chainIdConverter,

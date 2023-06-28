@@ -16,7 +16,6 @@ contract LayerZeroDock is
     using GNSPSBytesLib for bytes;
 
     address public lzEndpointAddress;
-    mapping(uint64 => uint64) public nonces;
 
     constructor(
         address _localMsgportAddress,
