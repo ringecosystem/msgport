@@ -90,7 +90,7 @@ abstract contract BaseMessageDock {
         address _toDappAddress,
         bytes memory _payload,
         bytes memory _params
-    ) public payable {
+    ) public payable virtual {
         // check this is called by local msgport
         _requireCalledByMsgport();
 
@@ -115,7 +115,7 @@ abstract contract BaseMessageDock {
         InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _message
-    ) public {
+    ) public virtual {
         require(
             msg.sender == localLevelMessagingContractAddress,
             "Dock: not called by local level messaging contract"
