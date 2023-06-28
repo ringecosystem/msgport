@@ -43,7 +43,7 @@ contract DarwiniaDock is
     // override BaseMessageDock
     //////////////////////////////////////////
     // For sending
-    function callRemoteRecvForSingle(
+    function _callRemoteRecvForSingle(
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _messagePayload,
@@ -61,7 +61,7 @@ contract DarwiniaDock is
             payable(msg.sender).transfer(paid - fee);
         }
 
-        IOutboundLane(outboundLane).send_message{value: msg.value}(
+        IOutboundLane(outboundLane).send_message{value: fee}(
             remoteDockAddress,
             abi.encodeWithSignature(
                 "recv(uint256,address,address,address,bytes)",
@@ -75,7 +75,7 @@ contract DarwiniaDock is
     }
 
     // For receiving
-    function approveToRecvForSingle(
+    function _approveToRecvForSingle(
         address /*_fromDappAddress*/,
         address /*_toDappAddress*/,
         bytes memory /*_messagePayload*/

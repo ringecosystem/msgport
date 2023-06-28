@@ -101,9 +101,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
         uint64 fromChainId_,
         address fromDappAddress_,
         address toDappAddress_,
-        bytes memory messagePayload_,
-        // TO DISCUSS: dapp should deal with nonce?
-        uint256 nonce_
+        bytes memory messagePayload_
     ) external {
         require(
             localDockExists(fromChainId_, msg.sender),
@@ -114,8 +112,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
             IMessageReceiver(toDappAddress_).recv(
                 fromChainId_,
                 fromDappAddress_,
-                messagePayload_,
-                nonce_
+                messagePayload_
             ) {
         } catch Error(string memory reason) {
             emit DappError(

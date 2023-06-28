@@ -40,7 +40,6 @@ interface IMessagePort {
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
-        bytes memory _message,
-        uint256 _nonce
+        bytes memory _message
     ) external;
 }

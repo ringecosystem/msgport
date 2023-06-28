@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/MultiTargetMessageDock.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
@@ -10,8 +10,8 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../utils/Utils.sol";
 
-contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
-    IAxelarGasService public immutable gasService;
+contract AxelarDock is MultiTargetMessageDock, AxelarExecutable, Ownable {
+    IAxelarGasService public immutable GAS_SERVICE;
 
     constructor(
         address _localMsgportAddress,
@@ -19,10 +19,10 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         address _gateway,
         address _gasReceiver
     )
-        BaseMessageDock(_localMsgportAddress, _chainIdConverter)
+        MultiTargetMessageDock(_localMsgportAddress, _chainIdConverter)
         AxelarExecutable(_gateway)
     {
-        gasService = IAxelarGasService(_gasReceiver);
+        GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
     function setChainIdConverter(address _chainIdConverter) external onlyOwner {
@@ -33,14 +33,14 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         uint64 _toChainId,
         address _toDockAddress
     ) external override onlyOwner {
-        addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toDockAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
         address _fromDockAddress
     ) external override onlyOwner {
-        addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
     }
 
     function chainIdUp(string memory _chainId) public view returns (uint64) {
@@ -51,7 +51,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         return string(chainIdMapping.down(_chainId));
     }
 
-    function approveToRecv(
+    function _approveToRecv(
         address /*_fromDappAddress*/,
         InboundLane memory /*_inboundLane*/,
         address /*_toDappAddress*/,
@@ -65,7 +65,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         }
     }
 
-    function callRemoteRecv(
+    function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,
         address _toDappAddress,
@@ -84,7 +84,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         );
 
         if (msg.value > 0) {
-            gasService.payNativeGasForContractCall{value: msg.value}(
+            GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
                 address(this),
                 toChainId,
                 toDockAddress,
