@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { getDock, DockType } from "./dock";
-import DefaultMsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
+import MsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
 import { dockTypeRegistry } from "./dockTypeRegistry";
 import { IMsgport } from "./interfaces/IMsgport";
@@ -14,7 +14,7 @@ export async function getMsgport(
 ) {
   const msgport = new ethers.Contract(
     msgportAddress,
-    DefaultMsgportContract.abi,
+    MsgportContract.abi,
     provider
   );
 

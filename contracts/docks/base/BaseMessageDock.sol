@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.0;
 
+import "../../interfaces/IMessageDock.sol";
 import "../../interfaces/IMessagePort.sol";
 import "../../interfaces/IChainIdMapping.sol";
 
-abstract contract BaseMessageDock {
+abstract contract BaseMessageDock is IMessageDock{
     struct OutboundLane {
         uint64 toChainId;
         address toDockAddress;

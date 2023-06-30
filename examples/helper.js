@@ -1,8 +1,8 @@
 const hre = require("hardhat");
 
 async function deployMsgport(chainId, args = {}) {
-  const DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.deploy(chainId, args);
+  const MessagePort = await hre.ethers.getContractFactory("MessagePort");
+  const msgport = await MessagePort.deploy(chainId, args);
   await msgport.deployed();
   return msgport.address;
 }
@@ -34,8 +34,8 @@ async function deployDock(
   await dock.deployed();
 
   // Add it to the msgport
-  let DefaultMsgport = await hre.ethers.getContractFactory("DefaultMsgport");
-  const msgport = await DefaultMsgport.attach(localMsgportAddress);
+  let MessagePort = await hre.ethers.getContractFactory("MessagePort");
+  const msgport = await MessagePort.attach(localMsgportAddress);
   await (
     await msgport.addLocalDock(remoteChainId, dock.address, {
       gasLimit: addRemoteDockGasLimit,
@@ -55,10 +55,10 @@ async function getMsgport(network, msgportAddress) {
       params = "0x"
     ) => {
       hre.changeNetwork(network);
-      const DefaultMsgport = await hre.ethers.getContractFactory(
-        "DefaultMsgport"
+      const MessagePort = await hre.ethers.getContractFactory(
+        "MessagePort"
       );
-      const msgport = await DefaultMsgport.attach(msgportAddress);
+      const msgport = await MessagePort.attach(msgportAddress);
 
       // Estimate fee
       const fromDappAddress = (await hre.ethers.getSigner()).address;
