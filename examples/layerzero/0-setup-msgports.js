@@ -2,8 +2,8 @@ const hre = require("hardhat");
 const { deployMsgport } = require("../helper");
 const { ChainId } = require("../../dist/src/index");
 
-// On bnbChainTestnet, msgport deployed to: 0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF
-// On polygonTestnet, msgport deployed to: 0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF
+// On bnbChainTestnet, msgport deployed to: 0x9e974C1a82CF5893f9409a323Fe391263fcB3c4d
+// On polygonTestnet, msgport deployed to: 0xC4800a80f1f1974ab70Ee2BC2C58e622f0dD906C
 async function main() {
   const senderChain = "bnbChainTestnet";
   const receiverChain = "polygonTestnet";

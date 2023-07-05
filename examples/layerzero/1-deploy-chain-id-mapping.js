@@ -58,8 +58,8 @@ async function deployChainIdMappingContract(
   );
 }
 
-// On bnbChainTestnet, LayerZeroChainIdMapping contract deployed to: 0x7Ac2cd64B0F9DF41694E917CC436D1392ad91152
-// On polygonTestnet, LayerZeroChainIdMapping contract deployed to: 0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e
+// On bnbChainTestnet, LayerZeroChainIdMapping contract deployed to: 0x771E962b7Ecc66362BE3aA737BD0919744aa3C11
+// On polygonTestnet, LayerZeroChainIdMapping contract deployed to: 0xd735Bb7a5c2f1Dc9E91dd3257A0E1FcB687d33E0
 async function main() {
   const [msgportChainids, lzChainIds] = getChainIdsList();
 
