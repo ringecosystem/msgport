@@ -1,4 +1,3 @@
-// import { ethers } from "ethers";
 import { ChainId } from "./chain-ids";
 import { getMessagePort } from "./port";
 import { getMessageDock, MessagingProviders } from "./dock";

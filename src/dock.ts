@@ -60,7 +60,6 @@ async function getMessageDock(
       const remoteDockAddress = await result.getRemoteDockAddress(
         remoteChainId
       );
-      console.log(`remoteDockAddress: ${remoteDockAddress}`);
 
       return await estimateFee(
         await dockContract.getLocalChainId(),

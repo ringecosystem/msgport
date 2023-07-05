@@ -8,10 +8,19 @@ import { ChainId } from "./chain-ids";
 export { MessagingProviders };
 
 export async function getMessagePort(
-  provider: ethers.providers.Provider,
+  client: ethers.providers.Provider | ethers.Signer,
   msgportAddress: string
 ) {
-  const msgport = new ethers.Contract(
+  let provider: ethers.providers.Provider;
+  let signer: ethers.Signer;
+  if (client instanceof ethers.Signer && client.provider) {
+    provider = client.provider;
+    signer = client;
+  } else {
+    provider = client as ethers.providers.Provider;
+  }
+
+  const msgportContract = new ethers.Contract(
     msgportAddress,
     MsgportContract.abi,
     provider
@@ -19,16 +28,15 @@ export async function getMessagePort(
 
   const result: IMessagePort = {
     getLocalChainId: async () => {
-      return await msgport.getLocalChainId();
+      return await msgportContract.getLocalChainId();
     },
 
     getLocalDockAddress: async (
       toChainId: ChainId,
       selectDock: IDockSelectionStrategy
     ) => {
-      const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
-        toChainId
-      );
+      const localDockAddresses =
+        await msgportContract.getLocalDockAddressesByToChainId(toChainId);
       return await selectDock(localDockAddresses);
     },
 
@@ -44,7 +52,7 @@ export async function getMessagePort(
 
     getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
       console.log(`toChainId: ${toChainId}`);
-      return await msgport.getLocalDockAddressesByToChainId(toChainId);
+      return await msgportContract.getLocalDockAddressesByToChainId(toChainId);
     },
 
     estimateFee: async (
@@ -71,6 +79,10 @@ export async function getMessagePort(
       feeMultiplier: number = 1.1,
       params: string = "0x"
     ) => {
+      if (!signer) {
+        throw new Error("signer is not set");
+      }
+
       // Get local dock
       const localDock = await result.getDock(toChainId, selectDock);
 
@@ -85,7 +97,8 @@ export async function getMessagePort(
       console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
 
       // Send message
-      const tx = await msgport.send(
+      msgportContract.connect(signer);
+      const tx = await msgportContract.send(
         localDock.address,
         toChainId,
         toDappAddress,

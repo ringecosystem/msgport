@@ -12,7 +12,8 @@ async function buildEstimateFeeFunction(
     LayerZeroDockContract.abi,
     provider
   );
-  const lzEndpointAddress = await senderDock.lzEndpointAddress();
+  const lzEndpointAddress =
+    await senderDock.localLevelMessagingContractAddress();
 
   // endpoint
   const abi = [
