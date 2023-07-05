@@ -19,8 +19,8 @@ contract LayerZeroDock is
 
     constructor(
         address _localMsgportAddress,
-        address _lzEndpoingAddress,
-        address _chainIdMapping
+        address _chainIdMapping,
+        address _lzEndpoingAddress
     )
         BaseMessageDock(_localMsgportAddress, _lzEndpoingAddress)
         NonblockingLzApp(_lzEndpoingAddress)
