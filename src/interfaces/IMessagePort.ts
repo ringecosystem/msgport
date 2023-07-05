@@ -1,9 +1,9 @@
-import { IDock } from "./IDock";
+import { IMessageDock } from "./IMessageDock";
 import { ethers } from "ethers";
 import { IDockSelectionStrategy } from "./IDockSelectionStrategy";
 import { ChainId } from "../chain-ids";
 
-export type IMsgport = {
+export type IMessagePort = {
   getLocalChainId: () => Promise<number>;
 
   getLocalDockAddress: (
@@ -14,7 +14,7 @@ export type IMsgport = {
   getDock: (
     toChainId: ChainId,
     selectDock: IDockSelectionStrategy
-  ) => Promise<IDock>;
+  ) => Promise<IMessageDock>;
 
   getLocalDockAddressesByToChainId: (toChainId: ChainId) => Promise<string[]>;
 

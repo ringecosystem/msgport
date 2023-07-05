@@ -14,22 +14,29 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
     IAxelarGasService public immutable GAS_SERVICE;
 
     IChainIdMapping public chainIdMapping;
+    bool public isTestnet;
 
     constructor(
         address _localMsgportAddress,
         address _chainIdMapping,
         address _gateway,
-        address _gasReceiver
+        address _gasReceiver,
+        bool _isTestnet
     )
         BaseMessageDock(_localMsgportAddress, _gateway)
         AxelarExecutable(_gateway)
     {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
+        isTestnet = _isTestnet;
     }
 
-    function getProviderName() external pure returns (string memory) {
-        return "Axelar";
+    function getProviderName() external view returns (string memory) {
+        if (isTestnet) {
+            return "AxelarTestnet";
+        } else {
+            return "Axelar";
+        }
     }
 
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {

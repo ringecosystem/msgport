@@ -1,4 +1,4 @@
-export type IDock = {
+export type IMessageDock = {
   address: string;
 
   getLocalChainId: () => Promise<number>;
@@ -13,4 +13,6 @@ export type IDock = {
     feeMultiplier: number,
     params: string
   ) => Promise<number>;
+
+  getProviderName: () => Promise<string>;
 };

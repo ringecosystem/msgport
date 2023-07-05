@@ -1,14 +1,13 @@
 import { ethers } from "ethers";
-import { getDock, DockType } from "./dock";
+import { getMessageDock, MessagingProviders } from "./dock";
 import MsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
 import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
-import { dockTypeRegistry } from "./dockTypeRegistry";
-import { IMsgport } from "./interfaces/IMsgport";
+import { IMessagePort } from "./interfaces/IMessagePort";
 import { ChainId } from "./chain-ids";
 
-export { DockType };
+export { MessagingProviders };
 
-export async function getMsgport(
+export async function getMessagePort(
   provider: ethers.providers.Provider,
   msgportAddress: string
 ) {
@@ -18,7 +17,7 @@ export async function getMsgport(
     provider
   );
 
-  const result: IMsgport = {
+  const result: IMessagePort = {
     getLocalChainId: async () => {
       return await msgport.getLocalChainId();
     },
@@ -39,11 +38,8 @@ export async function getMsgport(
         selectDock
       );
 
-      const dockType = dockTypeRegistry[localDockAddress];
-      console.log(
-        `localDockAddress: ${localDockAddress}, dockType: ${dockType}`
-      );
-      return await getDock(provider, localDockAddress, dockType);
+      console.log(`localDockAddress: ${localDockAddress}`);
+      return await getMessageDock(provider, localDockAddress);
     },
 
     getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
