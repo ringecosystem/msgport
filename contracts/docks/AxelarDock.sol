@@ -28,6 +28,10 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
+    function getProviderName() external pure returns (string memory) {
+        return "Axelar";
+    }
+
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }

@@ -22,6 +22,10 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
+    function getProviderName() external pure returns (string memory) {
+        return "Celer";
+    }
+
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }

@@ -32,6 +32,10 @@ contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
         feeMarket = IFeeMarket(_feeMarket);
     }
 
+    function getProviderName() external pure returns (string memory) {
+        return "DarwiniaLCMP";
+    }
+
     //////////////////////////////////////////
     // override BaseMessageDock
     //////////////////////////////////////////

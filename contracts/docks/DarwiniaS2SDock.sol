@@ -32,6 +32,10 @@ contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
         _addInboundLaneInternal(_remoteChainId, _remoteDockAddress);
     }
 
+    function getProviderName() external pure returns (string memory) {
+        return "DarwiniaS2S";
+    }
+
     function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,

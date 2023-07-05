@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 interface IMessageDock {
+    function getProviderName() external view returns (string memory);
+
     function send(
         address _fromDappAddress,
         uint64 _toChainId,
