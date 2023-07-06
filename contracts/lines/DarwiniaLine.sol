@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/BaseMessageLine.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
+contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
     address public immutable outboundLane;
     address public immutable inboundLane;
     IFeeMarket public immutable feeMarket;
@@ -17,14 +17,14 @@ contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
     constructor(
         address _localMsgportAddress,
         uint64 _remoteChainId,
-        address _remoteDockAddress,
+        address _remoteLineAddress,
         address _outboundLane,
         address _inboundLane,
         address _feeMarket
-    ) BaseMessageDock(_localMsgportAddress, _inboundLane) {
+    ) BaseMessageLine(_localMsgportAddress, _inboundLane) {
         // add outbound and inbound lane
-        _addOutboundLaneInternal(_remoteChainId, _remoteDockAddress);
-        _addInboundLaneInternal(_remoteChainId, _remoteDockAddress);
+        _addOutboundLaneInternal(_remoteChainId, _remoteLineAddress);
+        _addInboundLaneInternal(_remoteChainId, _remoteLineAddress);
         //
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
@@ -33,7 +33,7 @@ contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
     }
 
     //////////////////////////////////////////
-    // override BaseMessageDock
+    // override BaseMessageLine
     //////////////////////////////////////////
     // For sending
     function _callRemoteRecv(
@@ -56,7 +56,7 @@ contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
         }
 
         IOutboundLane(outboundLane).send_message{value: fee}(
-            _outboundLane.toDockAddress,
+            _outboundLane.toLineAddress,
             abi.encodeWithSignature(
                 "recv(uint256,address,address,address,bytes)",
                 getLocalChainId(),
@@ -87,12 +87,12 @@ contract DarwiniaDock is BaseMessageDock, ICrossChainFilter, Ownable2Step {
         address sourceAccount,
         bytes calldata /*payload*/
     ) external view returns (bool) {
-        address remoteDockAddress = inboundLanes[getLocalChainId()]
-            .fromDockAddress;
-        // check remote dock address is set.
+        address remoteLineAddress = inboundLanes[getLocalChainId()]
+            .fromLineAddress;
+        // check remote line address is set.
         // this check is not necessary, but it can provide an more understandable err.
-        require(remoteDockAddress != address(0), "!remote dock");
+        require(remoteLineAddress != address(0), "!remote line");
 
-        return sourceAccount == remoteDockAddress;
+        return sourceAccount == remoteLineAddress;
     }
 }

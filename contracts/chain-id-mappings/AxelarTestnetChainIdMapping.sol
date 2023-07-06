@@ -21,7 +21,7 @@ import "../interfaces/IChainIdMapping.sol";
 import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
 
-// https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-docks-to-one-dest-chain/src/chain-ids.ts
+// https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-lines-to-one-dest-chain/src/chain-ids.ts
 contract AxelarTestnetChainIdMapping is IChainIdMapping {
     function down(
         uint64 msgportChainId

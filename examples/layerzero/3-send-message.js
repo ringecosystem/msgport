@@ -26,9 +26,9 @@ async function main() {
     "0xeF1c60AB9B902c13585411dC929005B98Ca44541" // <------- change this, see 0-setup-msgports.js
   );
 
-  //  2. get the dock selection strategy
-  const selectLastDock = async (_) =>
-    "0x0C9549C21313cEdEb794816c534Dc71B0D94A21b"; // <------- change this to the sender dock address, see 2-deploy-dock.js
+  //  2. get the line selection strategy
+  const selectLastLine = async (_) =>
+    "0x0C9549C21313cEdEb794816c534Dc71B0D94A21b"; // <------- change this to the sender line address, see 2-deploy-line.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters
@@ -38,7 +38,7 @@ async function main() {
   );
   const tx = await msgport.send(
     receiverChainId,
-    selectLastDock,
+    selectLastLine,
     receiverAddress,
     "0x1234",
     1.1,

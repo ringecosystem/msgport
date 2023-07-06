@@ -21,12 +21,12 @@ async function layerZero_fantomTestnet_to_moonbaseAlpha(
   msgport,
   messagePayload
 ) {
-  const dockSelection = async (_) =>
+  const lineSelection = async (_) =>
     "0xbf8d576f4204774f1EAdF9C4480133EE486E649C";
 
   const fee = await msgport.estimateFee(
     ChainId.MOONBASE_ALPHA,
-    dockSelection,
+    lineSelection,
     messagePayload
   );
 
@@ -39,12 +39,12 @@ async function layerZero_fantomTestnet_to_moonbaseAlpha(
 }
 
 async function axelar_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload) {
-  const dockSelection = async (_) =>
+  const lineSelection = async (_) =>
     "0xE447B04655a1EaA0fE35C2aD126667CDa458b4aD";
 
   const fee = await msgport.estimateFee(
     ChainId.MOONBASE_ALPHA,
-    dockSelection,
+    lineSelection,
     messagePayload
   );
 

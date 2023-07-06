@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/BaseMessageLine.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "../utils/GNSPSBytesLib.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
-contract LayerZeroDock is
-    BaseMessageDock,
+contract LayerZeroLine is
+    BaseMessageLine,
     NonblockingLzApp,
     LayerZeroChainIdMapping
 {
@@ -22,7 +22,7 @@ contract LayerZeroDock is
         address _lzEndpoingAddress,
         address _chainIdMapping
     )
-        BaseMessageDock(_localMsgportAddress, _lzEndpoingAddress)
+        BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress)
         NonblockingLzApp(_lzEndpoingAddress)
     {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
@@ -34,16 +34,16 @@ contract LayerZeroDock is
 
     function newOutboundLane(
         uint64 _toChainId,
-        address _toDockAddress
+        address _toLineAddress
     ) external onlyOwner {
-        _addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toLineAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
-        address _fromDockAddress
+        address _fromLineAddress
     ) external onlyOwner {
-        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromLineAddress);
     }
 
     function chainIdUp(uint16 _chainId) public view returns (uint64) {
@@ -70,10 +70,10 @@ contract LayerZeroDock is
         bytes memory _messagePayload,
         bytes memory _params
     ) internal override {
-        // set remote dock address
+        // set remote line address
         uint16 remoteChainId = chainIdDown(_outboundLane.toChainId);
         trustedRemoteLookup[remoteChainId] = abi.encodePacked(
-            _outboundLane.toDockAddress,
+            _outboundLane.toLineAddress,
             address(this)
         );
 
@@ -101,7 +101,7 @@ contract LayerZeroDock is
         bytes memory _payload
     ) internal virtual override {
         uint64 srcChainId = chainIdUp(_srcChainId);
-        address srcDockAddress = Utils.bytesToAddress(_srcAddress);
+        address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
         (
             address fromDappAddress,
@@ -111,8 +111,8 @@ contract LayerZeroDock is
 
         InboundLane memory inboundLane = inboundLanes[srcChainId];
         require(
-            inboundLane.fromDockAddress == srcDockAddress,
-            "invalid source dock address"
+            inboundLane.fromLineAddress == srcLineAddress,
+            "invalid source line address"
         );
 
         recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);

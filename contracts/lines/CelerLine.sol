@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.9;
 
-import "./base/BaseMessageDock.sol";
+import "./base/BaseMessageLine.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
-    address public remoteDockAddress;
+contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
+    address public remoteLineAddress;
 
     IChainIdMapping public chainIdMapping;
 
@@ -18,7 +18,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         address _localMsgportAddress,
         address _chainIdMapping,
         address _messageBus
-    ) BaseMessageDock(_localMsgportAddress, _messageBus) {
+    ) BaseMessageLine(_localMsgportAddress, _messageBus) {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
@@ -28,16 +28,16 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
 
     function newOutboundLane(
         uint64 _toChainId,
-        address _toDockAddress
+        address _toLineAddress
     ) external onlyOwner {
-        _addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toLineAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
-        address _fromDockAddress
+        address _fromLineAddress
     ) external onlyOwner {
-        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromLineAddress);
     }
 
     function chainIdUp(uint64 _chainId) public view returns (uint64) {
@@ -51,7 +51,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
     //////////////////////////////////////////
     // For sending
     //////////////////////////////////////////
-    // override BaseMessageDock
+    // override BaseMessageLine
     function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,
@@ -78,7 +78,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         }
 
         sendMessage(
-            _outboundLane.toDockAddress,
+            _outboundLane.toLineAddress,
             chainIdDown(_outboundLane.toChainId),
             celerMessage,
             fee
@@ -104,8 +104,8 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
 
         InboundLane memory inboundLane = inboundLanes[chainIdUp(_srcChainId)];
         require(
-            inboundLane.fromDockAddress == _srcContract,
-            "invalid source dock address"
+            inboundLane.fromLineAddress == _srcContract,
+            "invalid source line address"
         );
 
         recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
@@ -113,7 +113,7 @@ contract CelerDock is BaseMessageDock, MessageSenderApp, MessageReceiverApp {
         return ExecutionStatus.Success;
     }
 
-    // override BaseMessageDock
+    // override BaseMessageLine
     function _approveToRecv(
         address /*_fromDappAddress*/,
         InboundLane memory /*_inboundLane*/,

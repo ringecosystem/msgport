@@ -1,26 +1,26 @@
-import { IDock } from "./IDock";
+import { ILine } from "./ILine";
 import { ethers } from "ethers";
-import { IDockSelectionStrategy } from "./IDockSelectionStrategy";
+import { ILineSelectionStrategy } from "./ILineSelectionStrategy";
 import { ChainId } from "../chain-ids";
 
 export type IMsgport = {
   getLocalChainId: () => Promise<number>;
 
-  getLocalDockAddress: (
+  getLocalLineAddress: (
     toChainId: ChainId,
-    selectDock: IDockSelectionStrategy
+    selectLine: ILineSelectionStrategy
   ) => Promise<string>;
 
-  getDock: (
+  getLine: (
     toChainId: ChainId,
-    selectDock: IDockSelectionStrategy
-  ) => Promise<IDock>;
+    selectLine: ILineSelectionStrategy
+  ) => Promise<ILine>;
 
-  getLocalDockAddressesByToChainId: (toChainId: ChainId) => Promise<string[]>;
+  getLocalLineAddressesByToChainId: (toChainId: ChainId) => Promise<string[]>;
 
   estimateFee: (
     toChainId: ChainId,
-    selectDock: IDockSelectionStrategy,
+    selectLine: ILineSelectionStrategy,
     messagePayload: string,
     feeMultiplier: number,
     params: string
@@ -28,7 +28,7 @@ export type IMsgport = {
 
   send: (
     toChainId: ChainId,
-    selectDock: IDockSelectionStrategy,
+    selectLine: ILineSelectionStrategy,
     toDappAddress: string,
     messagePayload: string,
     feeMultiplier: number,

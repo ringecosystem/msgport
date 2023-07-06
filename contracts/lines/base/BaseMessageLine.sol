@@ -2,24 +2,24 @@
 
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IMessageDock.sol";
+import "../../interfaces/IMessageLine.sol";
 import "../../interfaces/IMessagePort.sol";
 import "../../interfaces/IChainIdMapping.sol";
 
-abstract contract BaseMessageDock is IMessageDock{
+abstract contract BaseMessageLine is IMessageLine{
     struct OutboundLane {
         uint64 toChainId;
-        address toDockAddress;
+        address toLineAddress;
     }
 
     struct InboundLane {
         uint64 fromChainId;
-        address fromDockAddress;
+        address fromLineAddress;
     }
 
     // tgtChainId => OutboundLane
     mapping(uint64 => OutboundLane) public outboundLanes;
-    // srcChainId => srcDockAddress => InboundLane
+    // srcChainId => srcLineAddress => InboundLane
     mapping(uint64 => InboundLane) public inboundLanes;
 
     address public localLevelMessagingContractAddress;
@@ -40,12 +40,12 @@ abstract contract BaseMessageDock is IMessageDock{
     function outboundLaneExists(
         uint64 _toChainId
     ) public view virtual returns (bool) {
-        return outboundLanes[_toChainId].toDockAddress != address(0);
+        return outboundLanes[_toChainId].toLineAddress != address(0);
     }
 
     function _addOutboundLaneInternal(
         uint64 _toChainId,
-        address _toDockAddress
+        address _toLineAddress
     ) internal virtual {
         require(
             outboundLaneExists(_toChainId) == false,
@@ -53,19 +53,19 @@ abstract contract BaseMessageDock is IMessageDock{
         );
         outboundLanes[_toChainId] = OutboundLane({
             toChainId: _toChainId,
-            toDockAddress: _toDockAddress
+            toLineAddress: _toLineAddress
         });
     }
 
     function inboundLaneExists(
         uint64 _fromChainId
     ) public view virtual returns (bool) {
-        return inboundLanes[_fromChainId].fromDockAddress != address(0);
+        return inboundLanes[_fromChainId].fromLineAddress != address(0);
     }
 
     function _addInboundLaneInternal(
         uint64 _fromChainId,
-        address _fromDockAddress
+        address _fromLineAddress
     ) internal virtual {
         require(
             inboundLaneExists(_fromChainId) == false,
@@ -73,7 +73,7 @@ abstract contract BaseMessageDock is IMessageDock{
         );
         inboundLanes[_fromChainId] = InboundLane({
             fromChainId: _fromChainId,
-            fromDockAddress: _fromDockAddress
+            fromLineAddress: _fromLineAddress
         });
     }
 
@@ -119,7 +119,7 @@ abstract contract BaseMessageDock is IMessageDock{
     ) public virtual {
         require(
             msg.sender == localLevelMessagingContractAddress,
-            "Dock: not called by local level messaging contract"
+            "Line: not called by local level messaging contract"
         );
         require(
             _approveToRecv(

@@ -2,10 +2,10 @@ import { ethers } from "ethers";
 import { IEstimateFee } from "./interfaces/IEstimateFee";
 import { layerzero } from "./layerzero/index";
 import { axelar } from "./axelar/index";
-import BaseMessageDockContract from "../artifacts/contracts/docks/base/BaseMessageDock.sol/BaseMessageDock.json";
-import { IDock } from "./interfaces/IDock";
+import BaseMessageLineContract from "../artifacts/contracts/lines/base/BaseMessageLine.sol/BaseMessageLine.json";
+import { ILine } from "./interfaces/ILine";
 
-enum DockType {
+enum LineType {
   Axelar = 0,
   AxelarTestnet = 1,
   Celer = 2,
@@ -15,44 +15,44 @@ enum DockType {
   LayerZero = 6,
 }
 
-async function getDock(
+async function getLine(
   provider: ethers.providers.Provider,
-  dockAddress: string,
-  dockType: DockType
+  lineAddress: string,
+  lineType: LineType
 ) {
-  const dock = new ethers.Contract(
-    dockAddress,
-    BaseMessageDockContract.abi,
+  const line = new ethers.Contract(
+    lineAddress,
+    BaseMessageLineContract.abi,
     provider
   );
 
   let estimateFee: IEstimateFee = await buildEstimateFunction(
     provider,
-    dockType,
-    dockAddress
+    lineType,
+    lineAddress
   );
 
-  const result: IDock = {
-    address: dockAddress,
+  const result: ILine = {
+    address: lineAddress,
 
     getLocalChainId: async () => {
-      return await dock.getLocalChainId();
+      return await line.getLocalChainId();
     },
 
     getOutboundLane: async (remoteChainId: number) => {
-      const outboundLane = await dock.outboundLanes(remoteChainId);
+      const outboundLane = await line.outboundLanes(remoteChainId);
       return {
         fromChainId: await result.getLocalChainId(),
-        fromDockAddress: dockAddress,
+        fromLineAddress: lineAddress,
         toChainId: outboundLane["toChainId"],
-        toDockAddress: outboundLane["toDockAddress"],
+        toLineAddress: outboundLane["toLineAddress"],
         nonce: outboundLane["nonce"],
       };
     },
 
-    getRemoteDockAddress: async (remoteChainId: number) => {
-      const lane = await dock.outboundLanes(remoteChainId);
-      return lane["toDockAddress"];
+    getRemoteLineAddress: async (remoteChainId: number) => {
+      const lane = await line.outboundLanes(remoteChainId);
+      return lane["toLineAddress"];
     },
 
     estimateFee: async (
@@ -61,16 +61,16 @@ async function getDock(
       feeMultiplier: number,
       params
     ) => {
-      const remoteDockAddress = await result.getRemoteDockAddress(
+      const remoteLineAddress = await result.getRemoteLineAddress(
         remoteChainId
       );
-      console.log(`remoteDockAddress: ${remoteDockAddress}`);
+      console.log(`remoteLineAddress: ${remoteLineAddress}`);
 
       return await estimateFee(
-        await dock.getLocalChainId(),
-        dockAddress,
+        await line.getLocalChainId(),
+        lineAddress,
         remoteChainId,
-        remoteDockAddress,
+        remoteLineAddress,
         messagePayload,
         feeMultiplier,
         params
@@ -83,31 +83,31 @@ async function getDock(
 
 async function buildEstimateFunction(
   provider: ethers.providers.Provider,
-  dockType: DockType,
-  dockAddress: string
+  lineType: LineType,
+  lineAddress: string
 ) {
   let estimateFee: IEstimateFee;
-  if (dockType == DockType.LayerZero) {
+  if (lineType == LineType.LayerZero) {
     estimateFee = await layerzero.buildEstimateFeeFunction(
       provider,
-      dockAddress
+      lineAddress
     );
-  } else if (dockType == DockType.Axelar) {
+  } else if (lineType == LineType.Axelar) {
     estimateFee = await axelar.buildEstimateFeeFunction(
       provider,
-      dockAddress,
+      lineAddress,
       axelar.Environment.MAINNET
     );
-  } else if (dockType == DockType.AxelarTestnet) {
+  } else if (lineType == LineType.AxelarTestnet) {
     estimateFee = await axelar.buildEstimateFeeFunction(
       provider,
-      dockAddress,
+      lineAddress,
       axelar.Environment.TESTNET
     );
   } else {
-    throw new Error("Unsupported dock type");
+    throw new Error("Unsupported line type");
   }
   return estimateFee;
 }
 
-export { getDock, DockType };
+export { getLine, LineType };
