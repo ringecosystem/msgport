@@ -7,42 +7,42 @@ async function deployMsgport(chainId, args = {}) {
   return msgport.address;
 }
 
-async function deployDock(
-  // for deploy the dock
-  dockName,
+async function deployLine(
+  // for deploy the line
+  lineName,
   localMsgportAddress,
   chainIdMappingAddress,
-  dockArgs,
-  // for adding the remote dock to the msgport
+  lineArgs,
+  // for adding the remote line to the msgport
   remoteChainId,
   // deploy tx args
   deployGasLimit = 4000000,
   deployGasPrice = hre.ethers.utils.parseUnits("10", "gwei"),
   // newOutboundLane tx args
-  addRemoteDockGasLimit = 100000
+  addRemoteLineGasLimit = 100000
 ) {
-  let Dock = await hre.ethers.getContractFactory(dockName);
-  let dock = await Dock.deploy(
+  let Line = await hre.ethers.getContractFactory(lineName);
+  let line = await Line.deploy(
     localMsgportAddress,
     chainIdMappingAddress,
-    ...dockArgs,
+    ...lineArgs,
     {
       gasLimit: deployGasLimit,
       gasPrice: deployGasPrice,
     }
   );
-  await dock.deployed();
+  await line.deployed();
 
   // Add it to the msgport
   let MessagePort = await hre.ethers.getContractFactory("MessagePort");
   const msgport = await MessagePort.attach(localMsgportAddress);
   await (
-    await msgport.addLocalDock(remoteChainId, dock.address, {
-      gasLimit: addRemoteDockGasLimit,
+    await msgport.addLocalLine(remoteChainId, line.address, {
+      gasLimit: addRemoteLineGasLimit,
     })
   ).wait();
 
-  return dock;
+  return line;
 }
 
 async function getMsgport(network, msgportAddress) {
@@ -125,7 +125,7 @@ exports.puts = (obj) => {
 };
 
 exports.deployMsgport = deployMsgport;
-exports.deployDock = deployDock;
+exports.deployLine = deployLine;
 exports.getMsgport = getMsgport;
 exports.deployReceiver = deployReceiver;
 exports.getChainId = getChainId;

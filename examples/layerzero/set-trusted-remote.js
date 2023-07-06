@@ -2,28 +2,28 @@ const hre = require("hardhat");
 
 async function main() {
   const receiverChain = "polygonTestnet";
-  const senderDockAddress = "0x06626341A9874F9223a3fC71e154C408c6BFb652";
-  const receiverDockAddress = "0x13f5631A078Cf70C2D9D66978f81c851D12491d6";
+  const senderLineAddress = "0x06626341A9874F9223a3fC71e154C408c6BFb652";
+  const receiverLineAddress = "0x13f5631A078Cf70C2D9D66978f81c851D12491d6";
 
   hre.changeNetwork(receiverChain);
-  // attach the receiver's dock contract
-  let LayerZeroDock = await hre.ethers.getContractFactory("LayerZeroDock");
-  const receiverDock = await LayerZeroDock.attach(receiverDockAddress);
+  // attach the receiver's line contract
+  let LayerZeroLine = await hre.ethers.getContractFactory("LayerZeroLine");
+  const receiverLine = await LayerZeroLine.attach(receiverLineAddress);
 
   // set trusted remote
   // // Way 1:
   // let trustedRemote = hre.ethers.utils.solidityPack(
   //   ["address", "address"],
-  //   [senderDockAddress, receiverDockAddress]
+  //   [senderLineAddress, receiverLineAddress]
   // );
-  // const tx = await receiverDock.setTrustedRemote(10102, trustedRemote, {
+  // const tx = await receiverLine.setTrustedRemote(10102, trustedRemote, {
   //   gasLimit: 100000,
   // });
 
   // // OR, Way 2:
-  // const tx = await receiverDock.setTrustedRemoteAddress(
+  // const tx = await receiverLine.setTrustedRemoteAddress(
   //   10102,
-  //   senderDockAddress,
+  //   senderLineAddress,
   //   {
   //     gasLimit: 100000,
   //   }
@@ -37,15 +37,15 @@ async function main() {
   // check result
   let trustedRemote = hre.ethers.utils.solidityPack(
     ["address", "address"],
-    [senderDockAddress, receiverDockAddress]
+    [senderLineAddress, receiverLineAddress]
   );
-  const result = await receiverDock.isTrustedRemote(
+  const result = await receiverLine.isTrustedRemote(
     10102, // sender layerzero chain id
     trustedRemote
   );
   console.log("isTrustedRemote: ", result);
 
-  // const trustedRemote = await receiverDock.getTrustedRemoteAddress(10102);
+  // const trustedRemote = await receiverLine.getTrustedRemoteAddress(10102);
   // console.log("trustedRemote: ", trustedRemote);
 }
 

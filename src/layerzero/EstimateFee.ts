@@ -1,18 +1,18 @@
 import { IEstimateFee } from "../interfaces/IEstimateFee";
 import { ethers } from "ethers";
-import LayerZeroDockContract from "../../artifacts/contracts/docks/LayerZeroDock.sol/LayerZeroDock.json";
+import LayerZeroLineContract from "../../artifacts/contracts/lines/LayerZeroLine.sol/LayerZeroLine.json";
 
 async function buildEstimateFeeFunction(
   provider: ethers.providers.Provider,
-  senderDockAddress: string
+  senderLineAddress: string
 ) {
-  // dock
-  const senderDock = new ethers.Contract(
-    senderDockAddress,
-    LayerZeroDockContract.abi,
+  // line
+  const senderLine = new ethers.Contract(
+    senderLineAddress,
+    LayerZeroLineContract.abi,
     provider
   );
-  const lzEndpointAddress = await senderDock.lzEndpointAddress();
+  const lzEndpointAddress = await senderLine.lzEndpointAddress();
 
   // endpoint
   const abi = [
@@ -31,19 +31,19 @@ async function buildEstimateFeeFunction(
     params
   ) => {
     console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
-    const lzSrcChainId = await senderDock.chainIdDown(fromChainId);
-    const lzDstChainId = await senderDock.chainIdDown(toChainId);
+    const lzSrcChainId = await senderLine.chainIdDown(fromChainId);
+    const lzDstChainId = await senderLine.chainIdDown(toChainId);
     console.log(`lzSrcChainId: ${lzSrcChainId}, lzDstChainId: ${lzDstChainId}`);
 
     const payload = ethers.utils.defaultAbiCoder.encode(
       ["address", "address", "address", "bytes"],
-      [senderDockAddress, fromDappAddress, toDappAddress, messagePayload]
+      [senderLineAddress, fromDappAddress, toDappAddress, messagePayload]
     );
 
     console.log(`params: ${params}`);
     const result = await endpoint.estimateFees(
       lzDstChainId,
-      senderDockAddress,
+      senderLineAddress,
       payload,
       false,
       params

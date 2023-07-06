@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/BaseMessageLine.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -16,7 +16,7 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
+contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
     IChainIdMapping public chainIdMapping;
 
     constructor(
@@ -24,12 +24,12 @@ contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
         address _darwiniaEndpointAddress,
         address _chainIdMapping,
         uint64 _remoteChainId,
-        address _remoteDockAddress
-    ) BaseMessageDock(_localMsgportAddress, _darwiniaEndpointAddress) {
+        address _remoteLineAddress
+    ) BaseMessageLine(_localMsgportAddress, _darwiniaEndpointAddress) {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
         // add outbound and inbound lane
-        _addOutboundLaneInternal(_remoteChainId, _remoteDockAddress);
-        _addInboundLaneInternal(_remoteChainId, _remoteDockAddress);
+        _addOutboundLaneInternal(_remoteChainId, _remoteLineAddress);
+        _addInboundLaneInternal(_remoteChainId, _remoteLineAddress);
     }
 
     function _callRemoteRecv(
@@ -55,7 +55,7 @@ contract DarwiniaS2sDock is BaseMessageDock, Ownable2Step {
 
         IMessageEndpoint(localLevelMessagingContractAddress).remoteExecute{
             value: msg.value
-        }(specVersion, _outboundLane.toDockAddress, recvCall, gasLimit);
+        }(specVersion, _outboundLane.toLineAddress, recvCall, gasLimit);
     }
 
     function _approveToRecv(

@@ -3,7 +3,7 @@ const {
   Environment,
 } = require("@axelar-network/axelarjs-sdk");
 const hre = require("hardhat");
-const { getDock, DockType } = require("../../dist/src/index");
+const { getLine, LineType } = require("../../dist/src/index");
 
 // Examples:
 // https://testnet.axelarscan.io/gmp/0x121079ed2211ede771d0ee532054306c21832f1d45d1e805d3eec4bda70d3923
@@ -13,12 +13,12 @@ async function main() {
   // --------------------------------------
   const senderChain = "fantomTestnet";
   hre.changeNetwork(senderChain);
-  const dock = await getDock(
+  const line = await getLine(
     await hre.ethers.provider,
-    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99", // <------- change this, sender dock address,
-    DockType.AxelarTestnet
+    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99", // <------- change this, sender line address,
+    LineType.AxelarTestnet
   );
-  const outboundLane = await dock.getOutboundLane(1287);
+  const outboundLane = await line.getOutboundLane(1287);
   console.log("outbound lane:");
   for (const [key, value] of Object.entries(outboundLane)) {
     console.log(`  ${key}: ${value}`);

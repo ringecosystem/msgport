@@ -1,12 +1,12 @@
 import { ethers } from "ethers";
-import { getDock, DockType } from "./dock";
+import { getLine, LineType } from "./line";
 import MsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
-import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
-import { dockTypeRegistry } from "./dockTypeRegistry";
+import { ILineSelectionStrategy } from "./interfaces/ILineSelectionStrategy";
+import { lineTypeRegistry } from "./lineTypeRegistry";
 import { IMsgport } from "./interfaces/IMsgport";
 import { ChainId } from "./chain-ids";
 
-export { DockType };
+export { LineType };
 
 export async function getMsgport(
   provider: ethers.providers.Provider,
@@ -23,43 +23,43 @@ export async function getMsgport(
       return await msgport.getLocalChainId();
     },
 
-    getLocalDockAddress: async (
+    getLocalLineAddress: async (
       toChainId: ChainId,
-      selectDock: IDockSelectionStrategy
+      selectLine: ILineSelectionStrategy
     ) => {
-      const localDockAddresses = await msgport.getLocalDockAddressesByToChainId(
+      const localLineAddresses = await msgport.getLocalLineAddressesByToChainId(
         toChainId
       );
-      return await selectDock(localDockAddresses);
+      return await selectLine(localLineAddresses);
     },
 
-    getDock: async (toChainId: ChainId, selectDock: IDockSelectionStrategy) => {
-      const localDockAddress = await result.getLocalDockAddress(
+    getLine: async (toChainId: ChainId, selectLine: ILineSelectionStrategy) => {
+      const localLineAddress = await result.getLocalLineAddress(
         toChainId,
-        selectDock
+        selectLine
       );
 
-      const dockType = dockTypeRegistry[localDockAddress];
+      const lineType = lineTypeRegistry[localLineAddress];
       console.log(
-        `localDockAddress: ${localDockAddress}, dockType: ${dockType}`
+        `localLineAddress: ${localLineAddress}, lineType: ${lineType}`
       );
-      return await getDock(provider, localDockAddress, dockType);
+      return await getLine(provider, localLineAddress, lineType);
     },
 
-    getLocalDockAddressesByToChainId: async (toChainId: ChainId) => {
+    getLocalLineAddressesByToChainId: async (toChainId: ChainId) => {
       console.log(`toChainId: ${toChainId}`);
-      return await msgport.getLocalDockAddressesByToChainId(toChainId);
+      return await msgport.getLocalLineAddressesByToChainId(toChainId);
     },
 
     estimateFee: async (
       toChainId: ChainId,
-      selectDock: IDockSelectionStrategy,
+      selectLine: ILineSelectionStrategy,
       messagePayload: string,
       feeMultiplier: number = 1.1,
       params = "0x"
     ) => {
-      const localDock = await result.getDock(toChainId, selectDock);
-      return await localDock.estimateFee(
+      const localLine = await result.getLine(toChainId, selectLine);
+      return await localLine.estimateFee(
         toChainId,
         messagePayload,
         feeMultiplier,
@@ -69,17 +69,17 @@ export async function getMsgport(
 
     send: async (
       toChainId: ChainId,
-      selectDock: IDockSelectionStrategy,
+      selectLine: ILineSelectionStrategy,
       toDappAddress: string,
       messagePayload: string,
       feeMultiplier: number = 1.1,
       params: string = "0x"
     ) => {
-      // Get local dock
-      const localDock = await result.getDock(toChainId, selectDock);
+      // Get local line
+      const localLine = await result.getLine(toChainId, selectLine);
 
-      // Estimate fee through dock
-      const fee = await localDock.estimateFee(
+      // Estimate fee through line
+      const fee = await localLine.estimateFee(
         toChainId,
         messagePayload,
         feeMultiplier,
@@ -90,7 +90,7 @@ export async function getMsgport(
 
       // Send message
       const tx = await msgport.send(
-        localDock.address,
+        localLine.address,
         toChainId,
         toDappAddress,
         messagePayload,

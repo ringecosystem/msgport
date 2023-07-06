@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IMessageDock {
+interface IMessageLine {
     function send(
         address _fromDappAddress,
         uint64 _toChainId,

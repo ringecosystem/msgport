@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageDock.sol";
+import "./base/BaseMessageLine.sol";
 import "../utils/Utils.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
@@ -10,7 +10,7 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
+contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
     IAxelarGasService public immutable GAS_SERVICE;
 
     IChainIdMapping public chainIdMapping;
@@ -21,7 +21,7 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         address _gateway,
         address _gasReceiver
     )
-        BaseMessageDock(_localMsgportAddress, _gateway)
+        BaseMessageLine(_localMsgportAddress, _gateway)
         AxelarExecutable(_gateway)
     {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
@@ -34,16 +34,16 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
 
     function newOutboundLane(
         uint64 _toChainId,
-        address _toDockAddress
+        address _toLineAddress
     ) external onlyOwner {
-        _addOutboundLaneInternal(_toChainId, _toDockAddress);
+        _addOutboundLaneInternal(_toChainId, _toLineAddress);
     }
 
     function newInboundLane(
         uint64 _fromChainId,
-        address _fromDockAddress
+        address _fromLineAddress
     ) external onlyOwner {
-        _addInboundLaneInternal(_fromChainId, _fromDockAddress);
+        _addInboundLaneInternal(_fromChainId, _fromLineAddress);
     }
 
     function chainIdUp(string memory _chainId) public view returns (uint64) {
@@ -77,21 +77,21 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
         );
 
         string memory toChainId = chainIdDown(_outboundLane.toChainId);
-        string memory toDockAddress = Utils.addressToHexString(
-            _outboundLane.toDockAddress
+        string memory toLineAddress = Utils.addressToHexString(
+            _outboundLane.toLineAddress
         );
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
                 address(this),
                 toChainId,
-                toDockAddress,
+                toLineAddress,
                 axelarMessage,
                 msg.sender
             );
         }
 
-        gateway.callContract(toChainId, toDockAddress, axelarMessage);
+        gateway.callContract(toChainId, toLineAddress, axelarMessage);
     }
 
     function _execute(
@@ -107,9 +107,9 @@ contract AxelarDock is BaseMessageDock, AxelarExecutable, Ownable {
 
         InboundLane memory inboundLane = inboundLanes[chainIdUp(sourceChain_)];
         require(
-            inboundLane.fromDockAddress ==
+            inboundLane.fromLineAddress ==
                 Utils.hexStringToAddress(sourceAddress_),
-            "invalid source dock address"
+            "invalid source line address"
         );
 
         recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);

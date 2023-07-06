@@ -1,11 +1,11 @@
-export type IDock = {
+export type ILine = {
   address: string;
 
   getLocalChainId: () => Promise<number>;
 
   getOutboundLane: (remoteChainId: number) => Promise<any>;
 
-  getRemoteDockAddress: (remoteChainId: number) => Promise<string>;
+  getRemoteLineAddress: (remoteChainId: number) => Promise<string>;
 
   estimateFee: (
     remoteChainId: number,

@@ -1,15 +1,15 @@
 // import { ethers } from "ethers";
 import { ChainId } from "./chain-ids";
 import { getMsgport } from "./msgport";
-import { getDock, DockType } from "./dock";
+import { getLine, LineType } from "./line";
 import { axelar } from "./axelar/index";
 import { layerzero } from "./layerzero/index";
-import { createDefaultDockSelectionStrategy } from "./DefaultDockSelectionStrategy";
-import { IDockSelectionStrategy } from "./interfaces/IDockSelectionStrategy";
+import { createDefaultLineSelectionStrategy } from "./DefaultLineSelectionStrategy";
+import { ILineSelectionStrategy } from "./interfaces/ILineSelectionStrategy";
 
 export { getMsgport, ChainId };
-export { getDock, DockType };
-export { IDockSelectionStrategy, createDefaultDockSelectionStrategy };
+export { getLine, LineType };
+export { ILineSelectionStrategy, createDefaultLineSelectionStrategy };
 export { axelar, layerzero };
 
 // async function main(): Promise<void> {
@@ -22,33 +22,33 @@ export { axelar, layerzero };
 //     "0xeF1c60AB9B902c13585411dC929005B98Ca44541"
 //   );
 
-//   const dockSelection: IDockSelectionStrategy = async (
-//     dockAddresses: string[]
+//   const lineSelection: ILineSelectionStrategy = async (
+//     lineAddresses: string[]
 //   ) => "0x017D8C573a54cc43e2D23EC8Fa756D92777c3217";
 
-//   // const dock = await msgport.getDock(
+//   // const line = await msgport.getLine(
 //   //   ChainId.POLYGON_MUMBAI, // target chain id
-//   //   dockSelection
+//   //   lineSelection
 //   // );
-//   // console.log(`dock: ${dock}`);
+//   // console.log(`line: ${line}`);
 
-//   const dockAddresses = await msgport.getLocalDockAddressesByToChainId(
+//   const lineAddresses = await msgport.getLocalLineAddressesByToChainId(
 //     ChainId.BNBCHAIN_TESTNET
 //   );
-//   console.log(`dockAddresses: ${dockAddresses}`);
+//   console.log(`lineAddresses: ${lineAddresses}`);
 
-//   // const fee = await dock.estimateFee(ChainId.MOONBASE_ALPHA, "0x12345678");
+//   // const fee = await line.estimateFee(ChainId.MOONBASE_ALPHA, "0x12345678");
 //   // console.log(`cross-chain fee: ${fee} wei.`);
 
 //   // toChainId: number,
-//   //     selectDock: IDockSelectionStrategy,
+//   //     selectLine: ILineSelectionStrategy,
 //   //     toDappAddress: string,
 //   //     messagePayload: string,
 //   //     params: string = "0x",
 //   //     feeMultiplier: number = 1.1
 
 //   // const tx = await msgport.send(
-//   //   dockSelection,
+//   //   lineSelection,
 //   //   1287, // target chain id
 // }
 

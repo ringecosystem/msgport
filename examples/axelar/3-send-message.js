@@ -25,15 +25,15 @@ async function main() {
     "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F" // <------- change this, see 0-setup-msgports.js
   );
 
-  //  2. get the dock selection strategy
-  const selectLastDock = async (_) =>
-    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99"; // <------- change this to the sender dock address, see 1-deploy-dock.js
+  //  2. get the line selection strategy
+  const selectLastLine = async (_) =>
+    "0x807a3e011DF1785c538Ac6F65252bf740678Ff99"; // <------- change this to the sender line address, see 1-deploy-line.js
 
   //  3. send message
   let params = hre.ethers.utils.solidityPack(["uint256"], [1000000]);
   const tx = await msgport.send(
     receiverChainId,
-    selectLastDock,
+    selectLastLine,
     receiverAddress,
     "0x12345678",
     1.1,

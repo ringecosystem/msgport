@@ -5,7 +5,7 @@ async function main() {
   const receiverAddress = "0xe13084f8fF65B755E37d95F49edbD49ca26feE13";
 
   hre.changeNetwork(receiverChain);
-  // attach the receiver's dock contract
+  // attach the receiver's line contract
   let ExampleReceiverDapp = await hre.ethers.getContractFactory(
     "ExampleReceiverDapp"
   );

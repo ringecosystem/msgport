@@ -6,7 +6,7 @@ import {
   EvmChain,
   GasToken,
 } from "@axelar-network/axelarjs-sdk";
-import AxelarDockContract from "../../artifacts/contracts/docks/AxelarDock.sol/AxelarDock.json";
+import AxelarLineContract from "../../artifacts/contracts/lines/AxelarLine.sol/AxelarLine.json";
 
 const axelarNativeTokens: { [chainName: string]: string } = {};
 axelarNativeTokens[EvmChain.ETHEREUM] = GasToken.ETH;
@@ -15,17 +15,17 @@ axelarNativeTokens[EvmChain.FANTOM] = GasToken.FTM;
 
 async function buildEstimateFeeFunction(
   provider: ethers.providers.Provider,
-  senderDockAddress: string,
+  senderLineAddress: string,
   environment: Environment
 ) {
   const sdk = new AxelarQueryAPI({
     environment: environment,
   });
 
-  // dock
-  const dock = new ethers.Contract(
-    senderDockAddress,
-    AxelarDockContract.abi,
+  // line
+  const line = new ethers.Contract(
+    senderLineAddress,
+    AxelarLineContract.abi,
     provider
   );
 
@@ -39,8 +39,8 @@ async function buildEstimateFeeFunction(
     params
   ) => {
     console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
-    const axelarSrcChainName = await dock.chainIdDown(fromChainId);
-    const axelarDstChainName = await dock.chainIdDown(toChainId);
+    const axelarSrcChainName = await line.chainIdDown(fromChainId);
+    const axelarDstChainName = await line.chainIdDown(toChainId);
     console.log(
       `axelarSrcChainName: ${axelarSrcChainName}, axelarDstChainName: ${axelarDstChainName}`
     );
