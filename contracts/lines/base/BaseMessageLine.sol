@@ -104,13 +104,6 @@ abstract contract BaseMessageLine is IMessageLine{
         );
     }
 
-    function _approveToRecv(
-        address _fromDappAddress,
-        InboundLane memory _inboundLane,
-        address _toDappAddress,
-        bytes memory _messagePayload
-    ) internal virtual returns (bool);
-
     function recv(
         address _fromDappAddress,
         InboundLane memory _inboundLane,
@@ -120,15 +113,6 @@ abstract contract BaseMessageLine is IMessageLine{
         require(
             msg.sender == localLevelMessagingContractAddress,
             "Line: not called by local level messaging contract"
-        );
-        require(
-            _approveToRecv(
-                _fromDappAddress,
-                _inboundLane,
-                _toDappAddress,
-                _message
-            ),
-            "!permitted"
         );
 
         // call local msgport to receive message

@@ -54,15 +54,6 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         return string(chainIdMapping.down(_chainId));
     }
 
-    function _approveToRecv(
-        address /*_fromDappAddress*/,
-        InboundLane memory /*_inboundLane*/,
-        address /*_toDappAddress*/,
-        bytes memory /*_messagePayload*/
-    ) internal pure override returns (bool) {
-        return true;
-    }
-
     function _callRemoteRecv(
         address _fromDappAddress,
         OutboundLane memory _outboundLane,

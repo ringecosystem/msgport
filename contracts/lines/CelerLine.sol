@@ -112,14 +112,4 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
 
         return ExecutionStatus.Success;
     }
-
-    // override BaseMessageLine
-    function _approveToRecv(
-        address /*_fromDappAddress*/,
-        InboundLane memory /*_inboundLane*/,
-        address /*_toDappAddress*/,
-        bytes memory /*_messagePayload*/
-    ) internal pure override returns (bool) {
-        return true;
-    }
 }

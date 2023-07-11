@@ -57,13 +57,4 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
             value: msg.value
         }(specVersion, _outboundLane.toLineAddress, recvCall, gasLimit);
     }
-
-    function _approveToRecv(
-        address /*_fromDappAddress*/,
-        InboundLane memory /*_inboundLane*/,
-        address /*_toDappAddress*/,
-        bytes memory /*_messagePayload*/
-    ) internal pure override returns (bool) {
-        return true;
-    }
 }
