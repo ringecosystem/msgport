@@ -17,20 +17,20 @@ abstract contract BaseMessageLine is IMessageLine{
         address fromLineAddress;
     }
 
-    // tgtChainId => OutboundLane
+    // toChainId => OutboundLane
     mapping(uint64 => OutboundLane) public outboundLanes;
-    // srcChainId => srcLineAddress => InboundLane
+    // fromChainId => InboundLane
     mapping(uint64 => InboundLane) public inboundLanes;
 
-    address public localLevelMessagingContractAddress;
+    address public localMessagingContractAddress;
     IMessagePort public immutable LOCAL_MSGPORT;
 
     constructor(
         address _localMsgportAddress,
-        address _localLevelMessagingContractAddress
+        address _localMessagingContractAddress
     ) {
         LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
-        localLevelMessagingContractAddress = _localLevelMessagingContractAddress;
+        localMessagingContractAddress = _localMessagingContractAddress;
     }
 
     function getLocalChainId() public view returns (uint64) {
@@ -49,7 +49,7 @@ abstract contract BaseMessageLine is IMessageLine{
     ) internal virtual {
         require(
             outboundLaneExists(_toChainId) == false,
-            "outboundLane already exists"
+            "Line: OutboundLane already exists"
         );
         outboundLanes[_toChainId] = OutboundLane({
             toChainId: _toChainId,
@@ -69,7 +69,7 @@ abstract contract BaseMessageLine is IMessageLine{
     ) internal virtual {
         require(
             inboundLaneExists(_fromChainId) == false,
-            "inboundLane already exists"
+            "Line: InboundLane already exists"
         );
         inboundLanes[_fromChainId] = InboundLane({
             fromChainId: _fromChainId,
@@ -111,8 +111,8 @@ abstract contract BaseMessageLine is IMessageLine{
         bytes memory _message
     ) public virtual {
         require(
-            msg.sender == localLevelMessagingContractAddress,
-            "Line: not called by local level messaging contract"
+            msg.sender == localMessagingContractAddress,
+            "Line: Only can be called by local messaging contract"
         );
 
         // call local msgport to receive message
@@ -128,7 +128,7 @@ abstract contract BaseMessageLine is IMessageLine{
         // check this is called by local msgport
         require(
             msg.sender == address(LOCAL_MSGPORT),
-            "not allowed to be called by others except local msgport"
+            "Line: Only can be called by local msgport"
         );
     }
 }

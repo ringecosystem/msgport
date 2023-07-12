@@ -45,7 +45,6 @@ interface IMessagePort {
         address _lineAddress
     );
 
-
     function getLocalChainId() external view returns (uint64);
 
     function send(
