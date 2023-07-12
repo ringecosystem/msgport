@@ -18,15 +18,16 @@
 pragma solidity ^0.8.0;
 
 interface IMessagePort {
-    event DappError(
+    event ReceiverError(
+        uint256 indexed _messageId,
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes _message,
         string _reason,
-        uint256 _messageId
+        address _lineAddress
     );
-    event SendMessage(
+    event MessageSent(
         uint256 indexed _messageId,
         uint64 _toChainId,
         address _fromDappAddress,
@@ -35,7 +36,7 @@ interface IMessagePort {
         bytes _params,
         address _lineAddress
     );
-    event ReceiveMessage(
+    event MessageReceived(
         uint256 indexed _messageId,
         uint64 _fromChainId,
         address _fromDappAddress,
