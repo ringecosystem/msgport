@@ -15,7 +15,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
     uint128 private _nonce;
 
     // remoteChainId => localLineAddress[]
-    mapping(uint64 => EnumerableSet.AddressSet) private _localLineAddressesByToChainId;
+    mapping(uint64 => EnumerableSet.AddressSet) private _localLineAddressLookup;
 
     constructor(uint64 localChainId_) {
         _localChainId = localChainId_;
@@ -34,41 +34,41 @@ contract MessagePort is IMessagePort, Ownable2Step {
     function getLocalLineAddressesByToChainId(
         uint64 toChainId_
     ) external view returns (address[] memory) {
-        return _localLineAddressesByToChainId[toChainId_].values();
+        return _localLineAddressLookup[toChainId_].values();
     }
 
     function getLocalLineAddressesLengthByToChainId(
         uint64 toChainId_
     ) external view returns (uint256) {
-        return _localLineAddressesByToChainId[toChainId_].length();
+        return _localLineAddressLookup[toChainId_].length();
     }
 
     function getLocalLineAddressByToChainIdAndIndex(
         uint64 toChainId_,
         uint256 index_
     ) external view returns (address) {
-        return _localLineAddressesByToChainId[toChainId_].at(index_);
+        return _localLineAddressLookup[toChainId_].at(index_);
     }
 
     function addLocalLine(
         uint64 remoteChainId_,
         address localLineAddress_
     ) external onlyOwner {
-        require(_localLineAddressesByToChainId[remoteChainId_].add(localLineAddress_), "!add");
+        require(_localLineAddressLookup[remoteChainId_].add(localLineAddress_), "!add");
     }
 
     function removeLocalLine(
         uint64 remoteChainId_,
         address localLineAddress_
     ) external onlyOwner {
-        require(_localLineAddressesByToChainId[remoteChainId_].remove(localLineAddress_), "!rm");
+        require(_localLineAddressLookup[remoteChainId_].remove(localLineAddress_), "!rm");
     }
 
     function localLineExists(
         uint64 remoteChainId_,
         address localLineAddress_
     ) public view returns (bool) {
-        return _localLineAddressesByToChainId[remoteChainId_].contains(localLineAddress_);
+        return _localLineAddressLookup[remoteChainId_].contains(localLineAddress_);
     }
 
     // called by Dapp.
@@ -82,7 +82,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
         // check if local line exists
         require(
             localLineExists(toChainId_, throughLocalLineAddress_),
-            "Local line not exists"
+            "Port: Local line does not exist"
         );
 
         _nonce++;
@@ -96,7 +96,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
             messagePayloadWithId,
             params_
         );
-        emit SendMessage(
+        emit MessageSent(
             messageId,
             toChainId_,
             msg.sender,
@@ -119,7 +119,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
     ) external {
         require(
             localLineExists(fromChainId_, msg.sender),
-            "Local line not exists"
+            "Port: Local line does not exist"
         );
 
         (uint256 messageId, bytes memory messagePayload_) = abi.decode(
@@ -134,26 +134,28 @@ contract MessagePort is IMessagePort, Ownable2Step {
                 messagePayload_
             ) {
         } catch Error(string memory reason) {
-            emit DappError(
+            emit ReceiverError(
+                messageId,
                 fromChainId_,
                 fromDappAddress_,
                 toDappAddress_,
                 messagePayload_,
                 reason,
-                messageId
+                msg.sender
             );
         } catch (bytes memory reason) {
-            emit DappError(
+            emit ReceiverError(
+                messageId,
                 fromChainId_,
                 fromDappAddress_,
                 toDappAddress_,
                 messagePayload_,
                 string(reason),
-                messageId
+                msg.sender
             );
         }
         
-        emit ReceiveMessage(
+        emit MessageReceived(
             messageId,
             fromChainId_,
             fromDappAddress_,

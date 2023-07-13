@@ -53,7 +53,7 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
             _messagePayload
         );
 
-        IMessageEndpoint(localLevelMessagingContractAddress).remoteExecute{
+        IMessageEndpoint(localMessagingContractAddress).remoteExecute{
             value: msg.value
         }(specVersion, _outboundLane.toLineAddress, recvCall, gasLimit);
     }
