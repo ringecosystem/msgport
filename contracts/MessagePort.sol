@@ -98,6 +98,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
         );
         emit MessageSent(
             messageId,
+            _localChainId,
             toChainId_,
             msg.sender,
             toDappAddress_,
@@ -136,20 +137,12 @@ contract MessagePort is IMessagePort, Ownable2Step {
         } catch Error(string memory reason) {
             emit ReceiverError(
                 messageId,
-                fromChainId_,
-                fromDappAddress_,
-                toDappAddress_,
-                messagePayload_,
                 reason,
                 msg.sender
             );
         } catch (bytes memory reason) {
             emit ReceiverError(
                 messageId,
-                fromChainId_,
-                fromDappAddress_,
-                toDappAddress_,
-                messagePayload_,
                 string(reason),
                 msg.sender
             );
@@ -157,10 +150,6 @@ contract MessagePort is IMessagePort, Ownable2Step {
         
         emit MessageReceived(
             messageId,
-            fromChainId_,
-            fromDappAddress_,
-            toDappAddress_,
-            messagePayload_,
             msg.sender
         );
     }
