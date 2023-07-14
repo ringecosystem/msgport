@@ -63,10 +63,6 @@ contract LayerZeroLine is
     ) internal override {
         // set remote line address
         uint16 remoteChainId = chainIdDown(_outboundLane.toChainId);
-        trustedRemoteLookup[remoteChainId] = abi.encodePacked(
-            _outboundLane.toLineAddress,
-            address(this)
-        );
 
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(

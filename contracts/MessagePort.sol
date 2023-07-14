@@ -57,13 +57,6 @@ contract MessagePort is IMessagePort, Ownable2Step {
         require(_localLineAddressLookup[remoteChainId_].add(localLineAddress_), "!add");
     }
 
-    function removeLocalLine(
-        uint64 remoteChainId_,
-        address localLineAddress_
-    ) external onlyOwner {
-        require(_localLineAddressLookup[remoteChainId_].remove(localLineAddress_), "!rm");
-    }
-
     function localLineExists(
         uint64 remoteChainId_,
         address localLineAddress_
