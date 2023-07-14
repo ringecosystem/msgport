@@ -18,31 +18,26 @@
 pragma solidity ^0.8.0;
 
 interface IMessagePort {
-    event ReceiverError(
-        uint256 indexed _messageId,
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes _message,
-        string _reason,
-        address _lineAddress
-    );
     event MessageSent(
         uint256 indexed _messageId,
+        uint64 _fromChainId,
         uint64 _toChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes _message,
         bytes _params,
-        address _lineAddress
+        address _fromLineAddress
     );
+
     event MessageReceived(
         uint256 indexed _messageId,
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes _message,
-        address _lineAddress
+        address _toLineAddress
+    );
+
+    event ReceiverError(
+        uint256 indexed _messageId,
+        string _reason,
+        address _toLineAddress
     );
 
     function getLocalChainId() external view returns (uint64);
