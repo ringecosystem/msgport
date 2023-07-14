@@ -32,10 +32,6 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
         feeMarket = IFeeMarket(_feeMarket);
     }
 
-    function getLineInfo() external pure returns (string memory) {
-        return "DarwiniaLCMP";
-    }
-
     //////////////////////////////////////////
     // override BaseMessageLine
     //////////////////////////////////////////

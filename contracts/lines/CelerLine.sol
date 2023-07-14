@@ -22,10 +22,6 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
-    function getLineInfo() external pure returns (string memory) {
-        return "Celer";
-    }
-
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }

@@ -28,10 +28,6 @@ contract LayerZeroLine is
         chainIdMapping = IChainIdMapping(_chainIdMapping);
     }
 
-    function getLineInfo() external pure returns (string memory) {
-        return "LayerZero";
-    }
-
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }

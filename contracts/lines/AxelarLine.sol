@@ -28,10 +28,6 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function getLineInfo() external pure returns (string memory) {
-        return "Axelar";
-    }
-
     function setChainIdMapping(address _chainIdConverter) external onlyOwner {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }

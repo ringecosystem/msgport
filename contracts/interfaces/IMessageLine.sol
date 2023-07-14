@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 interface IMessageLine {
-    function getLineInfo() external view returns (string memory);
-
     function send(
         address _fromDappAddress,
         uint64 _toChainId,
