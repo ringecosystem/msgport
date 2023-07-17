@@ -7,20 +7,10 @@ import "../../interfaces/IMessagePort.sol";
 import "../../interfaces/IChainIdMapping.sol";
 
 abstract contract BaseMessageLine is IMessageLine{
-    struct OutboundLane {
-        uint64 toChainId;
-        address toLineAddress;
-    }
-
-    struct InboundLane {
-        uint64 fromChainId;
-        address fromLineAddress;
-    }
-
-    // toChainId => OutboundLane
-    mapping(uint64 => OutboundLane) public outboundLanes;
-    // fromChainId => InboundLane
-    mapping(uint64 => InboundLane) public inboundLanes;
+    // toChainId => toLineAddress
+    mapping(uint64 => address) public toLineAddressLookup;
+    // fromChainId => fromLineAddress
+    mapping(uint64 => address) public fromLineAddressLookup;
 
     address public localMessagingContractAddress;
     IMessagePort public immutable LOCAL_MSGPORT;
@@ -37,49 +27,43 @@ abstract contract BaseMessageLine is IMessageLine{
         return LOCAL_MSGPORT.getLocalChainId();
     }
 
-    function outboundLaneExists(
+    function toLineExists(
         uint64 _toChainId
     ) public view virtual returns (bool) {
-        return outboundLanes[_toChainId].toLineAddress != address(0);
+        return toLineAddressLookup[_toChainId] != address(0);
     }
 
-    function _addOutboundLaneInternal(
+    function _addToLine(
         uint64 _toChainId,
         address _toLineAddress
     ) internal virtual {
         require(
-            outboundLaneExists(_toChainId) == false,
-            "Line: OutboundLane already exists"
+            toLineExists(_toChainId) == false,
+            "Line: ToLine already exists"
         );
-        outboundLanes[_toChainId] = OutboundLane({
-            toChainId: _toChainId,
-            toLineAddress: _toLineAddress
-        });
+        toLineAddressLookup[_toChainId] = _toLineAddress;
     }
 
-    function inboundLaneExists(
+    function fromLineExists(
         uint64 _fromChainId
     ) public view virtual returns (bool) {
-        return inboundLanes[_fromChainId].fromLineAddress != address(0);
+        return fromLineAddressLookup[_fromChainId] != address(0);
     }
 
-    function _addInboundLaneInternal(
+    function _addFromLine(
         uint64 _fromChainId,
         address _fromLineAddress
     ) internal virtual {
         require(
-            inboundLaneExists(_fromChainId) == false,
-            "Line: InboundLane already exists"
+            fromLineExists(_fromChainId) == false,
+            "Line: FromLine already exists"
         );
-        inboundLanes[_fromChainId] = InboundLane({
-            fromChainId: _fromChainId,
-            fromLineAddress: _fromLineAddress
-        });
+        fromLineAddressLookup[_fromChainId] = _fromLineAddress;
     }
 
     function _callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -97,7 +81,7 @@ abstract contract BaseMessageLine is IMessageLine{
 
         _callRemoteRecv(
             _fromDappAddress,
-            outboundLanes[_toChainId],
+            _toChainId,
             _toDappAddress,
             _payload,
             _params
@@ -105,8 +89,8 @@ abstract contract BaseMessageLine is IMessageLine{
     }
 
     function recv(
+        uint64 _fromChainId,
         address _fromDappAddress,
-        InboundLane memory _inboundLane,
         address _toDappAddress,
         bytes memory _message
     ) public virtual {
@@ -117,7 +101,7 @@ abstract contract BaseMessageLine is IMessageLine{
 
         // call local msgport to receive message
         LOCAL_MSGPORT.recv(
-            _inboundLane.fromChainId,
+            _fromChainId,
             _fromDappAddress,
             _toDappAddress,
             _message

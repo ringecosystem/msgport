@@ -28,13 +28,13 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
     ) BaseMessageLine(_localMsgportAddress, _darwiniaEndpointAddress) {
         chainIdMapping = IChainIdMapping(_chainIdMapping);
         // add outbound and inbound lane
-        _addOutboundLaneInternal(_remoteChainId, _remoteLineAddress);
-        _addInboundLaneInternal(_remoteChainId, _remoteLineAddress);
+        _addToLine(_remoteChainId, _remoteLineAddress);
+        _addFromLine(_remoteChainId, _remoteLineAddress);
     }
 
     function _callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -55,6 +55,6 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
 
         IMessageEndpoint(localMessagingContractAddress).remoteExecute{
             value: msg.value
-        }(specVersion, _outboundLane.toLineAddress, recvCall, gasLimit);
+        }(specVersion, toLineAddressLookup[_toChainId], recvCall, gasLimit);
     }
 }

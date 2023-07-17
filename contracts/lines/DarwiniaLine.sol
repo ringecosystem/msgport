@@ -23,8 +23,8 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
         address _feeMarket
     ) BaseMessageLine(_localMsgportAddress, _inboundLane) {
         // add outbound and inbound lane
-        _addOutboundLaneInternal(_remoteChainId, _remoteLineAddress);
-        _addInboundLaneInternal(_remoteChainId, _remoteLineAddress);
+        _addToLine(_remoteChainId, _remoteLineAddress);
+        _addFromLine(_remoteChainId, _remoteLineAddress);
         //
         outboundLane = _outboundLane;
         inboundLane = _inboundLane;
@@ -38,7 +38,7 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
     // For sending
     function _callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/
@@ -56,7 +56,7 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
         }
 
         IOutboundLane(outboundLane).send_message{value: fee}(
-            _outboundLane.toLineAddress,
+            toLineAddressLookup[_toChainId],
             abi.encodeWithSignature(
                 "recv(uint256,address,address,address,bytes)",
                 getLocalChainId(),
@@ -77,8 +77,7 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
         address sourceAccount,
         bytes calldata /*payload*/
     ) external view returns (bool) {
-        address remoteLineAddress = inboundLanes[getLocalChainId()]
-            .fromLineAddress;
+        address remoteLineAddress = fromLineAddressLookup[getLocalChainId()];
         // check remote line address is set.
         // this check is not necessary, but it can provide an more understandable err.
         require(remoteLineAddress != address(0), "!remote line");
