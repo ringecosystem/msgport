@@ -26,18 +26,18 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
-    function newOutboundLane(
+    function addToLine(
         uint64 _toChainId,
         address _toLineAddress
     ) external onlyOwner {
-        _addOutboundLaneInternal(_toChainId, _toLineAddress);
+        _addToLine(_toChainId, _toLineAddress);
     }
 
-    function newInboundLane(
+    function addFromLine(
         uint64 _fromChainId,
         address _fromLineAddress
     ) external onlyOwner {
-        _addInboundLaneInternal(_fromChainId, _fromLineAddress);
+        _addFromLine(_fromChainId, _fromLineAddress);
     }
 
     function chainIdUp(uint64 _chainId) public view returns (uint64) {
@@ -54,7 +54,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     // override BaseMessageLine
     function _callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/
@@ -78,8 +78,8 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         }
 
         sendMessage(
-            _outboundLane.toLineAddress,
-            chainIdDown(_outboundLane.toChainId),
+            toLineAddressLookup[_toChainId],
+            chainIdDown(_toChainId),
             celerMessage,
             fee
         );
@@ -101,14 +101,13 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode((_celerMessage), (address, address, bytes));
-
-        InboundLane memory inboundLane = inboundLanes[chainIdUp(_srcChainId)];
+        uint64 fromChainId = chainIdUp(_srcChainId);
         require(
-            inboundLane.fromLineAddress == _srcContract,
+            fromLineAddressLookup[fromChainId] == _srcContract,
             "invalid source line address"
         );
 
-        recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
+        recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 
         return ExecutionStatus.Success;
     }

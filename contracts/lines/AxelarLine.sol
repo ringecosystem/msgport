@@ -32,18 +32,18 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
-    function newOutboundLane(
+    function addToLine(
         uint64 _toChainId,
         address _toLineAddress
     ) external onlyOwner {
-        _addOutboundLaneInternal(_toChainId, _toLineAddress);
+        _addToLine(_toChainId, _toLineAddress);
     }
 
-    function newInboundLane(
+    function addFromLine(
         uint64 _fromChainId,
         address _fromLineAddress
     ) external onlyOwner {
-        _addInboundLaneInternal(_fromChainId, _fromLineAddress);
+        _addFromLine(_fromChainId, _fromLineAddress);
     }
 
     function chainIdUp(string memory _chainId) public view returns (uint64) {
@@ -56,7 +56,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
 
     function _callRemoteRecv(
         address _fromDappAddress,
-        OutboundLane memory _outboundLane,
+        uint64 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/
@@ -67,9 +67,9 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             _messagePayload
         );
 
-        string memory toChainId = chainIdDown(_outboundLane.toChainId);
+        string memory toChainId = chainIdDown(_toChainId);
         string memory toLineAddress = Utils.addressToHexString(
-            _outboundLane.toLineAddress
+            toLineAddressLookup[_toChainId]
         );
 
         if (msg.value > 0) {
@@ -96,13 +96,13 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             bytes memory messagePayload
         ) = abi.decode(payload_, (address, address, bytes));
 
-        InboundLane memory inboundLane = inboundLanes[chainIdUp(sourceChain_)];
+        uint64 fromChainId = chainIdUp(sourceChain_);
         require(
-            inboundLane.fromLineAddress ==
+            fromLineAddressLookup[fromChainId] ==
                 Utils.hexStringToAddress(sourceAddress_),
             "invalid source line address"
         );
 
-        recv(fromDappAddress, inboundLane, toDappAddress, messagePayload);
+        recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }
