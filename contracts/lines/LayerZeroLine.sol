@@ -32,6 +32,20 @@ contract LayerZeroLine is
         chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
+    function addToLine(
+        uint64 _toChainId,
+        address _toLineAddress
+    ) external onlyOwner {
+        _addToLine(_toChainId, _toLineAddress);
+    }
+
+    function addFromLine(
+        uint64 _fromChainId,
+        address _fromLineAddress
+    ) external onlyOwner {
+        _addFromLine(_fromChainId, _fromLineAddress);
+    }
+
     function chainIdUp(uint16 _chainId) public view returns (uint64) {
         return chainIdMapping.up(Utils.uint16ToBytes(_chainId));
     }
