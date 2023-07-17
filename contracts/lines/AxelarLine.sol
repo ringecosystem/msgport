@@ -13,23 +13,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
     IAxelarGasService public immutable GAS_SERVICE;
 
-    IChainIdMapping public chainIdMapping;
+    IChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdMapping,
+        address _chainIdMappingAddress,
         address _gateway,
         address _gasReceiver
     )
         BaseMessageLine(_localMsgportAddress, _gateway)
         AxelarExecutable(_gateway)
     {
-        chainIdMapping = IChainIdMapping(_chainIdMapping);
+        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
-    }
-
-    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
-        chainIdMapping = IChainIdMapping(_chainIdConverter);
     }
 
     function addToLine(

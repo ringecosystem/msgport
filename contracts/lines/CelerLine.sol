@@ -12,18 +12,14 @@ import "../utils/Utils.sol";
 contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
 
-    IChainIdMapping public chainIdMapping;
+    IChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
-        address _chainIdMapping,
+        address _chainIdMappingAddress,
         address _messageBus
     ) BaseMessageLine(_localMsgportAddress, _messageBus) {
-        chainIdMapping = IChainIdMapping(_chainIdMapping);
-    }
-
-    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
-        chainIdMapping = IChainIdMapping(_chainIdConverter);
+        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
     }
 
     function addToLine(

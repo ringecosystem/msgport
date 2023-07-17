@@ -15,21 +15,17 @@ contract LayerZeroLine is
 {
     using GNSPSBytesLib for bytes;
 
-    IChainIdMapping public chainIdMapping;
+    IChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
         address _lzEndpoingAddress,
-        address _chainIdMapping
+        address _chainIdMappingAddress
     )
         BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress)
         NonblockingLzApp(_lzEndpoingAddress)
     {
-        chainIdMapping = IChainIdMapping(_chainIdMapping);
-    }
-
-    function setChainIdMapping(address _chainIdConverter) external onlyOwner {
-        chainIdMapping = IChainIdMapping(_chainIdConverter);
+        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
     }
 
     function addToLine(
