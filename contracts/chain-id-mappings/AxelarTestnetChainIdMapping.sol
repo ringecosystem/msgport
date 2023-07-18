@@ -23,31 +23,52 @@ import "../utils/GNSPSBytesLib.sol";
 
 // https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-lines-to-one-dest-chain/src/chain-ids.ts
 contract AxelarTestnetChainIdMapping is IChainIdMapping {
+    mapping(uint64 => bytes) public downMapping;
+    mapping(bytes => uint64) public upMapping;
+
+    constructor(
+        uint64[] memory _msgportChainIds,
+        bytes[] memory _lowLevelChainIds
+    ) {
+        require(_msgportChainIds.length == _lowLevelChainIds.length, "Lengths do not match.");
+
+        for (uint i = 0; i < _msgportChainIds.length; i++) {
+            downMapping[_msgportChainIds[i]] = _lowLevelChainIds[i];
+            upMapping[_lowLevelChainIds[i]] = _msgportChainIds[i];
+        }
+    }
+
+    function addChainIdMap(
+        uint64 _msgportChainId,
+        bytes memory _lowLevelChainId
+    ) external {
+        require(
+            downMapping[_msgportChainId].length == 0,
+            "MsgportChainId already exists."
+        );
+        require(
+            upMapping[_lowLevelChainId] == 0,
+            "LowLevelChainId already exists."
+        );
+        downMapping[_msgportChainId] = _lowLevelChainId;
+        upMapping[_lowLevelChainId] = _msgportChainId;
+    }
+
     function down(
         uint64 msgportChainId
-    ) external pure returns (bytes memory lowLevelChainId) {
-        if (msgportChainId == 4002) {
-            return bytes("fantom");
-        } else if (msgportChainId == 1287) {
-            return bytes("moonbeam");
-        } else if (msgportChainId == 97) {
-            return bytes("binance");
-        } else {
+    ) external view returns (bytes memory lowLevelChainId) {
+        lowLevelChainId = downMapping[msgportChainId];
+        if (lowLevelChainId.length == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
     function up(
         bytes memory lowLevelChainId
-    ) external pure returns (uint64 msgportChainId) {
-        if (GNSPSBytesLib.equal(lowLevelChainId, bytes("fantom"))) {
-            return 4002;
-        } else if (GNSPSBytesLib.equal(lowLevelChainId, "moonbeam")) {
-            return 1287;
-        } else if (GNSPSBytesLib.equal(lowLevelChainId, "binance")) {
-            return 97;
-        } else {
-            revert LowLevelChainIdNotFound(lowLevelChainId);
+    ) external view returns (uint64 msgportChainId) {
+        msgportChainId = upMapping[lowLevelChainId];
+        if (msgportChainId == 0) {
+            revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 }

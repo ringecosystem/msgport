@@ -26,22 +26,32 @@ contract LayerZeroChainIdMapping is IChainIdMapping {
     mapping(uint64 => uint16) public downMapping;
     mapping(uint16 => uint64) public upMapping;
 
-    function setDownMapping(
-        uint64[] memory msgportChainIds,
-        uint16[] memory lzChainIds
-    ) external {
-        for (uint i = 0; i < msgportChainIds.length; i++) {
-            downMapping[msgportChainIds[i]] = lzChainIds[i];
+    constructor(
+        uint64[] memory _msgportChainIds,
+        uint16[] memory _lowLevelChainIds
+    ) {
+        require(_msgportChainIds.length == _lowLevelChainIds.length, "Lengths do not match.");
+
+        for (uint i = 0; i < _msgportChainIds.length; i++) {
+            downMapping[_msgportChainIds[i]] = _lowLevelChainIds[i];
+            upMapping[_lowLevelChainIds[i]] = _msgportChainIds[i];
         }
     }
 
-    function setUpMapping(
-        uint16[] memory lzChainIds,
-        uint64[] memory msgportChainIds
+    function addChainIdMap(
+        uint64 _msgportChainId,
+        uint16 _lowLevelChainId
     ) external {
-        for (uint i = 0; i < lzChainIds.length; i++) {
-            upMapping[lzChainIds[i]] = msgportChainIds[i];
-        }
+        require(
+            downMapping[_msgportChainId] == 0,
+            "MsgportChainId already exists."
+        );
+        require(
+            upMapping[_lowLevelChainId] == 0,
+            "LowLevelChainId already exists."
+        );
+        downMapping[_msgportChainId] = _lowLevelChainId;
+        upMapping[_lowLevelChainId] = _msgportChainId;
     }
 
     function down(
