@@ -20,9 +20,10 @@ pragma solidity ^0.8.17;
 import "../interfaces/IChainIdMapping.sol";
 import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 // https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-lines-to-one-dest-chain/src/chain-ids.ts
-contract AxelarTestnetChainIdMapping is IChainIdMapping {
+contract AxelarTestnetChainIdMapping is IChainIdMapping, Ownable2Step {
     mapping(uint64 => bytes) public downMapping;
     mapping(bytes => uint64) public upMapping;
 
@@ -30,7 +31,10 @@ contract AxelarTestnetChainIdMapping is IChainIdMapping {
         uint64[] memory _msgportChainIds,
         bytes[] memory _lowLevelChainIds
     ) {
-        require(_msgportChainIds.length == _lowLevelChainIds.length, "Lengths do not match.");
+        require(
+            _msgportChainIds.length == _lowLevelChainIds.length,
+            "Lengths do not match."
+        );
 
         for (uint i = 0; i < _msgportChainIds.length; i++) {
             downMapping[_msgportChainIds[i]] = _lowLevelChainIds[i];
@@ -41,7 +45,7 @@ contract AxelarTestnetChainIdMapping is IChainIdMapping {
     function addChainIdMap(
         uint64 _msgportChainId,
         bytes memory _lowLevelChainId
-    ) external {
+    ) external onlyOwner {
         require(
             downMapping[_msgportChainId].length == 0,
             "MsgportChainId already exists."

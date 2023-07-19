@@ -8,11 +8,7 @@ import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "../utils/GNSPSBytesLib.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
-contract LayerZeroLine is
-    BaseMessageLine,
-    NonblockingLzApp,
-    LayerZeroChainIdMapping
-{
+contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     using GNSPSBytesLib for bytes;
 
     IChainIdMapping public immutable chainIdMapping;
