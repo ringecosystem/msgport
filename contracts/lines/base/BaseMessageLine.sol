@@ -11,7 +11,7 @@ abstract contract BaseMessageLine is IMessageLine{
     // fromChainId => fromLineAddress
     mapping(uint64 => address) public fromLineAddressLookup;
 
-    address public localMessagingContractAddress;
+    address public immutable localMessagingContractAddress;
     IMessagePort public immutable LOCAL_MSGPORT;
 
     constructor(
