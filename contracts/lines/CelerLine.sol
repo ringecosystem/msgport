@@ -3,6 +3,7 @@
 pragma solidity 0.8.9;
 
 import "./base/BaseMessageLine.sol";
+import "../chain-id-mappings/CelerChainIdMapping.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
@@ -11,15 +12,14 @@ import "../utils/Utils.sol";
 
 contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
-
-    IChainIdMapping public immutable chainIdMapping;
+    CelerChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
         address _chainIdMappingAddress,
         address _messageBus
     ) BaseMessageLine(_localMsgportAddress, _messageBus) {
-        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
+        chainIdMapping = CelerChainIdMapping(_chainIdMappingAddress);
     }
 
     function addToLine(
@@ -34,14 +34,6 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         address _fromLineAddress
     ) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
-    }
-
-    function chainIdUp(uint64 _chainId) public view returns (uint64) {
-        return chainIdMapping.up(Utils.uint64ToBytes(_chainId));
-    }
-
-    function chainIdDown(uint64 _chainId) public view returns (uint64) {
-        return Utils.bytesToUint64(chainIdMapping.down(_chainId));
     }
 
     //////////////////////////////////////////
@@ -75,7 +67,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
 
         sendMessage(
             toLineAddressLookup[_toChainId],
-            chainIdDown(_toChainId),
+            chainIdMapping.down(_toChainId),
             celerMessage,
             fee
         );
@@ -97,7 +89,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode((_celerMessage), (address, address, bytes));
-        uint64 fromChainId = chainIdUp(_srcChainId);
+        uint64 fromChainId = chainIdMapping.up(_srcChainId);
         require(
             fromLineAddressLookup[fromChainId] == _srcContract,
             "invalid source line address"

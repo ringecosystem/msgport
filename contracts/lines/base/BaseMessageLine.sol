@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
 import "../../interfaces/IMessagePort.sol";
-import "../../interfaces/IChainIdMapping.sol";
 
 abstract contract BaseMessageLine is IMessageLine{
     // toChainId => toLineAddress

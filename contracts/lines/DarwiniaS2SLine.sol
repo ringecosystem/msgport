@@ -17,16 +17,13 @@ interface IMessageEndpoint {
 }
 
 contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
-    IChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
         address _darwiniaEndpointAddress,
-        address _chainIdMappingAddress,
         uint64 _remoteChainId,
         address _remoteLineAddress
     ) BaseMessageLine(_localMsgportAddress, _darwiniaEndpointAddress) {
-        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
         _addFromLine(_remoteChainId, _remoteLineAddress);

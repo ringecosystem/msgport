@@ -5,13 +5,10 @@ pragma solidity ^0.8.17;
 import "./base/BaseMessageLine.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
-import "../utils/GNSPSBytesLib.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
-    using GNSPSBytesLib for bytes;
-
-    IChainIdMapping public immutable chainIdMapping;
+    LayerZeroChainIdMapping public immutable chainIdMapping;
 
     constructor(
         address _localMsgportAddress,
@@ -21,7 +18,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress)
         NonblockingLzApp(_lzEndpoingAddress)
     {
-        chainIdMapping = IChainIdMapping(_chainIdMappingAddress);
+        chainIdMapping = LayerZeroChainIdMapping(_chainIdMappingAddress);
     }
 
     function addToLine(
@@ -38,14 +35,6 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function chainIdUp(uint16 _chainId) public view returns (uint64) {
-        return chainIdMapping.up(Utils.uint16ToBytes(_chainId));
-    }
-
-    function chainIdDown(uint64 _chainId) public view returns (uint16) {
-        return Utils.bytesToUint16(chainIdMapping.down(_chainId));
-    }
-
     function _callRemoteRecv(
         address _fromDappAddress,
         uint64 _toChainId,
@@ -54,7 +43,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         bytes memory _params
     ) internal override {
         // set remote line address
-        uint16 remoteChainId = chainIdDown(_toChainId);
+        uint16 remoteChainId = chainIdMapping.down(_toChainId);
 
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(
@@ -79,7 +68,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual override {
-        uint64 srcChainId = chainIdUp(_srcChainId);
+        uint64 srcChainId = chainIdMapping.up(_srcChainId);
         address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
         (

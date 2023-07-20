@@ -15,56 +15,58 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-// https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
-contract LayerZeroChainIdMapping is Ownable2Step {
+contract CelerChainIdMapping is Ownable2Step {
     error MsgportChainIdNotFound(uint64 msgportChainId);
-    error LzChainIdNotFound(uint16 lzChainId);
+    error CelerChainIdNotFound(uint64 celerChainId);
 
-    mapping(uint64 => uint16) public downMapping;
-    mapping(uint16 => uint64) public upMapping;
+    mapping(uint64 => uint64) public downMapping;
+    mapping(uint64 => uint64) public upMapping;
 
-    constructor(uint64[] memory _msgportChainIds, uint16[] memory _lzChainIds) {
+    constructor(
+        uint64[] memory _msgportChainIds,
+        uint64[] memory _celerChainIds
+    ) {
         require(
-            _msgportChainIds.length == _lzChainIds.length,
+            _msgportChainIds.length == _celerChainIds.length,
             "Lengths do not match."
         );
 
         for (uint i = 0; i < _msgportChainIds.length; i++) {
-            downMapping[_msgportChainIds[i]] = _lzChainIds[i];
-            upMapping[_lzChainIds[i]] = _msgportChainIds[i];
+            downMapping[_msgportChainIds[i]] = _celerChainIds[i];
+            upMapping[_celerChainIds[i]] = _msgportChainIds[i];
         }
     }
 
     function addChainIdMap(
         uint64 _msgportChainId,
-        uint16 _lzChainId
+        uint64 _celerChainId
     ) external onlyOwner {
         require(
             downMapping[_msgportChainId] == 0,
             "MsgportChainId already exists."
         );
-        require(upMapping[_lzChainId] == 0, "lzChainId already exists.");
-        downMapping[_msgportChainId] = _lzChainId;
-        upMapping[_lzChainId] = _msgportChainId;
+        require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
+        downMapping[_msgportChainId] = _celerChainId;
+        upMapping[_celerChainId] = _msgportChainId;
     }
 
     function down(
         uint64 msgportChainId
-    ) external view returns (uint16 lzChainId) {
-        lzChainId = downMapping[msgportChainId];
-        if (lzChainId == 0) {
+    ) external view returns (uint64 celerChainId) {
+        celerChainId = downMapping[msgportChainId];
+        if (celerChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
     function up(
-        uint16 lzChainId
+        uint64 celerChainId
     ) external view returns (uint64 msgportChainId) {
-        msgportChainId = upMapping[lzChainId];
+        msgportChainId = upMapping[celerChainId];
         if (msgportChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
