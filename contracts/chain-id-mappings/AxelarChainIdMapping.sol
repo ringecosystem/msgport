@@ -19,52 +19,57 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-// https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
-contract LayerZeroChainIdMapping is Ownable2Step {
+contract AxelarChainIdMapping is Ownable2Step {
     error MsgportChainIdNotFound(uint64 msgportChainId);
-    error LzChainIdNotFound(uint16 lzChainId);
+    error AxelarChainIdNotFound(string axelarChainId);
 
-    mapping(uint64 => uint16) public downMapping;
-    mapping(uint16 => uint64) public upMapping;
+    mapping(uint64 => string) public downMapping;
+    mapping(string => uint64) public upMapping;
 
-    constructor(uint64[] memory _msgportChainIds, uint16[] memory _lzChainIds) {
+    constructor(
+        uint64[] memory _msgportChainIds,
+        string[] memory _axelarChainIds
+    ) {
         require(
-            _msgportChainIds.length == _lzChainIds.length,
+            _msgportChainIds.length == _axelarChainIds.length,
             "Lengths do not match."
         );
 
         for (uint i = 0; i < _msgportChainIds.length; i++) {
-            downMapping[_msgportChainIds[i]] = _lzChainIds[i];
-            upMapping[_lzChainIds[i]] = _msgportChainIds[i];
+            downMapping[_msgportChainIds[i]] = _axelarChainIds[i];
+            upMapping[_axelarChainIds[i]] = _msgportChainIds[i];
         }
     }
 
     function addChainIdMap(
         uint64 _msgportChainId,
-        uint16 _lzChainId
+        string memory _axelarChainId
     ) external onlyOwner {
         require(
-            downMapping[_msgportChainId] == 0,
+            bytes(downMapping[_msgportChainId]).length == 0,
             "MsgportChainId already exists."
         );
-        require(upMapping[_lzChainId] == 0, "lzChainId already exists.");
-        downMapping[_msgportChainId] = _lzChainId;
-        upMapping[_lzChainId] = _msgportChainId;
+        require(
+            upMapping[_axelarChainId] == 0,
+            "axelarChainId already exists."
+        );
+        downMapping[_msgportChainId] = _axelarChainId;
+        upMapping[_axelarChainId] = _msgportChainId;
     }
 
     function down(
         uint64 msgportChainId
-    ) external view returns (uint16 lzChainId) {
-        lzChainId = downMapping[msgportChainId];
-        if (lzChainId == 0) {
+    ) external view returns (string memory axelarChainId) {
+        axelarChainId = downMapping[msgportChainId];
+        if (bytes(axelarChainId).length == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
     function up(
-        uint16 lzChainId
+        string memory axelarChainId
     ) external view returns (uint64 msgportChainId) {
-        msgportChainId = upMapping[lzChainId];
+        msgportChainId = upMapping[axelarChainId];
         if (msgportChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
