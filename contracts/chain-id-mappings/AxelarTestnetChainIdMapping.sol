@@ -17,62 +17,22 @@
 
 pragma solidity ^0.8.17;
 
-import "../interfaces/IChainIdMapping.sol";
+import "./base/BaseChainIdMapping.sol";
 import "../utils/Utils.sol";
 import "../utils/GNSPSBytesLib.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 // https://github.com/darwinia-network/darwinia-msgport/blob/aki-multi-lines-to-one-dest-chain/src/chain-ids.ts
-contract AxelarTestnetChainIdMapping is IChainIdMapping, Ownable2Step {
-    mapping(uint64 => bytes) public downMapping;
-    mapping(bytes => uint64) public upMapping;
-
+contract AxelarTestnetChainIdMapping is BaseChainIdMapping, Ownable2Step {
     constructor(
         uint64[] memory _msgportChainIds,
         bytes[] memory _lowLevelChainIds
-    ) {
-        require(
-            _msgportChainIds.length == _lowLevelChainIds.length,
-            "Lengths do not match."
-        );
-
-        for (uint i = 0; i < _msgportChainIds.length; i++) {
-            downMapping[_msgportChainIds[i]] = _lowLevelChainIds[i];
-            upMapping[_lowLevelChainIds[i]] = _msgportChainIds[i];
-        }
-    }
+    ) BaseChainIdMapping(_msgportChainIds, _lowLevelChainIds) {}
 
     function addChainIdMap(
         uint64 _msgportChainId,
         bytes memory _lowLevelChainId
     ) external onlyOwner {
-        require(
-            downMapping[_msgportChainId].length == 0,
-            "MsgportChainId already exists."
-        );
-        require(
-            upMapping[_lowLevelChainId] == 0,
-            "LowLevelChainId already exists."
-        );
-        downMapping[_msgportChainId] = _lowLevelChainId;
-        upMapping[_lowLevelChainId] = _msgportChainId;
-    }
-
-    function down(
-        uint64 msgportChainId
-    ) external view returns (bytes memory lowLevelChainId) {
-        lowLevelChainId = downMapping[msgportChainId];
-        if (lowLevelChainId.length == 0) {
-            revert MsgportChainIdNotFound(msgportChainId);
-        }
-    }
-
-    function up(
-        bytes memory lowLevelChainId
-    ) external view returns (uint64 msgportChainId) {
-        msgportChainId = upMapping[lowLevelChainId];
-        if (msgportChainId == 0) {
-            revert MsgportChainIdNotFound(msgportChainId);
-        }
+        _addChainIdMap(_msgportChainId, _lowLevelChainId);
     }
 }
