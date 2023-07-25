@@ -13,9 +13,10 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     constructor(
         address _localMsgportAddress,
         address _lzEndpoingAddress,
-        address _chainIdMappingAddress
+        address _chainIdMappingAddress,
+        Metadata memory _metadata
     )
-        BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress)
+        BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress, _metadata)
         NonblockingLzApp(_lzEndpoingAddress)
     {
         chainIdMapping = LayerZeroChainIdMapping(_chainIdMappingAddress);

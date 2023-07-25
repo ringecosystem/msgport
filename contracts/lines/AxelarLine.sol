@@ -20,9 +20,10 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         address _localMsgportAddress,
         address _chainIdMappingAddress,
         address _gateway,
-        address _gasReceiver
+        address _gasReceiver,
+        Metadata memory _metadata
     )
-        BaseMessageLine(_localMsgportAddress, _gateway)
+        BaseMessageLine(_localMsgportAddress, _gateway, _metadata)
         AxelarExecutable(_gateway)
     {
         chainIdMapping = AxelarChainIdMapping(_chainIdMappingAddress);

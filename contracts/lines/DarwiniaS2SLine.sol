@@ -22,8 +22,9 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
         address _localMsgportAddress,
         address _darwiniaEndpointAddress,
         uint64 _remoteChainId,
-        address _remoteLineAddress
-    ) BaseMessageLine(_localMsgportAddress, _darwiniaEndpointAddress) {
+        address _remoteLineAddress,
+        Metadata memory _metadata
+    ) BaseMessageLine(_localMsgportAddress, _darwiniaEndpointAddress, _metadata) {
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
         _addFromLine(_remoteChainId, _remoteLineAddress);

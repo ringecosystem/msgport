@@ -5,7 +5,20 @@ pragma solidity ^0.8.0;
 import "../../interfaces/IMessageLine.sol";
 import "../../interfaces/IMessagePort.sol";
 
-abstract contract BaseMessageLine is IMessageLine{
+abstract contract BaseMessageLine is IMessageLine {
+    struct Metadata {
+        string name;
+        string provider;
+        string description;
+        FeeEstimation feeEstimation;
+    }
+
+    struct FeeEstimation {
+        address feeContract;
+        string feeMethod;
+        string offChainFeeApi;
+    }
+
     // toChainId => toLineAddress
     mapping(uint64 => address) public toLineAddressLookup;
     // fromChainId => fromLineAddress
@@ -14,12 +27,22 @@ abstract contract BaseMessageLine is IMessageLine{
     address public immutable localMessagingContractAddress;
     IMessagePort public immutable LOCAL_MSGPORT;
 
+    Metadata public metadata;
+
     constructor(
         address _localMsgportAddress,
-        address _localMessagingContractAddress
+        address _localMessagingContractAddress,
+        Metadata memory _metadata
     ) {
+        metadata = _metadata;
         LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
         localMessagingContractAddress = _localMessagingContractAddress;
+    }
+
+    function _updateFeeEstimation(
+        FeeEstimation memory _feeEstimation
+    ) internal virtual {
+        metadata.feeEstimation = _feeEstimation;
     }
 
     function getLocalChainId() public view returns (uint64) {
