@@ -39,8 +39,8 @@ async function buildEstimateFeeFunction(
     params
   ) => {
     console.log(`fromChainId: ${fromChainId}, toChainId: ${toChainId}`);
-    const axelarSrcChainName = await line.chainIdDown(fromChainId);
-    const axelarDstChainName = await line.chainIdDown(toChainId);
+    const axelarSrcChainName = await line.down(fromChainId);
+    const axelarDstChainName = await line.down(toChainId);
     console.log(
       `axelarSrcChainName: ${axelarSrcChainName}, axelarDstChainName: ${axelarDstChainName}`
     );

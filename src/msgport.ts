@@ -79,12 +79,14 @@ export async function getMsgport(
       const localLine = await result.getLine(toChainId, selectLine);
 
       // Estimate fee through line
-      const fee = await localLine.estimateFee(
+      let fee = await localLine.estimateFee(
         toChainId,
         messagePayload,
         feeMultiplier,
         params
       );
+      fee = Math.ceil(fee);
+      console.log(`estimateFee: ${fee}`)
       const feeBN = ethers.BigNumber.from(`${fee}`);
       console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
 

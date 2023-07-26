@@ -23,12 +23,12 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0xeF1c60AB9B902c13585411dC929005B98Ca44541" // <------- change this, see 0-setup-msgports.js
+    "0xE2B08A0cfCcb40eEfd5254814aF02051Fe6a546a" // <------- change this, see 0-setup-msgports.js
   );
 
   //  2. get the line selection strategy
   const selectLastLine = async (_) =>
-    "0x0C9549C21313cEdEb794816c534Dc71B0D94A21b"; // <------- change this to the sender line address, see 2-deploy-line.js
+    "0x8Eb3088CBC8E60bBF95b828aF6a5fd36aBa02039"; // <------- change this to the sender line address, see 2-deploy-line.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters

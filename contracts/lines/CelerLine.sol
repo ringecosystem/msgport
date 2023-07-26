@@ -12,7 +12,7 @@ import "../utils/Utils.sol";
 
 contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
-    CelerChainIdMapping public immutable chainIdMapping;
+    address public immutable chainIdMappingAddress;
 
     constructor(
         address _localMsgportAddress,
@@ -20,7 +20,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         address _messageBus,
         Metadata memory _metadata
     ) BaseMessageLine(_localMsgportAddress, _messageBus, _metadata) {
-        chainIdMapping = CelerChainIdMapping(_chainIdMappingAddress);
+        chainIdMappingAddress = _chainIdMappingAddress;
     }
 
     function addToLine(
@@ -68,7 +68,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
 
         sendMessage(
             toLineAddressLookup[_toChainId],
-            chainIdMapping.down(_toChainId),
+            CelerChainIdMapping(chainIdMappingAddress).down(_toChainId),
             celerMessage,
             fee
         );
@@ -90,7 +90,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode((_celerMessage), (address, address, bytes));
-        uint64 fromChainId = chainIdMapping.up(_srcChainId);
+        uint64 fromChainId = CelerChainIdMapping(chainIdMappingAddress).up(_srcChainId);
         require(
             fromLineAddressLookup[fromChainId] == _srcContract,
             "invalid source line address"

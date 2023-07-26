@@ -3,8 +3,6 @@ export type ILine = {
 
   getLocalChainId: () => Promise<number>;
 
-  getOutboundLane: (remoteChainId: number) => Promise<any>;
-
   getRemoteLineAddress: (remoteChainId: number) => Promise<string>;
 
   estimateFee: (
