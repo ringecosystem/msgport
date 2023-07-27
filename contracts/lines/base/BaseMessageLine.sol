@@ -83,7 +83,7 @@ abstract contract BaseMessageLine is IMessageLine {
         fromLineAddressLookup[_fromChainId] = _fromLineAddress;
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -101,7 +101,7 @@ abstract contract BaseMessageLine is IMessageLine {
         // check this is called by local msgport
         _requireCalledByMsgport();
 
-        _callRemoteRecv(
+        _send(
             _fromDappAddress,
             _toChainId,
             _toDappAddress,
@@ -110,17 +110,12 @@ abstract contract BaseMessageLine is IMessageLine {
         );
     }
 
-    function recv(
+    function _recv(
         uint64 _fromChainId,
         address _fromDappAddress,
         address _toDappAddress,
         bytes memory _message
-    ) public virtual {
-        require(
-            msg.sender == localMessagingContractAddress,
-            "Line: Only can be called by local messaging contract"
-        );
-
+    ) internal {
         // call local msgport to receive message
         LOCAL_MSGPORT.recv(
             _fromChainId,

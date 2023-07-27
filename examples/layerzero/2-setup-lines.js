@@ -2,8 +2,8 @@ const hre = require("hardhat");
 const { deployLine } = require("../helper");
 const { ChainId } = require("../../dist/src/index");
 
-// On bnbChainTestnet, LayerZeroLine deployed to: 0x8Eb3088CBC8E60bBF95b828aF6a5fd36aBa02039
-// On polygonTestnet, LayerZeroLine deployed to: 0x29bb0a67bdBFed977cf978DBb89dA64012Fc5CB4
+// On bnbChainTestnet, LayerZeroLine deployed to: 0xB5A96e55De950601E8759dF2Be396eA34dADa717
+// On polygonTestnet, LayerZeroLine deployed to: 0x6Db337cC418d7A0F2230bc0c6B14813149e39615
 // LayerZero Endpoints:
 // https://layerzero.gitbook.io/docs/technical-reference/testnet/testnet-addresses
 async function main() {

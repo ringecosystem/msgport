@@ -36,7 +36,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -83,6 +83,6 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
             "invalid source line address"
         );
 
-        recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }

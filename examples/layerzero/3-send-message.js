@@ -28,7 +28,7 @@ async function main() {
 
   //  2. get the line selection strategy
   const selectLastLine = async (_) =>
-    "0x8Eb3088CBC8E60bBF95b828aF6a5fd36aBa02039"; // <------- change this to the sender line address, see 2-deploy-line.js
+    "0xB5A96e55De950601E8759dF2Be396eA34dADa717"; // <------- change this to the sender line address, see 2-deploy-line.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters

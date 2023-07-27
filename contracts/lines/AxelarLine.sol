@@ -44,7 +44,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -93,6 +93,6 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             "invalid source line address"
         );
 
-        recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }
