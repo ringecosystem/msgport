@@ -29,10 +29,7 @@ interface IMessagePort {
         address _fromLineAddress
     );
 
-    event MessageReceived(
-        uint256 indexed _messageId,
-        address _toLineAddress
-    );
+    event MessageReceived(uint256 indexed _messageId, address _toLineAddress);
 
     event ReceiverError(
         uint256 indexed _messageId,
@@ -56,4 +53,11 @@ interface IMessagePort {
         address _toDappAddress,
         bytes memory _message
     ) external;
+
+    function estimateFee(
+        address _messageLineAddress,
+        uint64 _toChainId,
+        bytes calldata _payload,
+        bytes calldata _params
+    ) external view returns (uint256);
 }

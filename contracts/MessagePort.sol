@@ -147,4 +147,13 @@ contract MessagePort is IMessagePort, Ownable2Step {
             msg.sender
         );
     }
+
+    function estimateFee(
+        address _messageLineAddress,
+        uint64 _toChainId,
+        bytes calldata _payload,
+        bytes calldata _params
+    ) external view returns (uint256){
+        return IMessageLine(_messageLineAddress).estimateFee(_toChainId, _payload, _params);
+    }
 }
