@@ -132,4 +132,12 @@ abstract contract BaseMessageLine is IMessageLine {
             "Line: Only can be called by local msgport"
         );
     }
+
+    function estimateFee(
+        uint64, // Dest msgport chainId
+        bytes calldata,
+        bytes calldata
+    ) external view virtual returns (uint256) {
+        revert("Unimplemented!");
+    }
 }
