@@ -10,7 +10,8 @@ async function main() {
   // deploy receiver
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
-  const receiverAddress = "0xe13084f8fF65B755E37d95F49edbD49ca26feE13"; // await deployReceiver(receiverChain);
+  const receiverAddress = "0xD7226dD7c502D0d3242115e2C23Ed3C79b4A3387"; 
+  // const receiverAddress = await deployReceiver(receiverChain); console.log(receiverAddress);
   const receiverChainId = (await hre.ethers.provider.getNetwork())["chainId"];
   console.log(
     `On ${receiverChain}, chain id: ${receiverChainId}, receiver address: ${receiverAddress}`
@@ -23,12 +24,12 @@ async function main() {
   //  1. get msgport
   const msgport = await getMsgport(
     await hre.ethers.getSigner(),
-    "0xeF1c60AB9B902c13585411dC929005B98Ca44541" // <------- change this, see 0-setup-msgports.js
+    "0xE2B08A0cfCcb40eEfd5254814aF02051Fe6a546a" // <------- change this, see 0-setup-msgports.js
   );
 
   //  2. get the line selection strategy
   const selectLastLine = async (_) =>
-    "0x0C9549C21313cEdEb794816c534Dc71B0D94A21b"; // <------- change this to the sender line address, see 2-deploy-line.js
+    "0x03836d459E753335F65D79e441ba4354E3a736D4"; // <------- change this to the sender line address, see 2-deploy-line.js
 
   //  3. send message
   // https://layerzero.gitbook.io/docs/evm-guides/advanced/relayer-adapter-parameters

@@ -37,7 +37,7 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
     // override BaseMessageLine
     //////////////////////////////////////////
     // For sending
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,

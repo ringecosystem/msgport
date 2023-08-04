@@ -30,7 +30,7 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
         _addFromLine(_remoteChainId, _remoteLineAddress);
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,

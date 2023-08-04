@@ -8,18 +8,18 @@ import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
-    LayerZeroChainIdMapping public immutable chainIdMapping;
+    address public immutable chainIdMappingAddress;
 
     constructor(
         address _localMsgportAddress,
-        address _lzEndpoingAddress,
         address _chainIdMappingAddress,
+        address _lzEndpoingAddress,
         Metadata memory _metadata
     )
         BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress, _metadata)
         NonblockingLzApp(_lzEndpoingAddress)
     {
-        chainIdMapping = LayerZeroChainIdMapping(_chainIdMappingAddress);
+        chainIdMappingAddress = _chainIdMappingAddress;
     }
 
     function addToLine(
@@ -36,7 +36,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -44,7 +44,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         bytes memory _params
     ) internal override {
         // set remote line address
-        uint16 remoteChainId = chainIdMapping.down(_toChainId);
+        uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
 
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(
@@ -69,7 +69,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual override {
-        uint64 srcChainId = chainIdMapping.up(_srcChainId);
+        uint64 srcChainId = LayerZeroChainIdMapping(chainIdMappingAddress).up(_srcChainId);
         address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
         (
@@ -83,6 +83,6 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
             "invalid source line address"
         );
 
-        recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }

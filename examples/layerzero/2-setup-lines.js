@@ -2,8 +2,8 @@ const hre = require("hardhat");
 const { deployLine } = require("../helper");
 const { ChainId } = require("../../dist/src/index");
 
-// On bnbChainTestnet, LayerZeroLine deployed to: 0x0C9549C21313cEdEb794816c534Dc71B0D94A21b
-// On polygonTestnet, LayerZeroLine deployed to: 0x0C9549C21313cEdEb794816c534Dc71B0D94A21b
+// On bnbChainTestnet, LayerZeroLine deployed to: 0x03836d459E753335F65D79e441ba4354E3a736D4
+// On polygonTestnet, LayerZeroLine deployed to: 0xc19Fab55351240f1d671D344ad15BDF7F34a3138
 // LayerZero Endpoints:
 // https://layerzero.gitbook.io/docs/technical-reference/testnet/testnet-addresses
 async function main() {
@@ -15,11 +15,21 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
 
-  const senderMsgportAddress = "0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF"; // <---- This is the sender msgport address from 0-setup-msgports.js
-  const senderChainIdMapping = "0x7Ac2cd64B0F9DF41694E917CC436D1392ad91152"; // <---- This is the sender chain id mapping contract address from 1-deploy-chain-id-mapping.js
+  const senderMsgportAddress = "0xE2B08A0cfCcb40eEfd5254814aF02051Fe6a546a"; // <---- This is the sender msgport address from 0-setup-msgports.js
+  const senderChainIdMapping = "0x8D4906C46de7A75eceb7D02B308907596BBEd3bD"; // <---- This is the sender chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const senderLineName = "LayerZeroLine";
   const senderLineParams = [
     "0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1", // sender lzEndpoint
+    {
+      name: "LayerZeroLine on bnbChainTestnet",
+      provider: "TEST",
+      description: "just for test",
+      feeEstimation: {
+        feeContract: "0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85",
+        feeMethod: "estimating",
+        offChainFeeApi: "http://123456"
+      },
+    }
   ];
 
   const senderLine = await deployLine(
@@ -38,11 +48,21 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
 
-  const receiverMsgportAddress = "0x0B9325BBc7F5Be9cA45bB9A8B5C74EaB97788adF"; // <---- This is the receiver msgport address from 0-setup-msgports.js
-  const receiverChainIdMapping = "0x26a4fAE216359De954a927dEbaB339C09Dbf7e8e"; // <---- This is the receiver chain id mapping contract address from 1-deploy-chain-id-mapping.js
+  const receiverMsgportAddress = "0x1D612F014BC3a1e7980dD0aE12D0d3d240864e83"; // <---- This is the receiver msgport address from 0-setup-msgports.js
+  const receiverChainIdMapping = "0xE5119671d15AF42e3665c4d656d44996D7136144"; // <---- This is the receiver chain id mapping contract address from 1-deploy-chain-id-mapping.js
   const receiverLineName = "LayerZeroLine";
   const receiverLineParams = [
     "0xf69186dfBa60DdB133E91E9A4B5673624293d8F8", // receiver lzEndpoint
+    {
+      name: "LayerZeroLine on polygonTestnet",
+      provider: "TEST",
+      description: "just for test",
+      feeEstimation: {
+        feeContract: "0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85",
+        feeMethod: "estimating2",
+        offChainFeeApi: "http://1234562"
+      },
+    }
   ];
 
   const receiverLine = await deployLine(
@@ -61,22 +81,21 @@ async function main() {
   ///////////////////////////////////////
   // Add remote Line to receiver
   await (
-    await receiverLine.newOutboundLane(
+    await receiverLine.addToLine(
       ChainId.BNBCHAIN_TESTNET,
       senderLine.address,
       { gasLimit: 100000 }
-    )
-  ).wait();
-  console.log("1----------");
-  await (
-    await receiverLine.newInboundLane(
-      ChainId.BNBCHAIN_TESTNET,
-      senderLine.address,
-      { gasLimit: 100000 }
-    )
-  ).wait();
+    )).wait()
+  console.log("1. Add toLine for receiverLine");
 
-  console.log("2----------");
+  await (
+    await receiverLine.addFromLine(
+      ChainId.BNBCHAIN_TESTNET,
+      senderLine.address,
+      { gasLimit: 100000 }
+    )).wait()
+  console.log("2. Add fromLine for receiverLine");
+
   let trustedRemote = hre.ethers.utils.solidityPack(
     ["address", "address"],
     [senderLine.address, receiverLine.address]
@@ -90,23 +109,24 @@ async function main() {
 
   // Add remote Line to sender
   hre.changeNetwork(senderChain);
-  console.log("3----------");
   await (
-    await senderLine.newOutboundLane(
+    await senderLine.addToLine(
       ChainId.POLYGON_MUMBAI,
       receiverLine.address,
       { gasLimit: 100000 }
     )
   ).wait();
-  console.log("4----------");
+  console.log("3 Add toLine for senderLine");
+
   await (
-    await senderLine.newInboundLane(
+    await senderLine.addFromLine(
       ChainId.POLYGON_MUMBAI,
       receiverLine.address,
       { gasLimit: 100000 }
     )
   ).wait();
-  console.log("5----------");
+  console.log("4 Add fromLine for senderLine");
+
   let trustedRemote2 = hre.ethers.utils.solidityPack(
     ["address", "address"],
     [receiverLine.address, senderLine.address]

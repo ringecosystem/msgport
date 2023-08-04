@@ -39,20 +39,8 @@ async function getLine(
       return await line.getLocalChainId();
     },
 
-    getOutboundLane: async (remoteChainId: number) => {
-      const outboundLane = await line.outboundLanes(remoteChainId);
-      return {
-        fromChainId: await result.getLocalChainId(),
-        fromLineAddress: lineAddress,
-        toChainId: outboundLane["toChainId"],
-        toLineAddress: outboundLane["toLineAddress"],
-        nonce: outboundLane["nonce"],
-      };
-    },
-
     getRemoteLineAddress: async (remoteChainId: number) => {
-      const lane = await line.outboundLanes(remoteChainId);
-      return lane["toLineAddress"];
+      return await line.toLineAddressLookup(remoteChainId);
     },
 
     estimateFee: async (

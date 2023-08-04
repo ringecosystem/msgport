@@ -12,7 +12,7 @@ import "../utils/Utils.sol";
 
 contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
-    CelerChainIdMapping public immutable chainIdMapping;
+    address public immutable chainIdMappingAddress;
 
     constructor(
         address _localMsgportAddress,
@@ -20,7 +20,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         address _messageBus,
         Metadata memory _metadata
     ) BaseMessageLine(_localMsgportAddress, _messageBus, _metadata) {
-        chainIdMapping = CelerChainIdMapping(_chainIdMappingAddress);
+        chainIdMappingAddress = _chainIdMappingAddress;
     }
 
     function addToLine(
@@ -41,7 +41,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     // For sending
     //////////////////////////////////////////
     // override BaseMessageLine
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -55,7 +55,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         );
 
         // https://github.com/celer-network/sgn-v2-contracts/blob/1c65d5538ff8509c7e2626bb1a857683db775231/contracts/message/interfaces/IMessageBus.sol#LL122C17-L122C17
-        uint256 fee = IMessageBus(messageBus).calcFee(celerMessage);
+        uint256 fee = IMessageBus(localMessagingContractAddress).calcFee(celerMessage);
 
         // check fee payed by caller is enough.
         uint256 paid = msg.value;
@@ -68,7 +68,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
 
         sendMessage(
             toLineAddressLookup[_toChainId],
-            chainIdMapping.down(_toChainId),
+            CelerChainIdMapping(chainIdMappingAddress).down(_toChainId),
             celerMessage,
             fee
         );
@@ -84,19 +84,22 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         uint64 _srcChainId,
         bytes calldata _celerMessage,
         address // executor
-    ) external payable override onlyMessageBus returns (ExecutionStatus) {
+    ) external payable override returns (ExecutionStatus) {
         (
             address fromDappAddress,
             address toDappAddress,
             bytes memory messagePayload
         ) = abi.decode((_celerMessage), (address, address, bytes));
-        uint64 fromChainId = chainIdMapping.up(_srcChainId);
+        uint64 fromChainId = CelerChainIdMapping(chainIdMappingAddress).up(_srcChainId);
+
+        require(msg.sender == localMessagingContractAddress, "caller is not message bus");
+
         require(
             fromLineAddressLookup[fromChainId] == _srcContract,
             "invalid source line address"
         );
 
-        recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 
         return ExecutionStatus.Success;
     }

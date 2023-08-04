@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
     IAxelarGasService public immutable GAS_SERVICE;
 
-    AxelarChainIdMapping public immutable chainIdMapping;
+    address public immutable chainIdMappingAddress;
 
     constructor(
         address _localMsgportAddress,
@@ -26,7 +26,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         BaseMessageLine(_localMsgportAddress, _gateway, _metadata)
         AxelarExecutable(_gateway)
     {
-        chainIdMapping = AxelarChainIdMapping(_chainIdMappingAddress);
+        chainIdMappingAddress = _chainIdMappingAddress;
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
@@ -44,7 +44,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _callRemoteRecv(
+    function _send(
         address _fromDappAddress,
         uint64 _toChainId,
         address _toDappAddress,
@@ -57,7 +57,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             _messagePayload
         );
 
-        string memory toChainId = chainIdMapping.down(_toChainId);
+        string memory toChainId = AxelarChainIdMapping(chainIdMappingAddress).down(_toChainId);
         string memory toLineAddress = Utils.addressToHexString(
             toLineAddressLookup[_toChainId]
         );
@@ -86,13 +86,13 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             bytes memory messagePayload
         ) = abi.decode(payload_, (address, address, bytes));
 
-        uint64 fromChainId = chainIdMapping.up(sourceChain_);
+        uint64 fromChainId = AxelarChainIdMapping(chainIdMappingAddress).up(sourceChain_);
         require(
             fromLineAddressLookup[fromChainId] ==
                 Utils.hexStringToAddress(sourceAddress_),
             "invalid source line address"
         );
 
-        recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }
