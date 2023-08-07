@@ -6,6 +6,7 @@ import "./base/BaseMessageLine.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
+import "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 
 contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     address public immutable chainIdMappingAddress;
@@ -13,11 +14,11 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     constructor(
         address _localMsgportAddress,
         address _chainIdMappingAddress,
-        address _lzEndpoingAddress,
+        address _lzEndpointAddress,
         Metadata memory _metadata
     )
-        BaseMessageLine(_localMsgportAddress, _lzEndpoingAddress, _metadata)
-        NonblockingLzApp(_lzEndpoingAddress)
+        BaseMessageLine(_localMsgportAddress, _lzEndpointAddress, _metadata)
+        NonblockingLzApp(_lzEndpointAddress)
     {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
@@ -84,5 +85,20 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         );
 
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
+    }
+
+    function estimateFee(
+        uint64 _toChainId, // Dest msgport chainId
+        bytes calldata _payload,
+        bytes calldata _params
+    ) external view virtual override returns (uint256) {
+        uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
+        bytes memory layerZeroMessage = abi.encode(
+            address(0),
+            address(0),
+            _payload
+        );
+        (uint nativeFee,) = ILayerZeroEndpoint(localMessagingContractAddress).estimateFees(remoteChainId, address(this), layerZeroMessage, false, _params);
+        return nativeFee;
     }
 }

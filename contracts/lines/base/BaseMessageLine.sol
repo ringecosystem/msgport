@@ -10,12 +10,6 @@ abstract contract BaseMessageLine is IMessageLine {
         string name;
         string provider;
         string description;
-        FeeEstimation feeEstimation;
-    }
-
-    struct FeeEstimation {
-        address feeContract;
-        string feeMethod;
         string offChainFeeApi;
     }
 
@@ -39,10 +33,10 @@ abstract contract BaseMessageLine is IMessageLine {
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
-    function _updateFeeEstimation(
-        FeeEstimation memory _feeEstimation
+    function _updateFeeApi(
+        string memory _feeApi
     ) internal virtual {
-        metadata.feeEstimation = _feeEstimation;
+        metadata.offChainFeeApi = _feeApi;
     }
 
     function getLocalChainId() public view returns (uint64) {
@@ -131,5 +125,13 @@ abstract contract BaseMessageLine is IMessageLine {
             msg.sender == address(LOCAL_MSGPORT),
             "Line: Only can be called by local msgport"
         );
+    }
+
+    function estimateFee(
+        uint64, // Dest msgport chainId
+        bytes calldata,
+        bytes calldata
+    ) external view virtual returns (uint256) {
+        revert("Unimplemented!");
     }
 }

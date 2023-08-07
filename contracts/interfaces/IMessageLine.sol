@@ -9,4 +9,10 @@ interface IMessageLine {
         bytes memory _payload,
         bytes memory _params
     ) external payable;
+
+    function estimateFee(
+        uint64 _toChainId, // Dest msgport chainId
+        bytes calldata _payload,
+        bytes calldata _params
+    ) external view returns (uint256);
 }
