@@ -10,12 +10,6 @@ abstract contract BaseMessageLine is IMessageLine {
         string name;
         string provider;
         string description;
-        FeeEstimation feeEstimation;
-    }
-
-    struct FeeEstimation {
-        address feeContract;
-        string feeMethod;
         string offChainFeeApi;
     }
 
@@ -39,10 +33,10 @@ abstract contract BaseMessageLine is IMessageLine {
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
-    function _updateFeeEstimation(
-        FeeEstimation memory _feeEstimation
+    function _updateFeeApi(
+        string memory _feeApi
     ) internal virtual {
-        metadata.feeEstimation = _feeEstimation;
+        metadata.offChainFeeApi = _feeApi;
     }
 
     function getLocalChainId() public view returns (uint64) {
