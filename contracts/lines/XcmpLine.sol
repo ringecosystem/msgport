@@ -1,56 +1,61 @@
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../utils/XcmUtils.sol";
+import "../utils/Xcmp.sol";
 
-// PolkadotXcm.send()
-contract XcmpLine is BaseMessageLine, Ownable2Step {
+contract XcmpLine is BaseMessageLine, Xcmp, Ownable2Step {
+    bytes2 public immutable polkadotXcmSendCallIndex;
 
-  bytes2 public immutable SRC_PARAID;
-  bytes2 public immutable TGT_PARAID;
-  bytes2 public immutable POLKADOT_XCM_PALLET_SEND_CALL_INDEX;
-  address public constant DISPATCH =
-    0x0000000000000000000000000000000000000401;
+    constructor(
+        address _localMsgportAddress,
+        bytes2 _polkadotXcmSendCallIndex,
+        Metadata memory _metadata
+    ) BaseMessageLine(_localMsgportAddress, address(0x0), _metadata) {
+        polkadotXcmSendCallIndex = _polkadotXcmSendCallIndex;
+    }
 
-  constructor(
-    address _localMsgportAddress,
-    address _chainIdMappingAddress,
-    bytes2 _srcParaId,
-    bytes2 _tgtParaId,
-    bytes2 _sendCallIndex,
-    Metadata memory _metadata
-  ) BaseMessageLine(_localMsgportAddress, _inboundLane, _metadata) {
-    SRC_PARAID = _srcParaId;
-    TGT_PARAID = _tgtParaId;
-    POLKADOT_XCM_PALLET_SEND_CALL_INDEX = _sendCallIndex;
-  }
+    function _send(
+        address _fromDappAddress,
+        uint64 _toChainId,
+        address _toDappAddress,
+        bytes memory _messagePayload,
+        bytes memory _params
+    ) internal override {
+        uint64 fromChainId = LOCAL_MSGPORT.getLocalChainId();
 
-  function send(
-    address _fromDappAddress,
-    uint64 _toChainId,
-    address _toDappAddress,
-    bytes memory _payload,
-    bytes memory _params
-  ) external payable {
-    XcmUtils.transactOnParachain(
-      POLKADOT_XCM_PALLET_SEND_CALL_INDEX,
-      SRC_PARAID,
-      this.address,
-      TGT_PARAID,
-      _payload
-    )
-  }
+        // build the call data to be transact on the target chain:
+        //   TgtXcmpLine.recv(_fromChainId, _fromDappAddress, _toDappAddress, _message)
+        bytes memory theCall = buildTgtXcmpLineRecvCall(
+            fromChainId,
+            _fromDappAddress,
+            _toDappAddress,
+            _messagePayload
+        );
 
-  function estimateFee(
-    uint64 _toChainId, // Dest msgport chainId
-    bytes calldata _payload,
-    bytes calldata _params
-  ) external view returns (uint256) {
+        // prepare the para ids
+        bytes2 fromParaId = chainIdMapping(fromChainId);
+        bytes2 toParaId = chainIdMapping(_toChainId);
 
-  }
+        // send the XCM `message` to `dest` through dispatching the `polkadotXcm.send` call
+        dispatch(
+            polkadotXcmSendCallIndex,
+            polkadotXcmSendCallParams(
+                dest(toParaId),
+                message(fromParaId, _fromDappAddress, theCall, xcmArgs(_params))
+            )
+        );
+    }
 
+    function chainIdMapping(uint64 _chainId) public pure returns (bytes2) {
+        if (_chainId == 46) {
+            return 0x1111;
+        } else if (_chainId == 44) {
+            return 0x2222;
+        } else {
+            revert("Unsupported chainId");
+        }
+    }
 }
