@@ -121,31 +121,28 @@ contract MessagePort is IMessagePort, Ownable2Step {
             (uint256, bytes)
         );
 
-        try
-            IMessageReceiver(toDappAddress_).recv(
-                fromChainId_,
-                msg.sender,
+        (bool success, bytes memory returndata) = toDappAddress_.call(
+            abi.encodePacked(
+                messagePayload_,
+                messageId,
+                uint256(fromChainId_),
                 fromDappAddress_,
-                messagePayload_
-            ) {
-        } catch Error(string memory reason) {
+                msg.sender
+            )
+        );
+
+        if (!success) {
             emit ReceiverError(
                 messageId,
-                reason,
+                string(returndata),
                 msg.sender
             );
-        } catch (bytes memory reason) {
-            emit ReceiverError(
+        } else {
+            emit MessageReceived(
                 messageId,
-                string(reason),
                 msg.sender
             );
         }
-        
-        emit MessageReceived(
-            messageId,
-            msg.sender
-        );
     }
 
     function estimateFee(
