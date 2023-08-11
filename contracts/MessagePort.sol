@@ -131,15 +131,15 @@ contract MessagePort is IMessagePort, Ownable2Step {
             )
         );
 
-        if (!success) {
-            emit ReceiverError(
+        if (success) {
+            emit MessageReceived(
                 messageId,
-                string(returndata),
                 msg.sender
             );
         } else {
-            emit MessageReceived(
+            emit ReceiverError(
                 messageId,
+                string(returndata),
                 msg.sender
             );
         }
