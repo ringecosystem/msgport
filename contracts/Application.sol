@@ -35,10 +35,10 @@ abstract contract Application {
         }
     }
 
-    function _lineAddress() internal view returns (address payable _line) {
+    function _lineAddress() internal pure returns (address payable _line) {
         require(msg.data.length >= 20, "!line");
         assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
+            _line := shr(96, calldataload(sub(calldatasize(), 20)))
         }
     }
 }

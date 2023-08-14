@@ -2,22 +2,24 @@
 
 pragma solidity ^0.8.17;
 
-import "../interfaces/IMessageReceiver.sol";
+import "../Application.sol";
 
-contract ExampleReceiverDapp is IMessageReceiver {
+contract ExampleReceiverDapp is Application {
     event DappMessageRecv(
+        bytes32 messageId,
         uint256 fromChainId,
         address fromDappAddress,
         address localLineAddress,
         bytes message
     );
 
-    function recv(
-        uint256 _fromChainId,
-        address _fromDappAddress,
-        address _localLineAddress,
-        bytes calldata _message
-    ) external {
-        emit DappMessageRecv(_fromChainId, _fromDappAddress, _localLineAddress, _message);
+    constructor(address msgPort) Application(msgPort) {}
+
+    function xxx(bytes calldata message) external {
+        uint256 fromChainId = _fromChainId();
+        bytes32 messageId = _messageId();
+        address fromDappAddress = _xmsgSender();
+        address localLineAddress = _lineAddress();
+        emit DappMessageRecv(messageId, fromChainId, fromDappAddress, localLineAddress, message);
     }
 }

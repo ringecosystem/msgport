@@ -3,7 +3,6 @@
 pragma solidity ^0.8.17;
 
 import "./interfaces/IMessagePort.sol";
-import "./interfaces/IMessageReceiver.sol";
 import "./interfaces/IMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
