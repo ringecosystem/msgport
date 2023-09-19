@@ -3,7 +3,6 @@
 pragma solidity ^0.8.17;
 
 import "./interfaces/IMessagePort.sol";
-import "./interfaces/IMessageReceiver.sol";
 import "./interfaces/IMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -121,31 +120,28 @@ contract MessagePort is IMessagePort, Ownable2Step {
             (uint256, bytes)
         );
 
-        try
-            IMessageReceiver(toDappAddress_).recv(
-                fromChainId_,
-                msg.sender,
-                fromDappAddress_,
-                messagePayload_
-            ) {
-        } catch Error(string memory reason) {
-            emit ReceiverError(
+        (bool success, bytes memory returndata) = toDappAddress_.call(
+            abi.encodePacked(
+                messagePayload_,
                 messageId,
-                reason,
+                uint256(fromChainId_),
+                fromDappAddress_,
+                msg.sender
+            )
+        );
+
+        if (success) {
+            emit MessageReceived(
+                messageId,
                 msg.sender
             );
-        } catch (bytes memory reason) {
+        } else {
             emit ReceiverError(
                 messageId,
-                string(reason),
+                string(returndata),
                 msg.sender
             );
         }
-        
-        emit MessageReceived(
-            messageId,
-            msg.sender
-        );
     }
 
     function estimateFee(
