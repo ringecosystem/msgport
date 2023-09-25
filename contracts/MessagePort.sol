@@ -7,7 +7,7 @@ import "./interfaces/IMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract MessagePort is IMessagePort, Ownable2Step {
+contract MessagePort is Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint64 private _localChainId;
@@ -63,85 +63,11 @@ contract MessagePort is IMessagePort, Ownable2Step {
         return _localLineAddressLookup[remoteChainId_].contains(localLineAddress_);
     }
 
-    // called by Dapp.
-    function send(
-        address throughLocalLineAddress_,
-        uint64 toChainId_,
-        address toDappAddress_,
-        bytes memory messagePayload_,
-        bytes memory params_
-    ) external payable {
-        // check if local line exists
-        require(
-            localLineExists(toChainId_, throughLocalLineAddress_),
-            "Port: Local line does not exist"
-        );
-
+    function nextMessageId(uint64 toChainId_) public returns (uint256) {
+        require(localLineExists(toChainId_, msg.sender), "Invalid message line address.");
         _nonce++;
         uint256 messageId = (uint256(_localChainId) << 128) + uint256(_nonce);
-        bytes memory messagePayloadWithId = abi.encode(messageId, messagePayload_);
-
-        IMessageLine(throughLocalLineAddress_).send{value: msg.value}(
-            msg.sender, // fromDappAddress
-            toChainId_,
-            toDappAddress_,
-            messagePayloadWithId,
-            params_
-        );
-        emit MessageSent(
-            messageId,
-            _localChainId,
-            toChainId_,
-            msg.sender,
-            toDappAddress_,
-            messagePayload_,
-            params_,
-            throughLocalLineAddress_
-        );
-    }
-
-    // called by line.
-    //
-    // catch the error if user's recv function failed with uncaught error.
-    // store the message and error for the user to do something like retry.
-    function recv(
-        uint64 fromChainId_,
-        address fromDappAddress_,
-        address toDappAddress_,
-        bytes memory messagePayloadWithId_
-    ) external {
-        require(
-            localLineExists(fromChainId_, msg.sender),
-            "Port: Local line does not exist"
-        );
-
-        (uint256 messageId, bytes memory messagePayload_) = abi.decode(
-            messagePayloadWithId_,
-            (uint256, bytes)
-        );
-
-        (bool success, bytes memory returndata) = toDappAddress_.call(
-            abi.encodePacked(
-                messagePayload_,
-                messageId,
-                uint256(fromChainId_),
-                fromDappAddress_,
-                msg.sender
-            )
-        );
-
-        if (success) {
-            emit MessageReceived(
-                messageId,
-                msg.sender
-            );
-        } else {
-            emit ReceiverError(
-                messageId,
-                string(returndata),
-                msg.sender
-            );
-        }
+        return messageId;
     }
 
     function estimateFee(

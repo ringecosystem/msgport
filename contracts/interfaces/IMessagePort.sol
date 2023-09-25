@@ -38,21 +38,8 @@ interface IMessagePort {
     );
 
     function getLocalChainId() external view returns (uint64);
-
-    function send(
-        address _throughLocalLine,
-        uint64 _toChainId,
-        address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory _params
-    ) external payable;
-
-    function recv(
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _message
-    ) external;
+    
+    function nextMessageId(uint256 toChainId_) external returns (uint256);
 
     function estimateFee(
         address _messageLineAddress,

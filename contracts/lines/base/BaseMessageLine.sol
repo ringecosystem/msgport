@@ -33,9 +33,7 @@ abstract contract BaseMessageLine is IMessageLine {
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
-    function _updateFeeApi(
-        string memory _feeApi
-    ) internal virtual {
+    function _updateFeeApi(string memory _feeApi) internal virtual {
         metadata.offChainFeeApi = _feeApi;
     }
 
@@ -92,15 +90,26 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes memory _payload,
         bytes memory _params
     ) public payable virtual {
-        // check this is called by local msgport
-        _requireCalledByMsgport();
+        uint256 messageId = LOCAL_MSGPORT.nextMessageId(_toChainId);
+        bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
         _send(
             _fromDappAddress,
             _toChainId,
             _toDappAddress,
-            _payload,
+            messagePayloadWithId,
             _params
+        );
+
+        emit MessageSent(
+            messageId,
+            LOCAL_MSGPORT.getLocalChainId(),
+            _toChainId,
+            msg.sender,
+            _toDappAddress,
+            messagePayloadWithId,
+            _params,
+            address(this)
         );
     }
 
@@ -110,21 +119,26 @@ abstract contract BaseMessageLine is IMessageLine {
         address _toDappAddress,
         bytes memory _message
     ) internal {
-        // call local msgport to receive message
-        LOCAL_MSGPORT.recv(
-            _fromChainId,
-            _fromDappAddress,
-            _toDappAddress,
-            _message
+        (uint256 messageId, bytes memory messagePayload_) = abi.decode(
+            _message,
+            (uint256, bytes)
         );
-    }
 
-    function _requireCalledByMsgport() internal view virtual {
-        // check this is called by local msgport
-        require(
-            msg.sender == address(LOCAL_MSGPORT),
-            "Line: Only can be called by local msgport"
+        (bool success, bytes memory returndata) = _toDappAddress.call(
+            abi.encodePacked(
+                messagePayload_,
+                messageId,
+                uint256(_fromChainId),
+                _fromDappAddress,
+                msg.sender
+            )
         );
+
+        if (success) {
+            emit MessageReceived(messageId, msg.sender);
+        } else {
+            emit ReceiverError(messageId, string(returndata), msg.sender);
+        }
     }
 
     function estimateFee(
