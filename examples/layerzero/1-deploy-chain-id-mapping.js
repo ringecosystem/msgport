@@ -6,7 +6,7 @@ let findDuplicates = (arr) =>
 
 // get all
 function getChainIdsList() {
-  const msgportChainids = [];
+  const lineRegistryChainids = [];
   const lzChainIds = [];
   Object.keys(ChainListId).forEach(function (chainKey) {
     if (
@@ -19,29 +19,29 @@ function getChainIdsList() {
       const chainId = ChainId[chainKey]; // ChainId: chain key => chain id, and chain id => chain key
       if (evmChainId && chainId) {
         console.log(`${chainKey}: ${evmChainId} => ${chainId}`);
-        msgportChainids.push(evmChainId);
+        lineRegistryChainids.push(evmChainId);
         lzChainIds.push(chainId);
       }
     }
   });
 
-  const dup = findDuplicates(msgportChainids);
+  const dup = findDuplicates(lineRegistryChainids);
   if (dup.length > 0) {
-    throw "Duplicate msgportChainids: " + dup;
+    throw "Duplicate lineRegistryChainids: " + dup;
   }
 
-  return [msgportChainids, lzChainIds];
+  return [lineRegistryChainids, lzChainIds];
 }
 
 async function deployChainIdMappingContract(
   chainName,
-  msgportChainids,
+  lineRegistryChainids,
   lzChainIds
 ) {
   let LayerZeroChainIdMapping = await hre.ethers.getContractFactory(
     "LayerZeroChainIdMapping"
   );
-  let layerZeroChainIdMapping = await LayerZeroChainIdMapping.deploy(msgportChainids, lzChainIds);
+  let layerZeroChainIdMapping = await LayerZeroChainIdMapping.deploy(lineRegistryChainids, lzChainIds);
   await layerZeroChainIdMapping.deployed();
   console.log(
     `On ${chainName}, LayerZeroChainIdMapping contract deployed to: ${layerZeroChainIdMapping.address}`
@@ -51,18 +51,18 @@ async function deployChainIdMappingContract(
 // On bnbChainTestnet, LayerZeroChainIdMapping contract deployed to: 0x8D4906C46de7A75eceb7D02B308907596BBEd3bD
 // On polygonTestnet, LayerZeroChainIdMapping contract deployed to: 0xE5119671d15AF42e3665c4d656d44996D7136144
 async function main() {
-  const [msgportChainids, lzChainIds] = getChainIdsList();
+  const [lineRegistryChainids, lzChainIds] = getChainIdsList();
 
   const senderChain = "bnbChainTestnet";
   const receiverChain = "polygonTestnet";
 
   hre.changeNetwork(senderChain);
-  await deployChainIdMappingContract(senderChain, msgportChainids, lzChainIds);
+  await deployChainIdMappingContract(senderChain, lineRegistryChainids, lzChainIds);
 
   hre.changeNetwork(receiverChain);
   await deployChainIdMappingContract(
     receiverChain,
-    msgportChainids,
+    lineRegistryChainids,
     lzChainIds
   );
 }

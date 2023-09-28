@@ -1,33 +1,33 @@
 import { ethers } from "ethers";
 import { getLine, LineType } from "./line";
-import MsgportContract from "../artifacts/contracts/MessagePort.sol/MessagePort.json";
+import LineRegistryContract from "../artifacts/contracts/LineRegistry.sol/LineRegistry.json";
 import { ILineSelectionStrategy } from "./interfaces/ILineSelectionStrategy";
 import { lineTypeRegistry } from "./lineTypeRegistry";
-import { IMsgport } from "./interfaces/IMsgport";
+import { ILineRegistry } from "./interfaces/ILineRegistry";
 import { ChainId } from "./chain-ids";
 
 export { LineType };
 
-export async function getMsgport(
+export async function getLineRegistry(
   provider: ethers.providers.Provider,
-  msgportAddress: string
+  lineRegistryAddress: string
 ) {
-  const msgport = new ethers.Contract(
-    msgportAddress,
-    MsgportContract.abi,
+  const lineRegistry = new ethers.Contract(
+    lineRegistryAddress,
+    LineRegistryContract.abi,
     provider
   );
 
-  const result: IMsgport = {
+  const result: ILineRegistry = {
     getLocalChainId: async () => {
-      return await msgport.getLocalChainId();
+      return await lineRegistry.getLocalChainId();
     },
 
     getLocalLineAddress: async (
       toChainId: ChainId,
       selectLine: ILineSelectionStrategy
     ) => {
-      const localLineAddresses = await msgport.getLocalLineAddressesByToChainId(
+      const localLineAddresses = await lineRegistry.getLocalLineAddressesByToChainId(
         toChainId
       );
       return await selectLine(localLineAddresses);
@@ -48,7 +48,7 @@ export async function getMsgport(
 
     getLocalLineAddressesByToChainId: async (toChainId: ChainId) => {
       console.log(`toChainId: ${toChainId}`);
-      return await msgport.getLocalLineAddressesByToChainId(toChainId);
+      return await lineRegistry.getLocalLineAddressesByToChainId(toChainId);
     },
 
     estimateFee: async (
@@ -91,7 +91,7 @@ export async function getMsgport(
       console.log(`cross-chain fee: ${fee / 1e18} UNITs.`);
 
       // Send message
-      const tx = await msgport.send(
+      const tx = await lineRegistry.send(
         localLine.address,
         toChainId,
         toDappAddress,
@@ -103,7 +103,7 @@ export async function getMsgport(
       );
 
       console.log(
-        `message "${messagePayload}" has been sent to ${toDappAddress} through msgport ${msgportAddress}`
+        `message "${messagePayload}" has been sent to ${toDappAddress} through lineRegistry ${lineRegistryAddress}`
       );
 
       return tx;

@@ -1,4 +1,4 @@
-const { getMsgport, ChainId } = require("../dist/src/index");
+const { getLineRegistry, ChainId } = require("../dist/src/index");
 const { ethers } = require("ethers");
 
 async function main() {
@@ -6,25 +6,25 @@ async function main() {
     "https://rpc.testnet.fantom.network"
   );
 
-  const msgport = await getMsgport(
+  const lineRegistry = await getLineRegistry(
     provider,
     "0x308f61D8a88f010146C4Ec15897ABc1EFc57c80a"
   );
 
   const messagePayload = "0x12345678";
 
-  await layerZero_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload);
-  await axelar_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload);
+  await layerZero_fantomTestnet_to_moonbaseAlpha(lineRegistry, messagePayload);
+  await axelar_fantomTestnet_to_moonbaseAlpha(lineRegistry, messagePayload);
 }
 
 async function layerZero_fantomTestnet_to_moonbaseAlpha(
-  msgport,
+  lineRegistry,
   messagePayload
 ) {
   const lineSelection = async (_) =>
     "0xbf8d576f4204774f1EAdF9C4480133EE486E649C";
 
-  const fee = await msgport.estimateFee(
+  const fee = await lineRegistry.estimateFee(
     ChainId.MOONBASE_ALPHA,
     lineSelection,
     messagePayload
@@ -38,11 +38,11 @@ async function layerZero_fantomTestnet_to_moonbaseAlpha(
   );
 }
 
-async function axelar_fantomTestnet_to_moonbaseAlpha(msgport, messagePayload) {
+async function axelar_fantomTestnet_to_moonbaseAlpha(lineRegistry, messagePayload) {
   const lineSelection = async (_) =>
     "0xE447B04655a1EaA0fE35C2aD126667CDa458b4aD";
 
-  const fee = await msgport.estimateFee(
+  const fee = await lineRegistry.estimateFee(
     ChainId.MOONBASE_ALPHA,
     lineSelection,
     messagePayload

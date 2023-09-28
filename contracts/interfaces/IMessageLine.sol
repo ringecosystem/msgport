@@ -30,7 +30,7 @@ interface IMessageLine {
     ) external payable;
 
     function estimateFee(
-        uint64 _toChainId, // Dest msgport chainId
+        uint64 _toChainId, // Dest lineRegistry chainId
         bytes calldata _payload,
         bytes calldata _params
     ) external view returns (uint256);

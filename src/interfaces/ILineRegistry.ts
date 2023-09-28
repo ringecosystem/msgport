@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { ILineSelectionStrategy } from "./ILineSelectionStrategy";
 import { ChainId } from "../chain-ids";
 
-export type IMsgport = {
+export type ILineRegistry = {
   getLocalChainId: () => Promise<number>;
 
   getLocalLineAddress: (

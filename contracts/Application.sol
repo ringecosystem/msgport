@@ -3,15 +3,15 @@
 pragma solidity ^0.8.17;
 
 abstract contract Application {
-    address public immutable MESSAGE_PORT;
+    address public immutable LINE_REGISTRY;
 
-    constructor(address msgPort) {
-        MESSAGE_PORT = msgPort;
+    constructor(address lineRegistry) {
+        LINE_REGISTRY = lineRegistry;
     }
 
 
-    function isMessagePort(address msgPort) public view returns (bool) {
-        return MESSAGE_PORT == msgPort;
+    function isLineRegistry(address lineRegistry) public view returns (bool) {
+        return LINE_REGISTRY == lineRegistry;
     }
 
     function _messageId() internal pure returns (bytes32 _msgDataMessageId) {
@@ -29,7 +29,7 @@ abstract contract Application {
     }
 
     function _xmsgSender() internal view returns (address payable _from) {
-        require(msg.data.length >= 40 && isMessagePort(msg.sender), "!xmsgSender");
+        require(msg.data.length >= 40 && isLineRegistry(msg.sender), "!xmsgSender");
         assembly {
             _from := shr(96, calldataload(sub(calldatasize(), 40)))
         }

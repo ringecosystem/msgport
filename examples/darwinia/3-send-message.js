@@ -4,7 +4,7 @@ const { sendMessage } = require("../helper");
 async function main() {
   const senderChain = "goerli";
   const receiverChain = "pangolin";
-  const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <------- change this
+  const senderLineRegistryAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <------- change this
   const estimateFee = buildEstimateFeeFunction(
     senderChain,
     "0x6c73B30a48Bb633DC353ed406384F73dcACcA5C3" // goerli fee market address
@@ -15,7 +15,7 @@ async function main() {
 
   await sendMessage(
     senderChain,
-    senderMsgportAddress,
+    senderLineRegistryAddress,
     receiverChain,
     receiverAddress,
     "0x12345678",

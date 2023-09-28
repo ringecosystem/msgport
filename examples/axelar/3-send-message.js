@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { getMsgport } = require("../../dist/src/index");
+const { getLineRegistry } = require("../../dist/src/index");
 
 async function main() {
   const senderChain = "fantomTestnet";
@@ -19,10 +19,10 @@ async function main() {
   // send message to receiver
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
-  //  1. get msgport
-  const msgport = await getMsgport(
+  //  1. get lineRegistry
+  const lineRegistry = await getLineRegistry(
     await hre.ethers.getSigner(),
-    "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F" // <------- change this, see 0-setup-msgports.js
+    "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F" // <------- change this, see 0-setup-lineRegistrys.js
   );
 
   //  2. get the line selection strategy
@@ -31,7 +31,7 @@ async function main() {
 
   //  3. send message
   let params = hre.ethers.utils.solidityPack(["uint256"], [1000000]);
-  const tx = await msgport.send(
+  const tx = await lineRegistry.send(
     receiverChainId,
     selectLastLine,
     receiverAddress,

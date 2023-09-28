@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
-import "../../interfaces/IMessagePort.sol";
+import "../../interfaces/ILineRegistry.sol";
 
 abstract contract BaseMessageLine is IMessageLine {
     struct Metadata {
@@ -19,17 +19,17 @@ abstract contract BaseMessageLine is IMessageLine {
     mapping(uint64 => address) public fromLineAddressLookup;
 
     address public immutable localMessagingContractAddress;
-    IMessagePort public immutable LOCAL_MSGPORT;
+    ILineRegistry public immutable LINE_REGISTRY;
 
     Metadata public metadata;
 
     constructor(
-        address _localMsgportAddress,
+        address _localLineRegistry,
         address _localMessagingContractAddress,
         Metadata memory _metadata
     ) {
         metadata = _metadata;
-        LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
+        LINE_REGISTRY = ILineRegistry(_localLineRegistry);
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
@@ -38,7 +38,7 @@ abstract contract BaseMessageLine is IMessageLine {
     }
 
     function getLocalChainId() public view returns (uint64) {
-        return LOCAL_MSGPORT.getLocalChainId();
+        return LINE_REGISTRY.getLocalChainId();
     }
 
     function toLineExists(
@@ -90,7 +90,7 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes memory _payload,
         bytes memory _params
     ) public payable virtual {
-        uint256 messageId = LOCAL_MSGPORT.nextMessageId(_toChainId);
+        uint256 messageId = LINE_REGISTRY.nextMessageId(_toChainId);
         bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
         _send(
@@ -103,7 +103,7 @@ abstract contract BaseMessageLine is IMessageLine {
 
         emit MessageSent(
             messageId,
-            LOCAL_MSGPORT.getLocalChainId(),
+            LINE_REGISTRY.getLocalChainId(),
             _toChainId,
             msg.sender,
             _toDappAddress,
@@ -142,7 +142,7 @@ abstract contract BaseMessageLine is IMessageLine {
     }
 
     function estimateFee(
-        uint64, // Dest msgport chainId
+        uint64, // Dest line chainId
         bytes calldata,
         bytes calldata
     ) external view virtual returns (uint256) {

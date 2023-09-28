@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.17;
 
-import "./interfaces/IMessagePort.sol";
+import "./interfaces/ILineRegistry.sol";
 import "./interfaces/IMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract MessagePort is Ownable2Step {
+contract LineRegistry is Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint64 private _localChainId;
