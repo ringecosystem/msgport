@@ -10,7 +10,6 @@ abstract contract BaseMessageLine is IMessageLine {
         string name;
         string provider;
         string description;
-        string offChainFeeApi;
     }
 
     // toChainId => toLineAddress
@@ -31,10 +30,6 @@ abstract contract BaseMessageLine is IMessageLine {
         metadata = _metadata;
         LINE_REGISTRY = ILineRegistry(_localLineRegistry);
         localMessagingContractAddress = _localMessagingContractAddress;
-    }
-
-    function _updateFeeApi(string memory _feeApi) internal virtual {
-        metadata.offChainFeeApi = _feeApi;
     }
 
     function getLocalChainId() public view returns (uint64) {
