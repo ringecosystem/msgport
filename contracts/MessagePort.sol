@@ -69,13 +69,4 @@ contract MessagePort is Ownable2Step {
         uint256 messageId = (uint256(_localChainId) << 128) + uint256(_nonce);
         return messageId;
     }
-
-    function estimateFee(
-        address _messageLineAddress,
-        uint64 _toChainId,
-        bytes calldata _payload,
-        bytes calldata _params
-    ) external view returns (uint256){
-        return IMessageLine(_messageLineAddress).estimateFee(_toChainId, _payload, _params);
-    }
 }

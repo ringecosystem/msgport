@@ -18,33 +18,7 @@
 pragma solidity ^0.8.0;
 
 interface IMessagePort {
-    event MessageSent(
-        uint256 indexed _messageId,
-        uint64 _fromChainId,
-        uint64 _toChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes _message,
-        bytes _params,
-        address _fromLineAddress
-    );
-
-    event MessageReceived(uint256 indexed _messageId, address _toLineAddress);
-
-    event ReceiverError(
-        uint256 indexed _messageId,
-        string _reason,
-        address _toLineAddress
-    );
-
     function getLocalChainId() external view returns (uint64);
     
     function nextMessageId(uint256 toChainId_) external returns (uint256);
-
-    function estimateFee(
-        address _messageLineAddress,
-        uint64 _toChainId,
-        bytes calldata _payload,
-        bytes calldata _params
-    ) external view returns (uint256);
 }
