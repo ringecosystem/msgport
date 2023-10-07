@@ -3,10 +3,10 @@
 
 -include .env
 
-all    :; forge build
-fmt    :; forge fmt
-clean  :; forge clean
-test   :; forge test
+all    :; @forge build
+fmt    :; @forge fmt
+clean  :; @forge clean
+test   :; @forge test
 
 tools  :  foundry
 foundry:; curl -L https://foundry.paradigm.xyz | bash
