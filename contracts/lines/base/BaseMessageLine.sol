@@ -23,19 +23,13 @@ abstract contract BaseMessageLine is IMessageLine {
 
     Metadata public metadata;
 
-    constructor(
-        address _localMsgportAddress,
-        address _localMessagingContractAddress,
-        Metadata memory _metadata
-    ) {
+    constructor(address _localMsgportAddress, address _localMessagingContractAddress, Metadata memory _metadata) {
         metadata = _metadata;
         LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
-    function _updateFeeApi(
-        string memory _feeApi
-    ) internal virtual {
+    function _updateFeeApi(string memory _feeApi) internal virtual {
         metadata.offChainFeeApi = _feeApi;
     }
 
@@ -43,37 +37,21 @@ abstract contract BaseMessageLine is IMessageLine {
         return LOCAL_MSGPORT.getLocalChainId();
     }
 
-    function toLineExists(
-        uint64 _toChainId
-    ) public view virtual returns (bool) {
+    function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
         return toLineAddressLookup[_toChainId] != address(0);
     }
 
-    function _addToLine(
-        uint64 _toChainId,
-        address _toLineAddress
-    ) internal virtual {
-        require(
-            toLineExists(_toChainId) == false,
-            "Line: ToLine already exists"
-        );
+    function _addToLine(uint64 _toChainId, address _toLineAddress) internal virtual {
+        require(toLineExists(_toChainId) == false, "Line: ToLine already exists");
         toLineAddressLookup[_toChainId] = _toLineAddress;
     }
 
-    function fromLineExists(
-        uint64 _fromChainId
-    ) public view virtual returns (bool) {
+    function fromLineExists(uint64 _fromChainId) public view virtual returns (bool) {
         return fromLineAddressLookup[_fromChainId] != address(0);
     }
 
-    function _addFromLine(
-        uint64 _fromChainId,
-        address _fromLineAddress
-    ) internal virtual {
-        require(
-            fromLineExists(_fromChainId) == false,
-            "Line: FromLine already exists"
-        );
+    function _addFromLine(uint64 _fromChainId, address _fromLineAddress) internal virtual {
+        require(fromLineExists(_fromChainId) == false, "Line: FromLine already exists");
         fromLineAddressLookup[_fromChainId] = _fromLineAddress;
     }
 
@@ -95,36 +73,19 @@ abstract contract BaseMessageLine is IMessageLine {
         // check this is called by local msgport
         _requireCalledByMsgport();
 
-        _send(
-            _fromDappAddress,
-            _toChainId,
-            _toDappAddress,
-            _payload,
-            _params
-        );
+        _send(_fromDappAddress, _toChainId, _toDappAddress, _payload, _params);
     }
 
-    function _recv(
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _message
-    ) internal {
+    function _recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
+        internal
+    {
         // call local msgport to receive message
-        LOCAL_MSGPORT.recv(
-            _fromChainId,
-            _fromDappAddress,
-            _toDappAddress,
-            _message
-        );
+        LOCAL_MSGPORT.recv(_fromChainId, _fromDappAddress, _toDappAddress, _message);
     }
 
     function _requireCalledByMsgport() internal view virtual {
         // check this is called by local msgport
-        require(
-            msg.sender == address(LOCAL_MSGPORT),
-            "Line: Only can be called by local msgport"
-        );
+        require(msg.sender == address(LOCAL_MSGPORT), "Line: Only can be called by local msgport");
     }
 
     function estimateFee(

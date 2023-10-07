@@ -23,17 +23,11 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
 
-    function addToLine(
-        uint64 _toChainId,
-        address _toLineAddress
-    ) external onlyOwner {
+    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
         _addToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(
-        uint64 _fromChainId,
-        address _fromLineAddress
-    ) external onlyOwner {
+    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
@@ -48,11 +42,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         bytes memory _messagePayload,
         bytes memory /*_params*/
     ) internal override {
-        bytes memory celerMessage = abi.encode(
-            _fromDappAddress,
-            _toDappAddress,
-            _messagePayload
-        );
+        bytes memory celerMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         // https://github.com/celer-network/sgn-v2-contracts/blob/1c65d5538ff8509c7e2626bb1a857683db775231/contracts/message/interfaces/IMessageBus.sol#LL122C17-L122C17
         uint256 fee = IMessageBus(localMessagingContractAddress).calcFee(celerMessage);
@@ -85,19 +75,13 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         bytes calldata _celerMessage,
         address // executor
     ) external payable override returns (ExecutionStatus) {
-        (
-            address fromDappAddress,
-            address toDappAddress,
-            bytes memory messagePayload
-        ) = abi.decode((_celerMessage), (address, address, bytes));
+        (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
+            abi.decode((_celerMessage), (address, address, bytes));
         uint64 fromChainId = CelerChainIdMapping(chainIdMappingAddress).up(_srcChainId);
 
         require(msg.sender == localMessagingContractAddress, "caller is not message bus");
 
-        require(
-            fromLineAddressLookup[fromChainId] == _srcContract,
-            "invalid source line address"
-        );
+        require(fromLineAddressLookup[fromChainId] == _srcContract, "invalid source line address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 

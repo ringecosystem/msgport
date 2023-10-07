@@ -30,36 +30,27 @@ contract MessagePort is IMessagePort, Ownable2Step {
         return _localChainId;
     }
 
-    function getLocalLineAddressesByToChainId(
-        uint64 toChainId_
-    ) external view returns (address[] memory) {
+    function getLocalLineAddressesByToChainId(uint64 toChainId_) external view returns (address[] memory) {
         return _localLineAddressLookup[toChainId_].values();
     }
 
-    function getLocalLineAddressesLengthByToChainId(
-        uint64 toChainId_
-    ) external view returns (uint256) {
+    function getLocalLineAddressesLengthByToChainId(uint64 toChainId_) external view returns (uint256) {
         return _localLineAddressLookup[toChainId_].length();
     }
 
-    function getLocalLineAddressByToChainIdAndIndex(
-        uint64 toChainId_,
-        uint256 index_
-    ) external view returns (address) {
+    function getLocalLineAddressByToChainIdAndIndex(uint64 toChainId_, uint256 index_)
+        external
+        view
+        returns (address)
+    {
         return _localLineAddressLookup[toChainId_].at(index_);
     }
 
-    function addLocalLine(
-        uint64 remoteChainId_,
-        address localLineAddress_
-    ) external onlyOwner {
+    function addLocalLine(uint64 remoteChainId_, address localLineAddress_) external onlyOwner {
         require(_localLineAddressLookup[remoteChainId_].add(localLineAddress_), "!add");
     }
 
-    function localLineExists(
-        uint64 remoteChainId_,
-        address localLineAddress_
-    ) public view returns (bool) {
+    function localLineExists(uint64 remoteChainId_, address localLineAddress_) public view returns (bool) {
         return _localLineAddressLookup[remoteChainId_].contains(localLineAddress_);
     }
 
@@ -72,10 +63,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
         bytes memory params_
     ) external payable {
         // check if local line exists
-        require(
-            localLineExists(toChainId_, throughLocalLineAddress_),
-            "Port: Local line does not exist"
-        );
+        require(localLineExists(toChainId_, throughLocalLineAddress_), "Port: Local line does not exist");
 
         _nonce++;
         uint256 messageId = (uint256(_localChainId) << 128) + uint256(_nonce);
@@ -110,37 +98,18 @@ contract MessagePort is IMessagePort, Ownable2Step {
         address toDappAddress_,
         bytes memory messagePayloadWithId_
     ) external {
-        require(
-            localLineExists(fromChainId_, msg.sender),
-            "Port: Local line does not exist"
-        );
+        require(localLineExists(fromChainId_, msg.sender), "Port: Local line does not exist");
 
-        (uint256 messageId, bytes memory messagePayload_) = abi.decode(
-            messagePayloadWithId_,
-            (uint256, bytes)
-        );
+        (uint256 messageId, bytes memory messagePayload_) = abi.decode(messagePayloadWithId_, (uint256, bytes));
 
         (bool success, bytes memory returndata) = toDappAddress_.call(
-            abi.encodePacked(
-                messagePayload_,
-                messageId,
-                uint256(fromChainId_),
-                fromDappAddress_,
-                msg.sender
-            )
+            abi.encodePacked(messagePayload_, messageId, uint256(fromChainId_), fromDappAddress_, msg.sender)
         );
 
         if (success) {
-            emit MessageReceived(
-                messageId,
-                msg.sender
-            );
+            emit MessageReceived(messageId, msg.sender);
         } else {
-            emit ReceiverError(
-                messageId,
-                string(returndata),
-                msg.sender
-            );
+            emit ReceiverError(messageId, string(returndata), msg.sender);
         }
     }
 
@@ -149,7 +118,7 @@ contract MessagePort is IMessagePort, Ownable2Step {
         uint64 _toChainId,
         bytes calldata _payload,
         bytes calldata _params
-    ) external view returns (uint256){
+    ) external view returns (uint256) {
         return IMessageLine(_messageLineAddress).estimateFee(_toChainId, _payload, _params);
     }
 }

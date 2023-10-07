@@ -31,11 +31,7 @@ interface IMessagePort {
 
     event MessageReceived(uint256 indexed _messageId, address _toLineAddress);
 
-    event ReceiverError(
-        uint256 indexed _messageId,
-        string _reason,
-        address _toLineAddress
-    );
+    event ReceiverError(uint256 indexed _messageId, string _reason, address _toLineAddress);
 
     function getLocalChainId() external view returns (uint64);
 
@@ -47,12 +43,8 @@ interface IMessagePort {
         bytes memory _params
     ) external payable;
 
-    function recv(
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _message
-    ) external;
+    function recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
+        external;
 
     function estimateFee(
         address _messageLineAddress,

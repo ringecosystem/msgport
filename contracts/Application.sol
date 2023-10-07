@@ -9,7 +9,6 @@ abstract contract Application {
         MESSAGE_PORT = msgPort;
     }
 
-
     function isMessagePort(address msgPort) public view returns (bool) {
         return MESSAGE_PORT == msgPort;
     }
