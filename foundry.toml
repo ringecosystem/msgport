@@ -1,17 +1,10 @@
 [profile.default]
 src = "contracts"
+test = "test"
+script = "script"
 out = "artifacts"
 libs = ["node_modules", "lib"]
-remappings = [
-    "@axelar-network/=node_modules/@axelar-network/",
-    "@darwinia/=node_modules/@darwinia/",
-    "@layerzerolabs/=node_modules/@layerzerolabs/",
-    "@openzeppelin/=node_modules/@openzeppelin/",
-    "@uniswap/=node_modules/@uniswap/",
-    "eth-gas-reporter/=node_modules/eth-gas-reporter/",
-    "hardhat-deploy/=node_modules/hardhat-deploy/",
-    "hardhat/=node_modules/hardhat/",
-    "sgn-v2-contracts/=node_modules/sgn-v2-contracts/",
-]
+auto_detect_remappings = false
+evm_version = "shanghai"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

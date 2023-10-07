@@ -1,0 +1,7 @@
+@axelar-network/=node_modules/@axelar-network/
+@darwinia/=node_modules/@darwinia/
+@layerzerolabs/=node_modules/@layerzerolabs/
+@openzeppelin/=node_modules/@openzeppelin/
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+sgn-v2-contracts/=node_modules/sgn-v2-contracts/
