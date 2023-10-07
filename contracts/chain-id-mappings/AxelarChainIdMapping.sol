@@ -26,49 +26,30 @@ contract AxelarChainIdMapping is Ownable2Step {
     mapping(uint64 => string) public downMapping;
     mapping(string => uint64) public upMapping;
 
-    constructor(
-        uint64[] memory _msgportChainIds,
-        string[] memory _axelarChainIds
-    ) {
-        require(
-            _msgportChainIds.length == _axelarChainIds.length,
-            "Lengths do not match."
-        );
+    constructor(uint64[] memory _msgportChainIds, string[] memory _axelarChainIds) {
+        require(_msgportChainIds.length == _axelarChainIds.length, "Lengths do not match.");
 
-        for (uint i = 0; i < _msgportChainIds.length; i++) {
+        for (uint256 i = 0; i < _msgportChainIds.length; i++) {
             downMapping[_msgportChainIds[i]] = _axelarChainIds[i];
             upMapping[_axelarChainIds[i]] = _msgportChainIds[i];
         }
     }
 
-    function addChainIdMap(
-        uint64 _msgportChainId,
-        string memory _axelarChainId
-    ) external onlyOwner {
-        require(
-            bytes(downMapping[_msgportChainId]).length == 0,
-            "MsgportChainId already exists."
-        );
-        require(
-            upMapping[_axelarChainId] == 0,
-            "axelarChainId already exists."
-        );
+    function addChainIdMap(uint64 _msgportChainId, string memory _axelarChainId) external onlyOwner {
+        require(bytes(downMapping[_msgportChainId]).length == 0, "MsgportChainId already exists.");
+        require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
         downMapping[_msgportChainId] = _axelarChainId;
         upMapping[_axelarChainId] = _msgportChainId;
     }
 
-    function down(
-        uint64 msgportChainId
-    ) external view returns (string memory axelarChainId) {
+    function down(uint64 msgportChainId) external view returns (string memory axelarChainId) {
         axelarChainId = downMapping[msgportChainId];
         if (bytes(axelarChainId).length == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
-    function up(
-        string memory axelarChainId
-    ) external view returns (uint64 msgportChainId) {
+    function up(string memory axelarChainId) external view returns (uint64 msgportChainId) {
         msgportChainId = upMapping[axelarChainId];
         if (msgportChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);

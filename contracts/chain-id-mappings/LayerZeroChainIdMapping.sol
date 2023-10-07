@@ -28,42 +28,29 @@ contract LayerZeroChainIdMapping is Ownable2Step {
     mapping(uint16 => uint64) public upMapping;
 
     constructor(uint64[] memory _msgportChainIds, uint16[] memory _lzChainIds) {
-        require(
-            _msgportChainIds.length == _lzChainIds.length,
-            "Lengths do not match."
-        );
+        require(_msgportChainIds.length == _lzChainIds.length, "Lengths do not match.");
 
-        for (uint i = 0; i < _msgportChainIds.length; i++) {
+        for (uint256 i = 0; i < _msgportChainIds.length; i++) {
             downMapping[_msgportChainIds[i]] = _lzChainIds[i];
             upMapping[_lzChainIds[i]] = _msgportChainIds[i];
         }
     }
 
-    function addChainIdMap(
-        uint64 _msgportChainId,
-        uint16 _lzChainId
-    ) external onlyOwner {
-        require(
-            downMapping[_msgportChainId] == 0,
-            "MsgportChainId already exists."
-        );
+    function addChainIdMap(uint64 _msgportChainId, uint16 _lzChainId) external onlyOwner {
+        require(downMapping[_msgportChainId] == 0, "MsgportChainId already exists.");
         require(upMapping[_lzChainId] == 0, "lzChainId already exists.");
         downMapping[_msgportChainId] = _lzChainId;
         upMapping[_lzChainId] = _msgportChainId;
     }
 
-    function down(
-        uint64 msgportChainId
-    ) external view returns (uint16 lzChainId) {
+    function down(uint64 msgportChainId) external view returns (uint16 lzChainId) {
         lzChainId = downMapping[msgportChainId];
         if (lzChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
-    function up(
-        uint16 lzChainId
-    ) external view returns (uint64 msgportChainId) {
+    function up(uint16 lzChainId) external view returns (uint64 msgportChainId) {
         msgportChainId = upMapping[lzChainId];
         if (msgportChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);

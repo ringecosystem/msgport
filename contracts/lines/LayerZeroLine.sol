@@ -16,24 +16,15 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         address _chainIdMappingAddress,
         address _lzEndpointAddress,
         Metadata memory _metadata
-    )
-        BaseMessageLine(_localMsgportAddress, _lzEndpointAddress, _metadata)
-        NonblockingLzApp(_lzEndpointAddress)
-    {
+    ) BaseMessageLine(_localMsgportAddress, _lzEndpointAddress, _metadata) NonblockingLzApp(_lzEndpointAddress) {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
 
-    function addToLine(
-        uint64 _toChainId,
-        address _toLineAddress
-    ) external onlyOwner {
+    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
         _addToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(
-        uint64 _fromChainId,
-        address _fromLineAddress
-    ) external onlyOwner {
+    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
@@ -48,11 +39,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
 
         // build layer zero message
-        bytes memory layerZeroMessage = abi.encode(
-            _fromDappAddress,
-            _toDappAddress,
-            _messagePayload
-        );
+        bytes memory layerZeroMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         _lzSend(
             remoteChainId,
@@ -67,22 +54,16 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     function _nonblockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
-        uint64 /*_nonce*/,
+        uint64, /*_nonce*/
         bytes memory _payload
     ) internal virtual override {
         uint64 srcChainId = LayerZeroChainIdMapping(chainIdMappingAddress).up(_srcChainId);
         address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
-        (
-            address fromDappAddress,
-            address toDappAddress,
-            bytes memory messagePayload
-        ) = abi.decode(_payload, (address, address, bytes));
+        (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
+            abi.decode(_payload, (address, address, bytes));
 
-        require(
-            fromLineAddressLookup[srcChainId] == srcLineAddress,
-            "invalid source line address"
-        );
+        require(fromLineAddressLookup[srcChainId] == srcLineAddress, "invalid source line address");
 
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
@@ -93,12 +74,10 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         bytes calldata _params
     ) external view virtual override returns (uint256) {
         uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
-        bytes memory layerZeroMessage = abi.encode(
-            address(0),
-            address(0),
-            _payload
+        bytes memory layerZeroMessage = abi.encode(address(0), address(0), _payload);
+        (uint256 nativeFee,) = ILayerZeroEndpoint(localMessagingContractAddress).estimateFees(
+            remoteChainId, address(this), layerZeroMessage, false, _params
         );
-        (uint nativeFee,) = ILayerZeroEndpoint(localMessagingContractAddress).estimateFees(remoteChainId, address(this), layerZeroMessage, false, _params);
         return nativeFee;
     }
 }

@@ -26,46 +26,30 @@ contract CelerChainIdMapping is Ownable2Step {
     mapping(uint64 => uint64) public downMapping;
     mapping(uint64 => uint64) public upMapping;
 
-    constructor(
-        uint64[] memory _msgportChainIds,
-        uint64[] memory _celerChainIds
-    ) {
-        require(
-            _msgportChainIds.length == _celerChainIds.length,
-            "Lengths do not match."
-        );
+    constructor(uint64[] memory _msgportChainIds, uint64[] memory _celerChainIds) {
+        require(_msgportChainIds.length == _celerChainIds.length, "Lengths do not match.");
 
-        for (uint i = 0; i < _msgportChainIds.length; i++) {
+        for (uint256 i = 0; i < _msgportChainIds.length; i++) {
             downMapping[_msgportChainIds[i]] = _celerChainIds[i];
             upMapping[_celerChainIds[i]] = _msgportChainIds[i];
         }
     }
 
-    function addChainIdMap(
-        uint64 _msgportChainId,
-        uint64 _celerChainId
-    ) external onlyOwner {
-        require(
-            downMapping[_msgportChainId] == 0,
-            "MsgportChainId already exists."
-        );
+    function addChainIdMap(uint64 _msgportChainId, uint64 _celerChainId) external onlyOwner {
+        require(downMapping[_msgportChainId] == 0, "MsgportChainId already exists.");
         require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
         downMapping[_msgportChainId] = _celerChainId;
         upMapping[_celerChainId] = _msgportChainId;
     }
 
-    function down(
-        uint64 msgportChainId
-    ) external view returns (uint64 celerChainId) {
+    function down(uint64 msgportChainId) external view returns (uint64 celerChainId) {
         celerChainId = downMapping[msgportChainId];
         if (celerChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);
         }
     }
 
-    function up(
-        uint64 celerChainId
-    ) external view returns (uint64 msgportChainId) {
+    function up(uint64 celerChainId) external view returns (uint64 msgportChainId) {
         msgportChainId = upMapping[celerChainId];
         if (msgportChainId == 0) {
             revert MsgportChainIdNotFound(msgportChainId);

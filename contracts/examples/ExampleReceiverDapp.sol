@@ -6,11 +6,7 @@ import "../Application.sol";
 
 contract ExampleReceiverDapp is Application {
     event DappMessageRecv(
-        bytes32 messageId,
-        uint256 fromChainId,
-        address fromDappAddress,
-        address localLineAddress,
-        bytes message
+        bytes32 messageId, uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
     );
 
     address public msgLine;

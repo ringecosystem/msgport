@@ -73,8 +73,8 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
     // implement ICrossChainFilter
     //////////////////////////////////////////
     function cross_chain_filter(
-        uint32 /*bridgedChainPosition*/,
-        uint32 /*bridgedLanePosition*/,
+        uint32, /*bridgedChainPosition*/
+        uint32, /*bridgedLanePosition*/
         address sourceAccount,
         bytes calldata /*payload*/
     ) external view returns (bool) {

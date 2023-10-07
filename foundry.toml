@@ -6,3 +6,17 @@ out = "artifacts"
 libs = ["node_modules", "lib"]
 auto_detect_remappings = false
 evm_version = "shanghai"
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+int_types = "long"
+multiline_func_header = "attributes_first"
+quote_style = "double"
+number_underscore = "preserve"
+single_line_statement_blocks = "preserve"
+override_spacing = false
+wrap_comments = false
+ignore = []
+contract_new_lines = false

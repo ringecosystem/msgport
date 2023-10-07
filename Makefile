@@ -1,9 +1,10 @@
-.PHONY: all clean test
+.PHONY: all fmt clean test
 .PHONY: tools foundry
 
 -include .env
 
 all    :; forge build
+fmt    :; forge fmt
 clean  :; forge clean
 test   :; forge test
 
