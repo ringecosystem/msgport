@@ -51,7 +51,9 @@ const solcSettings = {
       "*": [
         "abi",
         "devdoc",
+        "userdoc",
         "metadata",
+        "storageLayout",
         "evm.bytecode.object",
         "evm.bytecode.sourceMap",
         "evm.deployedBytecode.object",

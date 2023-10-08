@@ -6,3 +6,7 @@ artifacts
 cache
 dist
 .DS_Store
+
+broadcast
+docs
+out
