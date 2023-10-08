@@ -3,14 +3,13 @@
 pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
-import "../../interfaces/IMessagePort.sol";
+import "../../interfaces/ILineRegistry.sol";
 
 abstract contract BaseMessageLine is IMessageLine {
     struct Metadata {
         string name;
         string provider;
         string description;
-        string offChainFeeApi;
     }
 
     // toChainId => toLineAddress
@@ -19,22 +18,18 @@ abstract contract BaseMessageLine is IMessageLine {
     mapping(uint64 => address) public fromLineAddressLookup;
 
     address public immutable localMessagingContractAddress;
-    IMessagePort public immutable LOCAL_MSGPORT;
+    ILineRegistry public immutable LINE_REGISTRY;
 
     Metadata public metadata;
 
-    constructor(address _localMsgportAddress, address _localMessagingContractAddress, Metadata memory _metadata) {
+    constructor(address _localLineRegistry, address _localMessagingContractAddress, Metadata memory _metadata) {
         metadata = _metadata;
-        LOCAL_MSGPORT = IMessagePort(_localMsgportAddress);
+        LINE_REGISTRY = ILineRegistry(_localLineRegistry);
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
-    function _updateFeeApi(string memory _feeApi) internal virtual {
-        metadata.offChainFeeApi = _feeApi;
-    }
-
     function getLocalChainId() public view returns (uint64) {
-        return LOCAL_MSGPORT.getLocalChainId();
+        return LINE_REGISTRY.getLocalChainId();
     }
 
     function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
@@ -70,26 +65,41 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes memory _payload,
         bytes memory _params
     ) public payable virtual {
-        // check this is called by local msgport
-        _requireCalledByMsgport();
+        uint256 messageId = LINE_REGISTRY.nextMessageId(_toChainId);
+        bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
-        _send(_fromDappAddress, _toChainId, _toDappAddress, _payload, _params);
+        _send(_fromDappAddress, _toChainId, _toDappAddress, messagePayloadWithId, _params);
+
+        emit MessageSent(
+            messageId,
+            LINE_REGISTRY.getLocalChainId(),
+            _toChainId,
+            msg.sender,
+            _toDappAddress,
+            messagePayloadWithId,
+            _params,
+            address(this)
+        );
     }
 
     function _recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
         internal
     {
-        // call local msgport to receive message
-        LOCAL_MSGPORT.recv(_fromChainId, _fromDappAddress, _toDappAddress, _message);
-    }
+        (uint256 messageId, bytes memory messagePayload_) = abi.decode(_message, (uint256, bytes));
 
-    function _requireCalledByMsgport() internal view virtual {
-        // check this is called by local msgport
-        require(msg.sender == address(LOCAL_MSGPORT), "Line: Only can be called by local msgport");
+        (bool success, bytes memory returndata) = _toDappAddress.call(
+            abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress, msg.sender)
+        );
+
+        if (success) {
+            emit MessageReceived(messageId, msg.sender);
+        } else {
+            emit ReceiverError(messageId, string(returndata), msg.sender);
+        }
     }
 
     function estimateFee(
-        uint64, // Dest msgport chainId
+        uint64, // Dest line chainId
         bytes calldata,
         bytes calldata
     ) external view virtual returns (uint256) {

@@ -4,7 +4,7 @@ const { buildEstimateFeeFunction } = require("./celer-helper");
 async function main() {
   const senderChain = "bnbChainTestnet";
   const receiverChain = "fantomTestnet";
-  const senderMsgportAddress = "0x07414d2B62A4Dd7fd1750C6DfBd9D38c250Cc573"; // <------- change this
+  const senderLineRegistryAddress = "0x07414d2B62A4Dd7fd1750C6DfBd9D38c250Cc573"; // <------- change this
   const estimateFee = buildEstimateFeeFunction(
     senderChain,
     "0xAd204986D6cB67A5Bc76a3CB8974823F43Cb9AAA" // bnbChainTestnet message bus address
@@ -15,7 +15,7 @@ async function main() {
 
   await sendMessage(
     senderChain,
-    senderMsgportAddress,
+    senderLineRegistryAddress,
     receiverChain,
     receiverAddress,
     "0x12345678",

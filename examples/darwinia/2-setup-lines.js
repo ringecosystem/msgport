@@ -2,7 +2,7 @@ const { setupLines } = require("../helper");
 
 async function main() {
   const senderChain = "goerli";
-  const senderMsgportAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderLineRegistryAddress = "0xE7fb517F60dA00e210A43Bdf23f011c3fa508Da7"; // <---- This is the sender lineRegistry address from 1-setup-lineRegistrys.js
   const senderLineName = "DarwiniaLine";
   const senderLineParams = [
     "0x9B5010d562dDF969fbb85bC72222919B699b5F54", // senderOutboundLane
@@ -11,7 +11,7 @@ async function main() {
   ];
 
   const receiverChain = "pangolin";
-  const receiverMsgportAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverLineRegistryAddress = "0x3f1394274103cdc5ca842aeeC9118c512dea9A4F"; // <---- This is the receiver lineRegistry address from 1-setup-lineRegistrys.js
   const receiverLineName = "DarwiniaLine";
   const receiverLineParams = [
     "0xAbd165DE531d26c229F9E43747a8d683eAD54C6c", // receiverOutboundLane
@@ -21,11 +21,11 @@ async function main() {
 
   await setupLines(
     senderChain,
-    senderMsgportAddress,
+    senderLineRegistryAddress,
     senderLineName,
     senderLineParams,
     receiverChain,
-    receiverMsgportAddress,
+    receiverLineRegistryAddress,
     receiverLineName,
     receiverLineParams
   );

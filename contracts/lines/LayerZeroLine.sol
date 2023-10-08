@@ -12,11 +12,11 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     address public immutable chainIdMappingAddress;
 
     constructor(
-        address _localMsgportAddress,
+        address _localLineRegistryAddress,
         address _chainIdMappingAddress,
         address _lzEndpointAddress,
         Metadata memory _metadata
-    ) BaseMessageLine(_localMsgportAddress, _lzEndpointAddress, _metadata) NonblockingLzApp(_lzEndpointAddress) {
+    ) BaseMessageLine(_localLineRegistryAddress, _lzEndpointAddress, _metadata) NonblockingLzApp(_lzEndpointAddress) {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
 
@@ -44,7 +44,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
         _lzSend(
             remoteChainId,
             layerZeroMessage,
-            payable(msg.sender), // refund to msgport
+            payable(msg.sender), // refund to lineRegistry
             address(0x0), // zro payment address
             _params, // adapter params
             msg.value
@@ -69,7 +69,7 @@ contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     }
 
     function estimateFee(
-        uint64 _toChainId, // Dest msgport chainId
+        uint64 _toChainId, // Dest lineRegistry chainId
         bytes calldata _payload,
         bytes calldata _params
     ) external view virtual override returns (uint256) {

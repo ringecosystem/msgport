@@ -20,39 +20,39 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract AxelarChainIdMapping is Ownable2Step {
-    error MsgportChainIdNotFound(uint64 msgportChainId);
+    error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
     error AxelarChainIdNotFound(string axelarChainId);
 
     mapping(uint64 => string) public downMapping;
     mapping(string => uint64) public upMapping;
 
-    constructor(uint64[] memory _msgportChainIds, string[] memory _axelarChainIds) {
-        require(_msgportChainIds.length == _axelarChainIds.length, "Lengths do not match.");
+    constructor(uint64[] memory _lineRegistryChainIds, string[] memory _axelarChainIds) {
+        require(_lineRegistryChainIds.length == _axelarChainIds.length, "Lengths do not match.");
 
-        for (uint256 i = 0; i < _msgportChainIds.length; i++) {
-            downMapping[_msgportChainIds[i]] = _axelarChainIds[i];
-            upMapping[_axelarChainIds[i]] = _msgportChainIds[i];
+        for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
+            downMapping[_lineRegistryChainIds[i]] = _axelarChainIds[i];
+            upMapping[_axelarChainIds[i]] = _lineRegistryChainIds[i];
         }
     }
 
-    function addChainIdMap(uint64 _msgportChainId, string memory _axelarChainId) external onlyOwner {
-        require(bytes(downMapping[_msgportChainId]).length == 0, "MsgportChainId already exists.");
+    function addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+        require(bytes(downMapping[_lineRegistryChainId]).length == 0, "LineRegistryChainId already exists.");
         require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
-        downMapping[_msgportChainId] = _axelarChainId;
-        upMapping[_axelarChainId] = _msgportChainId;
+        downMapping[_lineRegistryChainId] = _axelarChainId;
+        upMapping[_axelarChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 msgportChainId) external view returns (string memory axelarChainId) {
-        axelarChainId = downMapping[msgportChainId];
+    function down(uint64 lineRegistryChainId) external view returns (string memory axelarChainId) {
+        axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
-            revert MsgportChainIdNotFound(msgportChainId);
+            revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(string memory axelarChainId) external view returns (uint64 msgportChainId) {
-        msgportChainId = upMapping[axelarChainId];
-        if (msgportChainId == 0) {
-            revert MsgportChainIdNotFound(msgportChainId);
+    function up(string memory axelarChainId) external view returns (uint64 lineRegistryChainId) {
+        lineRegistryChainId = upMapping[axelarChainId];
+        if (lineRegistryChainId == 0) {
+            revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 }

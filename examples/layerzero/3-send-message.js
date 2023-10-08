@@ -1,6 +1,6 @@
 const { deployReceiver } = require("../helper");
 const hre = require("hardhat");
-const { getMsgport } = require("../../dist/src/index");
+const { getLineRegistry } = require("../../dist/src/index");
 
 async function main() {
   const senderChain = "bnbChainTestnet";
@@ -21,10 +21,10 @@ async function main() {
   // send message to receiver
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
-  //  1. get msgport
-  const msgport = await getMsgport(
+  //  1. get lineRegistry
+  const lineRegistry = await getLineRegistry(
     await hre.ethers.getSigner(),
-    "0xE2B08A0cfCcb40eEfd5254814aF02051Fe6a546a" // <------- change this, see 0-setup-msgports.js
+    "0xE2B08A0cfCcb40eEfd5254814aF02051Fe6a546a" // <------- change this, see 0-setup-lineRegistrys.js
   );
 
   //  2. get the line selection strategy
@@ -37,7 +37,7 @@ async function main() {
     ["uint16", "uint256"],
     [1, 300000]
   );
-  const tx = await msgport.send(
+  const tx = await lineRegistry.send(
     receiverChainId,
     selectLastLine,
     receiverAddress,

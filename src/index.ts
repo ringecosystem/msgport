@@ -1,13 +1,13 @@
 // import { ethers } from "ethers";
 import { ChainId } from "./chain-ids";
-import { getMsgport } from "./msgport";
+import { getLineRegistry } from "./lineRegistry";
 import { getLine, LineType } from "./line";
 import { axelar } from "./axelar/index";
 import { layerzero } from "./layerzero/index";
 import { createDefaultLineSelectionStrategy } from "./DefaultLineSelectionStrategy";
 import { ILineSelectionStrategy } from "./interfaces/ILineSelectionStrategy";
 
-export { getMsgport, ChainId };
+export { getLineRegistry, ChainId };
 export { getLine, LineType };
 export { ILineSelectionStrategy, createDefaultLineSelectionStrategy };
 export { axelar, layerzero };
@@ -17,7 +17,7 @@ export { axelar, layerzero };
 //     "https://bsc-testnet.publicnode.com"
 //   );
 
-//   const msgport = await getMsgport(
+//   const lineRegistry = await getLineRegistry(
 //     provider,
 //     "0xeF1c60AB9B902c13585411dC929005B98Ca44541"
 //   );
@@ -26,13 +26,13 @@ export { axelar, layerzero };
 //     lineAddresses: string[]
 //   ) => "0x017D8C573a54cc43e2D23EC8Fa756D92777c3217";
 
-//   // const line = await msgport.getLine(
+//   // const line = await lineRegistry.getLine(
 //   //   ChainId.POLYGON_MUMBAI, // target chain id
 //   //   lineSelection
 //   // );
 //   // console.log(`line: ${line}`);
 
-//   const lineAddresses = await msgport.getLocalLineAddressesByToChainId(
+//   const lineAddresses = await lineRegistry.getLocalLineAddressesByToChainId(
 //     ChainId.BNBCHAIN_TESTNET
 //   );
 //   console.log(`lineAddresses: ${lineAddresses}`);
@@ -47,7 +47,7 @@ export { axelar, layerzero };
 //   //     params: string = "0x",
 //   //     feeMultiplier: number = 1.1
 
-//   // const tx = await msgport.send(
+//   // const tx = await lineRegistry.send(
 //   //   lineSelection,
 //   //   1287, // target chain id
 // }
@@ -66,8 +66,8 @@ export { axelar, layerzero };
 //     provider
 //   );
 
-//   const msgportChainId = await mapping.up("0x2776"); // 10102
-//   console.log(msgportChainId);
+//   const lineRegistryChainId = await mapping.up("0x2776"); // 10102
+//   console.log(lineRegistryChainId);
 //   const lzChainId = await mapping.down(97);
 //   console.log(lzChainId);
 // }

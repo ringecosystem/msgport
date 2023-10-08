@@ -1,19 +1,19 @@
 const hre = require("hardhat");
 
-async function deployMsgport(chainId, args = {}) {
-  const MessagePort = await hre.ethers.getContractFactory("MessagePort");
-  const msgport = await MessagePort.deploy(chainId, args);
-  await msgport.deployed();
-  return msgport.address;
+async function deployLineRegistry(chainId, args = {}) {
+  const LineRegistry = await hre.ethers.getContractFactory("LineRegistry");
+  const lineRegistry = await LineRegistry.deploy(chainId, args);
+  await lineRegistry.deployed();
+  return lineRegistry.address;
 }
 
 async function deployLine(
   // for deploy the line
   lineName,
-  localMsgportAddress,
+  localLineRegistryAddress,
   chainIdMappingAddress,
   lineArgs,
-  // for adding the remote line to the msgport
+  // for adding the remote line to the lineRegistry
   remoteChainId,
   // deploy tx args
   deployGasLimit = 4000000,
@@ -23,7 +23,7 @@ async function deployLine(
 ) {
   let Line = await hre.ethers.getContractFactory(lineName);
   let line = await Line.deploy(
-    localMsgportAddress,
+    localLineRegistryAddress,
     chainIdMappingAddress,
     ...lineArgs,
     {
@@ -33,11 +33,11 @@ async function deployLine(
   );
   await line.deployed();
 
-  // Add it to the msgport
-  let MessagePort = await hre.ethers.getContractFactory("MessagePort");
-  const msgport = await MessagePort.attach(localMsgportAddress);
+  // Add it to the lineRegistry
+  let LineRegistry = await hre.ethers.getContractFactory("LineRegistry");
+  const lineRegistry = await LineRegistry.attach(localLineRegistryAddress);
   await (
-    await msgport.addLocalLine(remoteChainId, line.address, {
+    await lineRegistry.addLocalLine(remoteChainId, line.address, {
       gasLimit: addRemoteLineGasLimit,
     })
   ).wait();
@@ -45,7 +45,7 @@ async function deployLine(
   return line;
 }
 
-async function getMsgport(network, msgportAddress) {
+async function getLineRegistry(network, lineRegistryAddress) {
   return {
     send: async (
       toChainId,
@@ -55,10 +55,10 @@ async function getMsgport(network, msgportAddress) {
       params = "0x"
     ) => {
       hre.changeNetwork(network);
-      const MessagePort = await hre.ethers.getContractFactory(
-        "MessagePort"
+      const LineRegistry = await hre.ethers.getContractFactory(
+        "LineRegistry"
       );
-      const msgport = await MessagePort.attach(msgportAddress);
+      const lineRegistry = await LineRegistry.attach(lineRegistryAddress);
 
       // Estimate fee
       const fromDappAddress = (await hre.ethers.getSigner()).address;
@@ -70,7 +70,7 @@ async function getMsgport(network, msgportAddress) {
       console.log(`cross-chain fee: ${fee} wei.`);
 
       // Send message
-      const tx = await msgport.send(
+      const tx = await lineRegistry.send(
         toChainId,
         toDappAddress,
         messagePayload,
@@ -81,7 +81,7 @@ async function getMsgport(network, msgportAddress) {
         }
       );
       console.log(
-        `message ${messagePayload} sent to ${toDappAddress} through ${network} msgport ${msgportAddress}`
+        `message ${messagePayload} sent to ${toDappAddress} through ${network} lineRegistry ${lineRegistryAddress}`
       );
       console.log(`tx hash: ${(await tx.wait()).transactionHash}`);
     },
@@ -105,7 +105,7 @@ async function deployReceiver(network) {
 
 async function sendMessage(
   senderChain,
-  senderMsgportAddress,
+  senderLineRegistryAddress,
   receiverChain,
   receiverAddress,
   message,
@@ -114,8 +114,8 @@ async function sendMessage(
 ) {
   // Send message to receiver
   const receiverChainId = await getChainId(receiverChain);
-  const msgport = await getMsgport(senderChain, senderMsgportAddress);
-  msgport.send(receiverChainId, receiverAddress, message, estimateFee, params);
+  const lineRegistry = await getLineRegistry(senderChain, senderLineRegistryAddress);
+  lineRegistry.send(receiverChainId, receiverAddress, message, estimateFee, params);
 }
 
 exports.puts = (obj) => {
@@ -124,9 +124,9 @@ exports.puts = (obj) => {
   }
 };
 
-exports.deployMsgport = deployMsgport;
+exports.deployLineRegistry = deployLineRegistry;
 exports.deployLine = deployLine;
-exports.getMsgport = getMsgport;
+exports.getLineRegistry = getLineRegistry;
 exports.deployReceiver = deployReceiver;
 exports.getChainId = getChainId;
 exports.sendMessage = sendMessage;

@@ -1,4 +1,4 @@
-const { deployMsgport, getChainId } = require("../helper");
+const { deployLineRegistry, getChainId } = require("../helper");
 
 async function main() {
   const senderChain = "goerli";
@@ -7,8 +7,8 @@ async function main() {
   const receiverChain = "pangolin";
   const receiverChainId = await getChainId(receiverChain);
 
-  await deployMsgport(senderChain, senderChainId);
-  await deployMsgport(receiverChain, receiverChainId);
+  await deployLineRegistry(senderChain, senderChainId);
+  await deployLineRegistry(receiverChain, receiverChainId);
 }
 
 main().catch((error) => {

@@ -13,7 +13,7 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(senderChain);
 
-  const senderMsgportAddress = "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F"; // <---- This is the sender msgport address from 1-setup-msgports.js
+  const senderLineRegistryAddress = "0xEE174FD525A1540d1cCf3fDadfeD172764b4913F"; // <---- This is the sender lineRegistry address from 1-setup-lineRegistrys.js
   const senderChainIdMapping = "0x8D7767AEB493d13F8207CCfFf5B9420314567Bc2"; // <---- This is the sender chain id mapping contract address from 0-deploy-chain-id-mapping.js
   const senderLineName = "AxelarLine";
   const senderLineParams = [
@@ -23,7 +23,7 @@ async function main() {
 
   const senderLine = await deployLine(
     senderLineName,
-    senderMsgportAddress,
+    senderLineRegistryAddress,
     senderChainIdMapping,
     senderLineParams,
     ChainId.MOONBASE_ALPHA
@@ -37,7 +37,7 @@ async function main() {
   ///////////////////////////////////////
   hre.changeNetwork(receiverChain);
 
-  const receiverMsgportAddress = "0xcB9c934243D600283077ffa3956127c321C66EA2"; // <---- This is the receiver msgport address from 1-setup-msgports.js
+  const receiverLineRegistryAddress = "0xcB9c934243D600283077ffa3956127c321C66EA2"; // <---- This is the receiver lineRegistry address from 1-setup-lineRegistrys.js
   const receiverChainIdMapping = "0xF732E38B74d8BcB94bB3024A85567152dE3335F6"; // <---- This is the receiver chain id mapping contract address from 0-deploy-chain-id-mapping.js
   const receiverLineName = "AxelarLine";
   const receiverLineParams = [
@@ -47,7 +47,7 @@ async function main() {
 
   const receiverLine = await deployLine(
     receiverLineName,
-    receiverMsgportAddress,
+    receiverLineRegistryAddress,
     receiverChainIdMapping,
     receiverLineParams,
     ChainId.FANTOM_TESTNET
