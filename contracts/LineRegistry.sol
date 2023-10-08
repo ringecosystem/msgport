@@ -11,8 +11,6 @@ contract LineRegistry is Ownable2Step {
     // remoteChainId => localLineAddress[]
     mapping(uint64 => EnumerableSet.AddressSet) private _localLineAddressLookup;
 
-    receive() external payable {}
-
     function getLocalChainId() public view returns (uint64) {
         return uint64(block.chainid);
     }
