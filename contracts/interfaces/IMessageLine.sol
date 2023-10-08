@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 interface IMessageLine {
     event MessageSent(
-        uint256 indexed _messageId,
+        bytes32 indexed _messageId,
         uint64 _fromChainId,
         uint64 _toChainId,
         address _fromDappAddress,
@@ -13,9 +13,9 @@ interface IMessageLine {
         address _fromLineAddress
     );
 
-    event MessageReceived(uint256 indexed _messageId, address _toLineAddress);
+    event MessageReceived(bytes32 indexed _messageId, address _toLineAddress);
 
-    event ReceiverError(uint256 indexed _messageId, string _reason, address _toLineAddress);
+    event ReceiverError(bytes32 indexed _messageId, string _reason, address _toLineAddress);
 
     function send(
         address _fromDappAddress,

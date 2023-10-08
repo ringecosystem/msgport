@@ -16,13 +16,10 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
 
     address public immutable chainIdMappingAddress;
 
-    constructor(
-        address _localLineRegistryAddress,
-        address _chainIdMappingAddress,
-        address _gateway,
-        address _gasReceiver,
-        Metadata memory _metadata
-    ) BaseMessageLine(_localLineRegistryAddress, _gateway, _metadata) AxelarExecutable(_gateway) {
+    constructor(address _chainIdMappingAddress, address _gateway, address _gasReceiver, Metadata memory _metadata)
+        BaseMessageLine(_gateway, _metadata)
+        AxelarExecutable(_gateway)
+    {
         chainIdMappingAddress = _chainIdMappingAddress;
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
