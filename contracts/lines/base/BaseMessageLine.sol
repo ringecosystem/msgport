@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
-import "../../interfaces/ILineRegistry.sol";
 
 abstract contract BaseMessageLine is IMessageLine {
     struct Metadata {
@@ -12,24 +11,28 @@ abstract contract BaseMessageLine is IMessageLine {
         string description;
     }
 
+    uint256 public nonce;
+
     // toChainId => toLineAddress
     mapping(uint64 => address) public toLineAddressLookup;
     // fromChainId => fromLineAddress
     mapping(uint64 => address) public fromLineAddressLookup;
 
     address public immutable localMessagingContractAddress;
-    ILineRegistry public immutable LINE_REGISTRY;
 
     Metadata public metadata;
 
-    constructor(address _localLineRegistry, address _localMessagingContractAddress, Metadata memory _metadata) {
+    constructor(address _localMessagingContractAddress, Metadata memory _metadata) {
         metadata = _metadata;
-        LINE_REGISTRY = ILineRegistry(_localLineRegistry);
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
+    function name() public view returns (string) {
+        return metadata.name;
+    }
+
     function getLocalChainId() public view returns (uint64) {
-        return LINE_REGISTRY.getLocalChainId();
+        return uint64(block.chainid);
     }
 
     function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
@@ -50,6 +53,15 @@ abstract contract BaseMessageLine is IMessageLine {
         fromLineAddressLookup[_fromChainId] = _fromLineAddress;
     }
 
+    function _incrementNonce() internal returns (uint256) {
+        nonce = nonce + 1;
+        return nonce;
+    }
+
+    function _hash(uint64 _chainid, uint256 _nonce) internal view returns (bytes32) {
+        return keccak256(abi.encode(_chainid, _nonce, address(this)));
+    }
+
     function _send(
         address _fromDappAddress,
         uint64 _toChainId,
@@ -65,14 +77,15 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes memory _payload,
         bytes memory _params
     ) public payable virtual {
-        uint256 messageId = LINE_REGISTRY.nextMessageId(_toChainId);
+        uint256 _nonce = _incrementNonce();
+        bytes32 messageId = _hash(getLocalChainId(), _nonce);
         bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
         _send(_fromDappAddress, _toChainId, _toDappAddress, messagePayloadWithId, _params);
 
         emit MessageSent(
             messageId,
-            LINE_REGISTRY.getLocalChainId(),
+            getLocalChainId(),
             _toChainId,
             msg.sender,
             _toDappAddress,
@@ -85,11 +98,10 @@ abstract contract BaseMessageLine is IMessageLine {
     function _recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
         internal
     {
-        (uint256 messageId, bytes memory messagePayload_) = abi.decode(_message, (uint256, bytes));
+        (bytes32 messageId, bytes memory messagePayload_) = abi.decode(_message, (bytes32, bytes));
 
-        (bool success, bytes memory returndata) = _toDappAddress.call(
-            abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress, msg.sender)
-        );
+        (bool success, bytes memory returndata) =
+            _toDappAddress.call(abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress));
 
         if (success) {
             emit MessageReceived(messageId, msg.sender);

@@ -14,12 +14,9 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
     address public immutable chainIdMappingAddress;
 
-    constructor(
-        address _localLineRegistryAddress,
-        address _chainIdMappingAddress,
-        address _messageBus,
-        Metadata memory _metadata
-    ) BaseMessageLine(_localLineRegistryAddress, _messageBus, _metadata) {
+    constructor(address _chainIdMappingAddress, address _messageBus, Metadata memory _metadata)
+        BaseMessageLine(_messageBus, _metadata)
+    {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
 

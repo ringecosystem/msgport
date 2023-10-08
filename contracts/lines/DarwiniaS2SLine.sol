@@ -16,12 +16,11 @@ interface IMessageEndpoint {
 
 contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
     constructor(
-        address _localLineRegistryAddress,
         address _darwiniaEndpointAddress,
         uint64 _remoteChainId,
         address _remoteLineAddress,
         Metadata memory _metadata
-    ) BaseMessageLine(_localLineRegistryAddress, _darwiniaEndpointAddress, _metadata) {
+    ) BaseMessageLine(_darwiniaEndpointAddress, _metadata) {
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
         _addFromLine(_remoteChainId, _remoteLineAddress);

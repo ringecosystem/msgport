@@ -15,14 +15,13 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
     IFeeMarket public immutable feeMarket;
 
     constructor(
-        address _localLineRegistryAddress,
         uint64 _remoteChainId,
         address _remoteLineAddress,
         address _outboundLane,
         address _inboundLane,
         address _feeMarket,
         Metadata memory _metadata
-    ) BaseMessageLine(_localLineRegistryAddress, _inboundLane, _metadata) {
+    ) BaseMessageLine(_inboundLane, _metadata) {
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
         _addFromLine(_remoteChainId, _remoteLineAddress);

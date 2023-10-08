@@ -11,12 +11,10 @@ import "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint
 contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
     address public immutable chainIdMappingAddress;
 
-    constructor(
-        address _localLineRegistryAddress,
-        address _chainIdMappingAddress,
-        address _lzEndpointAddress,
-        Metadata memory _metadata
-    ) BaseMessageLine(_localLineRegistryAddress, _lzEndpointAddress, _metadata) NonblockingLzApp(_lzEndpointAddress) {
+    constructor(address _chainIdMappingAddress, address _lzEndpointAddress, Metadata memory _metadata)
+        BaseMessageLine(_lzEndpointAddress, _metadata)
+        NonblockingLzApp(_lzEndpointAddress)
+    {
         chainIdMappingAddress = _chainIdMappingAddress;
     }
 
