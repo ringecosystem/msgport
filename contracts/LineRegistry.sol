@@ -3,31 +3,21 @@
 pragma solidity ^0.8.17;
 
 import "./interfaces/ILineRegistry.sol";
-import "./interfaces/IMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract LineRegistry is Ownable2Step {
+contract LineRegistry is ILineRegistry, Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint64 private _localChainId;
     uint128 private _nonce;
 
     // remoteChainId => localLineAddress[]
     mapping(uint64 => EnumerableSet.AddressSet) private _localLineAddressLookup;
 
-    constructor(uint64 localChainId_) {
-        _localChainId = localChainId_;
-    }
-
     receive() external payable {}
 
-    function withdraw() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
-    }
-
-    function getLocalChainId() external view returns (uint64) {
-        return _localChainId;
+    function getLocalChainId() public view returns (uint64) {
+        return uint64(block.chainid);
     }
 
     function getLocalLineAddressesByToChainId(uint64 toChainId_) external view returns (address[] memory) {
@@ -57,7 +47,7 @@ contract LineRegistry is Ownable2Step {
     function nextMessageId(uint64 toChainId_) public returns (uint256) {
         require(localLineExists(toChainId_, msg.sender), "Invalid message line address.");
         _nonce++;
-        uint256 messageId = (uint256(_localChainId) << 128) + uint256(_nonce);
+        uint256 messageId = (uint256(getLocalChainId()) << 128) + uint256(_nonce);
         return messageId;
     }
 }

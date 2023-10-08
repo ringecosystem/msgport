@@ -18,7 +18,5 @@
 pragma solidity ^0.8.0;
 
 interface ILineRegistry {
-    function getLocalChainId() external view returns (uint64);
-
-    function nextMessageId(uint256 toChainId_) external returns (uint256);
+    function nextMessageId(uint64 toChainId_) external returns (uint256);
 }

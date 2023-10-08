@@ -9,18 +9,18 @@ contract ExampleReceiverDapp is Application {
         bytes32 messageId, uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
     );
 
-    address public msgLine;
+    address public immutable LINE;
 
-    constructor(address msgPort, address line) Application(msgPort) {
-        msgLine = line;
+    constructor(address line) {
+        LINE = line;
     }
 
     function xxx(bytes calldata message) external {
         uint256 fromChainId = _fromChainId();
         bytes32 messageId = _messageId();
         address fromDappAddress = _xmsgSender();
-        address localLineAddress = _lineAddress();
-        require(localLineAddress == msgLine);
+        address localLineAddress = _msgSender();
+        require(localLineAddress == LINE);
         emit DappMessageRecv(messageId, fromChainId, fromDappAddress, localLineAddress, message);
     }
 }

@@ -29,7 +29,7 @@ abstract contract BaseMessageLine is IMessageLine {
     }
 
     function getLocalChainId() public view returns (uint64) {
-        return LINE_REGISTRY.getLocalChainId();
+        return uint64(block.chainid);
     }
 
     function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
@@ -72,7 +72,7 @@ abstract contract BaseMessageLine is IMessageLine {
 
         emit MessageSent(
             messageId,
-            LINE_REGISTRY.getLocalChainId(),
+            getLocalChainId(),
             _toChainId,
             msg.sender,
             _toDappAddress,
@@ -87,9 +87,8 @@ abstract contract BaseMessageLine is IMessageLine {
     {
         (uint256 messageId, bytes memory messagePayload_) = abi.decode(_message, (uint256, bytes));
 
-        (bool success, bytes memory returndata) = _toDappAddress.call(
-            abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress, msg.sender)
-        );
+        (bool success, bytes memory returndata) =
+            _toDappAddress.call(abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress));
 
         if (success) {
             emit MessageReceived(messageId, msg.sender);
