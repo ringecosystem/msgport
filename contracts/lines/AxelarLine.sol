@@ -9,9 +9,9 @@ import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contract
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
+contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable2Step {
     IAxelarGasService public immutable GAS_SERVICE;
 
     address public immutable chainIdMappingAddress;
@@ -42,7 +42,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = AxelarChainIdMapping(chainIdMappingAddress).down(_toChainId);
-        string memory toLineAddress = Utils.addressToHexString(toLineAddressLookup[_toChainId]);
+        string memory toLineAddress = Utils.addressToHexString(toLineLookup[_toChainId]);
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
@@ -61,10 +61,7 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
             abi.decode(payload_, (address, address, bytes));
 
         uint64 fromChainId = AxelarChainIdMapping(chainIdMappingAddress).up(sourceChain_);
-        require(
-            fromLineAddressLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_),
-            "invalid source line address"
-        );
+        require(fromLineLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source line address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
