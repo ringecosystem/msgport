@@ -10,6 +10,13 @@ abstract contract Application {
         }
     }
 
+    function _xmsgSender() internal pure returns (address payable _from) {
+        require(msg.data.length >= 40, "!xmsgSender");
+        assembly {
+            _from := shr(96, calldataload(sub(calldatasize(), 40)))
+        }
+    }
+
     function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
         require(msg.data.length >= 72, "!fromChainId");
         assembly {

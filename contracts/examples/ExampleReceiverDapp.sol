@@ -9,10 +9,12 @@ contract ExampleReceiverDapp is Application {
         bytes32 messageId, uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
     );
 
-    address public msgLine;
+    mapping(address => bool) trustedLines;
 
-    constructor(address msgPort, address line) Application(msgPort) {
-        msgLine = line;
+    constructor(address[] memory _trustedLines) Application() {
+        for (uint256 i = 0; i < _trustedLines.length; i++) {
+            trustedLines[_trustedLines[i]] = true;
+        }
     }
 
     function xxx(bytes calldata message) external {
@@ -20,7 +22,7 @@ contract ExampleReceiverDapp is Application {
         bytes32 messageId = _messageId();
         address fromDappAddress = _xmsgSender();
         address localLineAddress = _lineAddress();
-        require(localLineAddress == msgLine);
+        require(trustedLines[localLineAddress], "Untrusted line address");
         emit DappMessageRecv(messageId, fromChainId, fromDappAddress, localLineAddress, message);
     }
 }
