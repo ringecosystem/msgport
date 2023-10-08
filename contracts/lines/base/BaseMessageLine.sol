@@ -27,6 +27,10 @@ abstract contract BaseMessageLine is IMessageLine {
         localMessagingContractAddress = _localMessagingContractAddress;
     }
 
+    function name() public view returns (string) {
+        return metadata.name;
+    }
+
     function getLocalChainId() public view returns (uint64) {
         return uint64(block.chainid);
     }
