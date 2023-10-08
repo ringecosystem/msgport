@@ -22,11 +22,7 @@ abstract contract BaseMessageLine is IMessageLine {
 
     Metadata public metadata;
 
-    constructor(
-        address _localLineRegistry,
-        address _localMessagingContractAddress,
-        Metadata memory _metadata
-    ) {
+    constructor(address _localLineRegistry, address _localMessagingContractAddress, Metadata memory _metadata) {
         metadata = _metadata;
         LINE_REGISTRY = ILineRegistry(_localLineRegistry);
         localMessagingContractAddress = _localMessagingContractAddress;
@@ -36,37 +32,21 @@ abstract contract BaseMessageLine is IMessageLine {
         return LINE_REGISTRY.getLocalChainId();
     }
 
-    function toLineExists(
-        uint64 _toChainId
-    ) public view virtual returns (bool) {
+    function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
         return toLineAddressLookup[_toChainId] != address(0);
     }
 
-    function _addToLine(
-        uint64 _toChainId,
-        address _toLineAddress
-    ) internal virtual {
-        require(
-            toLineExists(_toChainId) == false,
-            "Line: ToLine already exists"
-        );
+    function _addToLine(uint64 _toChainId, address _toLineAddress) internal virtual {
+        require(toLineExists(_toChainId) == false, "Line: ToLine already exists");
         toLineAddressLookup[_toChainId] = _toLineAddress;
     }
 
-    function fromLineExists(
-        uint64 _fromChainId
-    ) public view virtual returns (bool) {
+    function fromLineExists(uint64 _fromChainId) public view virtual returns (bool) {
         return fromLineAddressLookup[_fromChainId] != address(0);
     }
 
-    function _addFromLine(
-        uint64 _fromChainId,
-        address _fromLineAddress
-    ) internal virtual {
-        require(
-            fromLineExists(_fromChainId) == false,
-            "Line: FromLine already exists"
-        );
+    function _addFromLine(uint64 _fromChainId, address _fromLineAddress) internal virtual {
+        require(fromLineExists(_fromChainId) == false, "Line: FromLine already exists");
         fromLineAddressLookup[_fromChainId] = _fromLineAddress;
     }
 
@@ -88,13 +68,7 @@ abstract contract BaseMessageLine is IMessageLine {
         uint256 messageId = LINE_REGISTRY.nextMessageId(_toChainId);
         bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
-        _send(
-            _fromDappAddress,
-            _toChainId,
-            _toDappAddress,
-            messagePayloadWithId,
-            _params
-        );
+        _send(_fromDappAddress, _toChainId, _toDappAddress, messagePayloadWithId, _params);
 
         emit MessageSent(
             messageId,
@@ -108,25 +82,13 @@ abstract contract BaseMessageLine is IMessageLine {
         );
     }
 
-    function _recv(
-        uint64 _fromChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
-        bytes memory _message
-    ) internal {
-        (uint256 messageId, bytes memory messagePayload_) = abi.decode(
-            _message,
-            (uint256, bytes)
-        );
+    function _recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
+        internal
+    {
+        (uint256 messageId, bytes memory messagePayload_) = abi.decode(_message, (uint256, bytes));
 
         (bool success, bytes memory returndata) = _toDappAddress.call(
-            abi.encodePacked(
-                messagePayload_,
-                messageId,
-                uint256(_fromChainId),
-                _fromDappAddress,
-                msg.sender
-            )
+            abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress, msg.sender)
         );
 
         if (success) {

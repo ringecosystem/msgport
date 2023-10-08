@@ -22,25 +22,16 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         address _gateway,
         address _gasReceiver,
         Metadata memory _metadata
-    )
-        BaseMessageLine(_localLineRegistryAddress, _gateway, _metadata)
-        AxelarExecutable(_gateway)
-    {
+    ) BaseMessageLine(_localLineRegistryAddress, _gateway, _metadata) AxelarExecutable(_gateway) {
         chainIdMappingAddress = _chainIdMappingAddress;
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function addToLine(
-        uint64 _toChainId,
-        address _toLineAddress
-    ) external onlyOwner {
+    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
         _addToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(
-        uint64 _fromChainId,
-        address _fromLineAddress
-    ) external onlyOwner {
+    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
@@ -51,45 +42,30 @@ contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable {
         bytes memory _messagePayload,
         bytes memory /*_params*/
     ) internal override {
-        bytes memory axelarMessage = abi.encode(
-            _fromDappAddress,
-            _toDappAddress,
-            _messagePayload
-        );
+        bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = AxelarChainIdMapping(chainIdMappingAddress).down(_toChainId);
-        string memory toLineAddress = Utils.addressToHexString(
-            toLineAddressLookup[_toChainId]
-        );
+        string memory toLineAddress = Utils.addressToHexString(toLineAddressLookup[_toChainId]);
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
-                address(this),
-                toChainId,
-                toLineAddress,
-                axelarMessage,
-                msg.sender
+                address(this), toChainId, toLineAddress, axelarMessage, msg.sender
             );
         }
 
         gateway.callContract(toChainId, toLineAddress, axelarMessage);
     }
 
-    function _execute(
-        string calldata sourceChain_,
-        string calldata sourceAddress_,
-        bytes calldata payload_
-    ) internal override {
-        (
-            address fromDappAddress,
-            address toDappAddress,
-            bytes memory messagePayload
-        ) = abi.decode(payload_, (address, address, bytes));
+    function _execute(string calldata sourceChain_, string calldata sourceAddress_, bytes calldata payload_)
+        internal
+        override
+    {
+        (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
+            abi.decode(payload_, (address, address, bytes));
 
         uint64 fromChainId = AxelarChainIdMapping(chainIdMappingAddress).up(sourceChain_);
         require(
-            fromLineAddressLookup[fromChainId] ==
-                Utils.hexStringToAddress(sourceAddress_),
+            fromLineAddressLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_),
             "invalid source line address"
         );
 

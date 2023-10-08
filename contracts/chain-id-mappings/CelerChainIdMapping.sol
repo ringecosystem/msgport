@@ -26,46 +26,30 @@ contract CelerChainIdMapping is Ownable2Step {
     mapping(uint64 => uint64) public downMapping;
     mapping(uint64 => uint64) public upMapping;
 
-    constructor(
-        uint64[] memory _lineRegistryChainIds,
-        uint64[] memory _celerChainIds
-    ) {
-        require(
-            _lineRegistryChainIds.length == _celerChainIds.length,
-            "Lengths do not match."
-        );
+    constructor(uint64[] memory _lineRegistryChainIds, uint64[] memory _celerChainIds) {
+        require(_lineRegistryChainIds.length == _celerChainIds.length, "Lengths do not match.");
 
-        for (uint i = 0; i < _lineRegistryChainIds.length; i++) {
+        for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
             downMapping[_lineRegistryChainIds[i]] = _celerChainIds[i];
             upMapping[_celerChainIds[i]] = _lineRegistryChainIds[i];
         }
     }
 
-    function addChainIdMap(
-        uint64 _lineRegistryChainId,
-        uint64 _celerChainId
-    ) external onlyOwner {
-        require(
-            downMapping[_lineRegistryChainId] == 0,
-            "LineRegistryChainId already exists."
-        );
+    function addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
+        require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
         require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
         downMapping[_lineRegistryChainId] = _celerChainId;
         upMapping[_celerChainId] = _lineRegistryChainId;
     }
 
-    function down(
-        uint64 lineRegistryChainId
-    ) external view returns (uint64 celerChainId) {
+    function down(uint64 lineRegistryChainId) external view returns (uint64 celerChainId) {
         celerChainId = downMapping[lineRegistryChainId];
         if (celerChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(
-        uint64 celerChainId
-    ) external view returns (uint64 lineRegistryChainId) {
+    function up(uint64 celerChainId) external view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[celerChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

@@ -26,49 +26,30 @@ contract AxelarChainIdMapping is Ownable2Step {
     mapping(uint64 => string) public downMapping;
     mapping(string => uint64) public upMapping;
 
-    constructor(
-        uint64[] memory _lineRegistryChainIds,
-        string[] memory _axelarChainIds
-    ) {
-        require(
-            _lineRegistryChainIds.length == _axelarChainIds.length,
-            "Lengths do not match."
-        );
+    constructor(uint64[] memory _lineRegistryChainIds, string[] memory _axelarChainIds) {
+        require(_lineRegistryChainIds.length == _axelarChainIds.length, "Lengths do not match.");
 
-        for (uint i = 0; i < _lineRegistryChainIds.length; i++) {
+        for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
             downMapping[_lineRegistryChainIds[i]] = _axelarChainIds[i];
             upMapping[_axelarChainIds[i]] = _lineRegistryChainIds[i];
         }
     }
 
-    function addChainIdMap(
-        uint64 _lineRegistryChainId,
-        string memory _axelarChainId
-    ) external onlyOwner {
-        require(
-            bytes(downMapping[_lineRegistryChainId]).length == 0,
-            "LineRegistryChainId already exists."
-        );
-        require(
-            upMapping[_axelarChainId] == 0,
-            "axelarChainId already exists."
-        );
+    function addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+        require(bytes(downMapping[_lineRegistryChainId]).length == 0, "LineRegistryChainId already exists.");
+        require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
         downMapping[_lineRegistryChainId] = _axelarChainId;
         upMapping[_axelarChainId] = _lineRegistryChainId;
     }
 
-    function down(
-        uint64 lineRegistryChainId
-    ) external view returns (string memory axelarChainId) {
+    function down(uint64 lineRegistryChainId) external view returns (string memory axelarChainId) {
         axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(
-        string memory axelarChainId
-    ) external view returns (uint64 lineRegistryChainId) {
+    function up(string memory axelarChainId) external view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[axelarChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

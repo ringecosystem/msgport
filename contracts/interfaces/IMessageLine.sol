@@ -15,12 +15,8 @@ interface IMessageLine {
 
     event MessageReceived(uint256 indexed _messageId, address _toLineAddress);
 
-    event ReceiverError(
-        uint256 indexed _messageId,
-        string _reason,
-        address _toLineAddress
-    );
-    
+    event ReceiverError(uint256 indexed _messageId, string _reason, address _toLineAddress);
+
     function send(
         address _fromDappAddress,
         uint64 _toChainId,

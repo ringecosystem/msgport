@@ -6,18 +6,15 @@ import "./base/BaseMessageLine.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 interface IMessageEndpoint {
-    function remoteExecute(
-        uint32 specVersion,
-        address callReceiver,
-        bytes calldata callPayload,
-        uint256 gasLimit
-    ) external payable returns (uint256);
+    function remoteExecute(uint32 specVersion, address callReceiver, bytes calldata callPayload, uint256 gasLimit)
+        external
+        payable
+        returns (uint256);
 
     function fee() external view returns (uint128);
 }
 
 contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
-
     constructor(
         address _localLineRegistryAddress,
         address _darwiniaEndpointAddress,
@@ -37,10 +34,7 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
         bytes memory _messagePayload,
         bytes memory _params
     ) internal override {
-        (uint32 specVersion, uint256 gasLimit) = abi.decode(
-            _params,
-            (uint32, uint256)
-        );
+        (uint32 specVersion, uint256 gasLimit) = abi.decode(_params, (uint32, uint256));
 
         bytes memory recvCall = abi.encodeWithSignature(
             "recv(uint256,address,address,address,bytes)",
@@ -51,8 +45,8 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
             _messagePayload
         );
 
-        IMessageEndpoint(localMessagingContractAddress).remoteExecute{
-            value: msg.value
-        }(specVersion, toLineAddressLookup[_toChainId], recvCall, gasLimit);
+        IMessageEndpoint(localMessagingContractAddress).remoteExecute{value: msg.value}(
+            specVersion, toLineAddressLookup[_toChainId], recvCall, gasLimit
+        );
     }
 }
