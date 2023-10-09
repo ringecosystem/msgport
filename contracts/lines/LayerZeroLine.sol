@@ -3,23 +3,22 @@
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
+import "./base/FromLineLookup.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 
-contract LayerZeroLine is BaseMessageLine, NonblockingLzApp {
+contract LayerZeroLine is BaseMessageLine, FromLineLookup, NonblockingLzApp {
     address public immutable chainIdMappingAddress;
+    address public immutable lowLevelMessager;
 
     constructor(address _chainIdMappingAddress, address _lzEndpointAddress, Metadata memory _metadata)
-        BaseMessageLine(_lzEndpointAddress, _metadata)
+        BaseMessageLine(_metadata)
         NonblockingLzApp(_lzEndpointAddress)
     {
         chainIdMappingAddress = _chainIdMappingAddress;
-    }
-
-    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
-        _addToLine(_toChainId, _toLineAddress);
+        lowLevelMessager = _lzEndpointAddress;
     }
 
     function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {

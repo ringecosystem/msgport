@@ -3,13 +3,14 @@
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
+import "./base/LineLookup.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IOutboundLane.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/IFeeMarket.sol";
 import "@darwinia/contracts-periphery/contracts/interfaces/ICrossChainFilter.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
+contract DarwiniaLine is BaseMessageLine, LineLookup, ICrossChainFilter, Ownable2Step {
     address public immutable outboundLane;
     address public immutable inboundLane;
     IFeeMarket public immutable feeMarket;
@@ -21,7 +22,7 @@ contract DarwiniaLine is BaseMessageLine, ICrossChainFilter, Ownable2Step {
         address _inboundLane,
         address _feeMarket,
         Metadata memory _metadata
-    ) BaseMessageLine(_inboundLane, _metadata) {
+    ) BaseMessageLine(_metadata) {
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
         _addFromLine(_remoteChainId, _remoteLineAddress);

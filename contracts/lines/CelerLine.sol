@@ -3,6 +3,7 @@
 pragma solidity 0.8.9;
 
 import "./base/BaseMessageLine.sol";
+import "./base/LineLookup.sol";
 import "../chain-id-mappings/CelerChainIdMapping.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
@@ -10,14 +11,16 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
+contract CelerLine is BaseMessageLine, LineLookup, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
     address public immutable chainIdMappingAddress;
+    address public immutable lowLevelMessager;
 
     constructor(address _chainIdMappingAddress, address _messageBus, Metadata memory _metadata)
-        BaseMessageLine(_messageBus, _metadata)
+        BaseMessageLine(_metadata)
     {
         chainIdMappingAddress = _chainIdMappingAddress;
+        lowLevelMessager = _messageBus;
     }
 
     function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {

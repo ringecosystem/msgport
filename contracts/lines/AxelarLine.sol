@@ -3,6 +3,7 @@
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
+import "./base/LineLookup.sol";
 import "../chain-id-mappings/AxelarChainIdMapping.sol";
 import "../utils/Utils.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
@@ -11,13 +12,13 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarLine is BaseMessageLine, AxelarExecutable, Ownable2Step {
+contract AxelarLine is BaseMessageLine, LineLookup, AxelarExecutable, Ownable2Step {
     IAxelarGasService public immutable GAS_SERVICE;
 
     address public immutable chainIdMappingAddress;
 
     constructor(address _chainIdMappingAddress, address _gateway, address _gasReceiver, Metadata memory _metadata)
-        BaseMessageLine(_gateway, _metadata)
+        BaseMessageLine(_metadata)
         AxelarExecutable(_gateway)
     {
         chainIdMappingAddress = _chainIdMappingAddress;

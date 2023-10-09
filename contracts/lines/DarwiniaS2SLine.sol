@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
+import "./base/ToLineLookup.sol";
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -14,16 +15,18 @@ interface IMessageEndpoint {
     function fee() external view returns (uint128);
 }
 
-contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
+contract DarwiniaS2sLine is BaseMessageLine, ToLineLookup, Ownable2Step {
+    address public immutable lowLevelMessager;
+
     constructor(
         address _darwiniaEndpointAddress,
         uint64 _remoteChainId,
         address _remoteLineAddress,
         Metadata memory _metadata
-    ) BaseMessageLine(_darwiniaEndpointAddress, _metadata) {
+    ) BaseMessageLine(_metadata) {
         // add outbound and inbound lane
         _addToLine(_remoteChainId, _remoteLineAddress);
-        _addFromLine(_remoteChainId, _remoteLineAddress);
+        lowLevelMessager = _darwiniaEndpointAddress;
     }
 
     function _send(
