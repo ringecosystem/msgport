@@ -3,53 +3,16 @@
 pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
+import "./LineMetadata.sol";
+import "./LineLookup.sol";
 
-abstract contract BaseMessageLine is IMessageLine {
-    struct Metadata {
-        string name;
-        string provider;
-        string description;
-    }
-
+abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     uint256 public nonce;
-    Metadata public metadata;
 
-    // toChainId => toLineAddress
-    mapping(uint64 => address) public toLineLookup;
-    // fromChainId => fromLineAddress
-    mapping(uint64 => address) public fromLineLookup;
-
-    address public immutable lowLevelMessager;
-
-    constructor(address lowLevelMessager_, Metadata memory metadata_) {
-        metadata = metadata_;
-        lowLevelMessager = lowLevelMessager_;
-    }
-
-    function name() public view returns (string memory) {
-        return metadata.name;
-    }
+    constructor(Metadata memory metadata) LineMetadata(metadata) {}
 
     function LOCAL_CHAINID() public view returns (uint64) {
         return uint64(block.chainid);
-    }
-
-    function toLineExists(uint64 toChainId) public view virtual returns (bool) {
-        return toLineLookup[toChainId] != address(0);
-    }
-
-    function _addToLine(uint64 toChainId, address toLine) internal virtual {
-        require(toLineExists(toChainId) == false, "Line: ToLine already exists");
-        toLineLookup[toChainId] = toLine;
-    }
-
-    function fromLineExists(uint64 fromChainId) public view virtual returns (bool) {
-        return fromLineLookup[fromChainId] != address(0);
-    }
-
-    function _addFromLine(uint64 fromChainId, address fromLine) internal virtual {
-        require(fromLineExists(fromChainId) == false, "Line: FromLine already exists");
-        fromLineLookup[fromChainId] = fromLine;
     }
 
     function _incrementNonce() internal returns (uint256) {
