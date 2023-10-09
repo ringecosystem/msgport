@@ -14,43 +14,43 @@ abstract contract BaseMessageLine is IMessageLine {
     uint256 public nonce;
 
     // toChainId => toLineAddress
-    mapping(uint64 => address) public toLineAddressLookup;
+    mapping(uint64 => address) public toLineLookup;
     // fromChainId => fromLineAddress
-    mapping(uint64 => address) public fromLineAddressLookup;
+    mapping(uint64 => address) public fromLineLookup;
 
-    address public immutable localMessagingContractAddress;
+    address public immutable lowLevelMessager;
 
     Metadata public metadata;
 
-    constructor(address _localMessagingContractAddress, Metadata memory _metadata) {
+    constructor(address _lowLevelMessager, Metadata memory _metadata) {
         metadata = _metadata;
-        localMessagingContractAddress = _localMessagingContractAddress;
+        lowLevelMessager = _lowLevelMessager;
     }
 
-    function name() public view returns (string) {
+    function name() public view returns (string memory) {
         return metadata.name;
     }
 
-    function getLocalChainId() public view returns (uint64) {
+    function LOCAL_CHAINID() public view returns (uint64) {
         return uint64(block.chainid);
     }
 
     function toLineExists(uint64 _toChainId) public view virtual returns (bool) {
-        return toLineAddressLookup[_toChainId] != address(0);
+        return toLineLookup[_toChainId] != address(0);
     }
 
-    function _addToLine(uint64 _toChainId, address _toLineAddress) internal virtual {
+    function _addToLine(uint64 _toChainId, address _toLine) internal virtual {
         require(toLineExists(_toChainId) == false, "Line: ToLine already exists");
-        toLineAddressLookup[_toChainId] = _toLineAddress;
+        toLineLookup[_toChainId] = _toLine;
     }
 
     function fromLineExists(uint64 _fromChainId) public view virtual returns (bool) {
-        return fromLineAddressLookup[_fromChainId] != address(0);
+        return fromLineLookup[_fromChainId] != address(0);
     }
 
-    function _addFromLine(uint64 _fromChainId, address _fromLineAddress) internal virtual {
+    function _addFromLine(uint64 _fromChainId, address _fromLine) internal virtual {
         require(fromLineExists(_fromChainId) == false, "Line: FromLine already exists");
-        fromLineAddressLookup[_fromChainId] = _fromLineAddress;
+        fromLineLookup[_fromChainId] = _fromLine;
     }
 
     function _incrementNonce() internal returns (uint256) {
@@ -63,45 +63,34 @@ abstract contract BaseMessageLine is IMessageLine {
     }
 
     function _send(
-        address _fromDappAddress,
+        address _fromDapp,
         uint64 _toChainId,
-        address _toDappAddress,
+        address _toDapp,
         bytes memory _messagePayload,
         bytes memory _params
     ) internal virtual;
 
-    function send(
-        address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDappAddress,
-        bytes memory _payload,
-        bytes memory _params
-    ) public payable virtual {
+    function send(address _fromDapp, uint64 _toChainId, address _toDapp, bytes memory _payload, bytes memory _params)
+        public
+        payable
+        virtual
+    {
         uint256 _nonce = _incrementNonce();
-        bytes32 messageId = _hash(getLocalChainId(), _nonce);
+        bytes32 messageId = _hash(LOCAL_CHAINID(), _nonce);
         bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
-        _send(_fromDappAddress, _toChainId, _toDappAddress, messagePayloadWithId, _params);
+        _send(_fromDapp, _toChainId, _toDapp, messagePayloadWithId, _params);
 
         emit MessageSent(
-            messageId,
-            getLocalChainId(),
-            _toChainId,
-            msg.sender,
-            _toDappAddress,
-            messagePayloadWithId,
-            _params,
-            address(this)
+            messageId, LOCAL_CHAINID(), _toChainId, msg.sender, _toDapp, messagePayloadWithId, _params, address(this)
         );
     }
 
-    function _recv(uint64 _fromChainId, address _fromDappAddress, address _toDappAddress, bytes memory _message)
-        internal
-    {
+    function _recv(uint64 _fromChainId, address _fromDapp, address _toDapp, bytes memory _message) internal {
         (bytes32 messageId, bytes memory messagePayload_) = abi.decode(_message, (bytes32, bytes));
 
         (bool success, bytes memory returndata) =
-            _toDappAddress.call(abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDappAddress));
+            _toDapp.call(abi.encodePacked(messagePayload_, messageId, uint256(_fromChainId), _fromDapp));
 
         if (success) {
             emit MessageReceived(messageId, msg.sender);

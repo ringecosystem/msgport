@@ -42,7 +42,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         bytes memory celerMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         // https://github.com/celer-network/sgn-v2-contracts/blob/1c65d5538ff8509c7e2626bb1a857683db775231/contracts/message/interfaces/IMessageBus.sol#LL122C17-L122C17
-        uint256 fee = IMessageBus(localMessagingContractAddress).calcFee(celerMessage);
+        uint256 fee = IMessageBus(lowLevelMessager).calcFee(celerMessage);
 
         // check fee payed by caller is enough.
         uint256 paid = msg.value;
@@ -54,10 +54,7 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
         }
 
         sendMessage(
-            toLineAddressLookup[_toChainId],
-            CelerChainIdMapping(chainIdMappingAddress).down(_toChainId),
-            celerMessage,
-            fee
+            toLineLookup[_toChainId], CelerChainIdMapping(chainIdMappingAddress).down(_toChainId), celerMessage, fee
         );
     }
 
@@ -76,9 +73,9 @@ contract CelerLine is BaseMessageLine, MessageSenderApp, MessageReceiverApp {
             abi.decode((_celerMessage), (address, address, bytes));
         uint64 fromChainId = CelerChainIdMapping(chainIdMappingAddress).up(_srcChainId);
 
-        require(msg.sender == localMessagingContractAddress, "caller is not message bus");
+        require(msg.sender == lowLevelMessager, "caller is not message bus");
 
-        require(fromLineAddressLookup[fromChainId] == _srcContract, "invalid source line address");
+        require(fromLineLookup[fromChainId] == _srcContract, "invalid source line address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 

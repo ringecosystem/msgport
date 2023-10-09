@@ -6,24 +6,20 @@ interface IMessageLine {
         bytes32 indexed _messageId,
         uint64 _fromChainId,
         uint64 _toChainId,
-        address _fromDappAddress,
-        address _toDappAddress,
+        address _fromDapp,
+        address _toDapp,
         bytes _message,
         bytes _params,
-        address _fromLineAddress
+        address _fromLine
     );
 
-    event MessageReceived(bytes32 indexed _messageId, address _toLineAddress);
+    event MessageReceived(bytes32 indexed _messageId, address _toLine);
 
-    event ReceiverError(bytes32 indexed _messageId, string _reason, address _toLineAddress);
+    event ReceiverError(bytes32 indexed _messageId, string _reason, address _toLine);
 
-    function send(
-        address _fromDappAddress,
-        uint64 _toChainId,
-        address _toDappAddress,
-        bytes memory _payload,
-        bytes memory _params
-    ) external payable;
+    function send(address _fromDapp, uint64 _toChainId, address _toDapp, bytes memory _payload, bytes memory _params)
+        external
+        payable;
 
     function estimateFee(
         uint64 _toChainId, // Dest lineRegistry chainId

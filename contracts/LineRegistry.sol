@@ -9,33 +9,29 @@ contract LineRegistry is Ownable2Step {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // remoteChainId => localLineAddress[]
-    mapping(uint64 => EnumerableSet.AddressSet) private _localLineAddressLookup;
+    mapping(uint64 => EnumerableSet.AddressSet) private _localLineLookup;
 
-    function getLocalChainId() public view returns (uint64) {
+    function LOCAL_CHAINID() public view returns (uint64) {
         return uint64(block.chainid);
     }
 
-    function getLocalLineAddressesByToChainId(uint64 toChainId_) external view returns (address[] memory) {
-        return _localLineAddressLookup[toChainId_].values();
+    function getLocalLinesByToChainId(uint64 toChainId_) external view returns (address[] memory) {
+        return _localLineLookup[toChainId_].values();
     }
 
-    function getLocalLineAddressesLengthByToChainId(uint64 toChainId_) external view returns (uint256) {
-        return _localLineAddressLookup[toChainId_].length();
+    function getLocalLinesLengthByToChainId(uint64 toChainId_) external view returns (uint256) {
+        return _localLineLookup[toChainId_].length();
     }
 
-    function getLocalLineAddressByToChainIdAndIndex(uint64 toChainId_, uint256 index_)
-        external
-        view
-        returns (address)
-    {
-        return _localLineAddressLookup[toChainId_].at(index_);
+    function getLocalLineByToChainIdAndIndex(uint64 toChainId_, uint256 index_) external view returns (address) {
+        return _localLineLookup[toChainId_].at(index_);
     }
 
-    function addLocalLine(uint64 remoteChainId_, address localLineAddress_) external onlyOwner {
-        require(_localLineAddressLookup[remoteChainId_].add(localLineAddress_), "!add");
+    function addLocalLine(uint64 remoteChainId_, address localLine_) external onlyOwner {
+        require(_localLineLookup[remoteChainId_].add(localLine_), "!add");
     }
 
-    function localLineExists(uint64 remoteChainId_, address localLineAddress_) public view returns (bool) {
-        return _localLineAddressLookup[remoteChainId_].contains(localLineAddress_);
+    function localLineExists(uint64 remoteChainId_, address localLine_) public view returns (bool) {
+        return _localLineLookup[remoteChainId_].contains(localLine_);
     }
 }

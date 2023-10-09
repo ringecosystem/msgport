@@ -37,15 +37,15 @@ contract DarwiniaS2sLine is BaseMessageLine, Ownable2Step {
 
         bytes memory recvCall = abi.encodeWithSignature(
             "recv(uint256,address,address,address,bytes)",
-            getLocalChainId(),
+            LOCAL_CHAINID(),
             address(this),
             _fromDappAddress,
             _toDappAddress,
             _messagePayload
         );
 
-        IMessageEndpoint(localMessagingContractAddress).remoteExecute{value: msg.value}(
-            specVersion, toLineAddressLookup[_toChainId], recvCall, gasLimit
+        IMessageEndpoint(lowLevelMessager).remoteExecute{value: msg.value}(
+            specVersion, toLineLookup[_toChainId], recvCall, gasLimit
         );
     }
 }
