@@ -20,7 +20,7 @@ contract DarwiniaS2sLine is BaseMessageLine, ToLineLookup, Ownable2Step {
 
     constructor(
         address _darwiniaEndpointAddress,
-        uint64 _remoteChainId,
+        uint256 _remoteChainId,
         address _remoteLineAddress,
         Metadata memory _metadata
     ) BaseMessageLine(_metadata) {
@@ -31,7 +31,7 @@ contract DarwiniaS2sLine is BaseMessageLine, ToLineLookup, Ownable2Step {
 
     function _send(
         address _fromDappAddress,
-        uint64 _toChainId,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params

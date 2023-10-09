@@ -15,7 +15,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
     constructor(
         address _lzEndpointAddress,
         Metadata memory _metadata,
-        uint64[] memory _lineRegistryChainIds,
+        uint256[] memory _lineRegistryChainIds,
         uint16[] memory _lzChainIds
     )
         BaseMessageLine(_metadata)
@@ -25,17 +25,17 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         lowLevelMessager = _lzEndpointAddress;
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
+    function addChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
         _addChainIdMap(_lineRegistryChainId, _lzChainId);
     }
 
-    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
+    function addFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
     function _send(
         address _fromDappAddress,
-        uint64 _toChainId,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory _params
@@ -62,7 +62,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         uint64, /*_nonce*/
         bytes memory _payload
     ) internal virtual override {
-        uint64 srcChainId = up(_srcChainId);
+        uint256 srcChainId = up(_srcChainId);
         address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
@@ -74,7 +74,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
     }
 
     function estimateFee(
-        uint64 _toChainId, // Dest lineRegistry chainId
+        uint256 _toChainId, // Dest lineRegistry chainId
         bytes calldata _payload,
         bytes calldata _params
     ) external view virtual override returns (uint256) {

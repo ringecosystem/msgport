@@ -16,7 +16,7 @@ contract DarwiniaLine is BaseMessageLine, LineLookup, ICrossChainFilter, Ownable
     IFeeMarket public immutable feeMarket;
 
     constructor(
-        uint64 _remoteChainId,
+        uint256 _remoteChainId,
         address _remoteLineAddress,
         address _outboundLane,
         address _inboundLane,
@@ -39,7 +39,7 @@ contract DarwiniaLine is BaseMessageLine, LineLookup, ICrossChainFilter, Ownable
     // For sending
     function _send(
         address _fromDappAddress,
-        uint64 _toChainId,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/

@@ -19,7 +19,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         address _gateway,
         address _gasReceiver,
         Metadata memory _metadata,
-        uint64[] memory _lineRegistryChainIds,
+        uint256[] memory _lineRegistryChainIds,
         string[] memory _axelarChainIds
     )
         BaseMessageLine(_metadata)
@@ -29,21 +29,21 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+    function addChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
         _addChainIdMap(_lineRegistryChainId, _axelarChainId);
     }
 
-    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
+    function addToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _addToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
+    function addFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
     function _send(
         address _fromDappAddress,
-        uint64 _toChainId,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/
@@ -69,7 +69,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
             abi.decode(payload_, (address, address, bytes));
 
-        uint64 fromChainId = up(sourceChain_);
+        uint256 fromChainId = up(sourceChain_);
         require(fromLineLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source line address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);

@@ -18,21 +18,21 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
     constructor(
         address _messageBus,
         Metadata memory _metadata,
-        uint64[] memory _lineRegistryChainIds,
+        uint256[] memory _lineRegistryChainIds,
         uint64[] memory _celerChainIds
     ) BaseMessageLine(_metadata) CelerChainIdMapping(_lineRegistryChainIds, _celerChainIds) {
         lowLevelMessager = _messageBus;
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
+    function addChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
         _addChainIdMap(_lineRegistryChainId, _celerChainId);
     }
 
-    function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
+    function addToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _addToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
+    function addFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
         _addFromLine(_fromChainId, _fromLineAddress);
     }
 
@@ -42,7 +42,7 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
     // override BaseMessageLine
     function _send(
         address _fromDappAddress,
-        uint64 _toChainId,
+        uint256 _toChainId,
         address _toDappAddress,
         bytes memory _messagePayload,
         bytes memory /*_params*/
@@ -77,7 +77,7 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
     ) external payable override returns (ExecutionStatus) {
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
             abi.decode((_celerMessage), (address, address, bytes));
-        uint64 fromChainId = up(_srcChainId);
+        uint256 fromChainId = up(_srcChainId);
 
         require(msg.sender == lowLevelMessager, "caller is not message bus");
 

@@ -18,13 +18,13 @@
 pragma solidity ^0.8.17;
 
 contract AxelarChainIdMapping {
-    error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
+    error LineRegistryChainIdNotFound(uint256 lineRegistryChainId);
     error AxelarChainIdNotFound(string axelarChainId);
 
-    mapping(uint64 => string) public downMapping;
-    mapping(string => uint64) public upMapping;
+    mapping(uint256 => string) public downMapping;
+    mapping(string => uint256) public upMapping;
 
-    constructor(uint64[] memory _lineRegistryChainIds, string[] memory _axelarChainIds) {
+    constructor(uint256[] memory _lineRegistryChainIds, string[] memory _axelarChainIds) {
         require(_lineRegistryChainIds.length == _axelarChainIds.length, "Lengths do not match.");
 
         for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
@@ -33,21 +33,21 @@ contract AxelarChainIdMapping {
         }
     }
 
-    function _addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) internal {
+    function _addChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) internal {
         require(bytes(downMapping[_lineRegistryChainId]).length == 0, "LineRegistryChainId already exists.");
         require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
         downMapping[_lineRegistryChainId] = _axelarChainId;
         upMapping[_axelarChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) internal view returns (string memory axelarChainId) {
+    function down(uint256 lineRegistryChainId) internal view returns (string memory axelarChainId) {
         axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(string memory axelarChainId) internal view returns (uint64 lineRegistryChainId) {
+    function up(string memory axelarChainId) internal view returns (uint256 lineRegistryChainId) {
         lineRegistryChainId = upMapping[axelarChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
