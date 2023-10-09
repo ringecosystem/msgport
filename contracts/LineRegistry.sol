@@ -15,23 +15,23 @@ contract LineRegistry is Ownable2Step {
         return uint64(block.chainid);
     }
 
-    function getLocalLinesByToChainId(uint64 toChainId_) external view returns (address[] memory) {
-        return _localLineLookup[toChainId_].values();
+    function getLocalLinesByToChainId(uint64 toChainId) external view returns (address[] memory) {
+        return _localLineLookup[toChainId].values();
     }
 
-    function getLocalLinesLengthByToChainId(uint64 toChainId_) external view returns (uint256) {
-        return _localLineLookup[toChainId_].length();
+    function getLocalLinesLengthByToChainId(uint64 toChainId) external view returns (uint256) {
+        return _localLineLookup[toChainId].length();
     }
 
-    function getLocalLineByToChainIdAndIndex(uint64 toChainId_, uint256 index_) external view returns (address) {
-        return _localLineLookup[toChainId_].at(index_);
+    function getLocalLineByToChainIdAndIndex(uint64 toChainId, uint256 index) external view returns (address) {
+        return _localLineLookup[toChainId].at(index);
     }
 
-    function addLocalLine(uint64 remoteChainId_, address localLine_) external onlyOwner {
-        require(_localLineLookup[remoteChainId_].add(localLine_), "!add");
+    function addLocalLine(uint64 remoteChainId, address localLine) external onlyOwner {
+        require(_localLineLookup[remoteChainId].add(localLine), "!add");
     }
 
-    function localLineExists(uint64 remoteChainId_, address localLine_) public view returns (bool) {
-        return _localLineLookup[remoteChainId_].contains(localLine_);
+    function localLineExists(uint64 remoteChainId, address localLine) public view returns (bool) {
+        return _localLineLookup[remoteChainId].contains(localLine);
     }
 }
