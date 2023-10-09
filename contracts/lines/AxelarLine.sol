@@ -12,17 +12,25 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarLine is BaseMessageLine, LineLookup, AxelarExecutable, Ownable2Step {
+contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, AxelarExecutable, Ownable2Step {
     IAxelarGasService public immutable GAS_SERVICE;
 
-    address public immutable chainIdMappingAddress;
-
-    constructor(address _chainIdMappingAddress, address _gateway, address _gasReceiver, Metadata memory _metadata)
+    constructor(
+        address _gateway,
+        address _gasReceiver,
+        Metadata memory _metadata,
+        uint64[] memory _lineRegistryChainIds,
+        string[] memory _axelarChainIds
+    )
         BaseMessageLine(_metadata)
         AxelarExecutable(_gateway)
+        AxelarChainIdMapping(_lineRegistryChainIds, _axelarChainIds)
     {
-        chainIdMappingAddress = _chainIdMappingAddress;
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
+    }
+
+    function addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+        _addChainIdMap(_lineRegistryChainId, _axelarChainId);
     }
 
     function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
@@ -42,7 +50,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarExecutable, Ownable2St
     ) internal override {
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
-        string memory toChainId = AxelarChainIdMapping(chainIdMappingAddress).down(_toChainId);
+        string memory toChainId = down(_toChainId);
         string memory toLineAddress = Utils.addressToHexString(toLineLookup[_toChainId]);
 
         if (msg.value > 0) {
@@ -61,7 +69,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarExecutable, Ownable2St
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
             abi.decode(payload_, (address, address, bytes));
 
-        uint64 fromChainId = AxelarChainIdMapping(chainIdMappingAddress).up(sourceChain_);
+        uint64 fromChainId = up(sourceChain_);
         require(fromLineLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source line address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);

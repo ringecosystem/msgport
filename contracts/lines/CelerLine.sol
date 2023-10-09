@@ -11,16 +11,21 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerLine is BaseMessageLine, LineLookup, MessageSenderApp, MessageReceiverApp {
+contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageSenderApp, MessageReceiverApp {
     address public remoteLineAddress;
-    address public immutable chainIdMappingAddress;
     address public immutable lowLevelMessager;
 
-    constructor(address _chainIdMappingAddress, address _messageBus, Metadata memory _metadata)
-        BaseMessageLine(_metadata)
-    {
-        chainIdMappingAddress = _chainIdMappingAddress;
+    constructor(
+        address _messageBus,
+        Metadata memory _metadata,
+        uint64[] memory _lineRegistryChainIds,
+        uint64[] memory _celerChainIds
+    ) BaseMessageLine(_metadata) CelerChainIdMapping(_lineRegistryChainIds, _celerChainIds) {
         lowLevelMessager = _messageBus;
+    }
+
+    function addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
+        _addChainIdMap(_lineRegistryChainId, _celerChainId);
     }
 
     function addToLine(uint64 _toChainId, address _toLineAddress) external onlyOwner {
@@ -56,9 +61,7 @@ contract CelerLine is BaseMessageLine, LineLookup, MessageSenderApp, MessageRece
             payable(msg.sender).transfer(paid - fee);
         }
 
-        sendMessage(
-            toLineLookup[_toChainId], CelerChainIdMapping(chainIdMappingAddress).down(_toChainId), celerMessage, fee
-        );
+        sendMessage(toLineLookup[_toChainId], down(_toChainId), celerMessage, fee);
     }
 
     //////////////////////////////////////////
@@ -74,7 +77,7 @@ contract CelerLine is BaseMessageLine, LineLookup, MessageSenderApp, MessageRece
     ) external payable override returns (ExecutionStatus) {
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
             abi.decode((_celerMessage), (address, address, bytes));
-        uint64 fromChainId = CelerChainIdMapping(chainIdMappingAddress).up(_srcChainId);
+        uint64 fromChainId = up(_srcChainId);
 
         require(msg.sender == lowLevelMessager, "caller is not message bus");
 

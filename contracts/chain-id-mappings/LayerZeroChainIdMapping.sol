@@ -17,10 +17,8 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
-
 // https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
-contract LayerZeroChainIdMapping is Ownable2Step {
+contract LayerZeroChainIdMapping {
     error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
     error LzChainIdNotFound(uint16 lzChainId);
 
@@ -36,21 +34,21 @@ contract LayerZeroChainIdMapping is Ownable2Step {
         }
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
+    function _addChainIdMap(uint64 _lineRegistryChainId, uint16 _lzChainId) internal {
         require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
         require(upMapping[_lzChainId] == 0, "lzChainId already exists.");
         downMapping[_lineRegistryChainId] = _lzChainId;
         upMapping[_lzChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) external view returns (uint16 lzChainId) {
+    function down(uint64 lineRegistryChainId) public view returns (uint16 lzChainId) {
         lzChainId = downMapping[lineRegistryChainId];
         if (lzChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(uint16 lzChainId) external view returns (uint64 lineRegistryChainId) {
+    function up(uint16 lzChainId) public view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[lzChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

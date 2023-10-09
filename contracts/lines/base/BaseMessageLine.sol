@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
 import "./LineMetadata.sol";
-import "./LineLookup.sol";
 
 abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     uint256 public nonce;
