@@ -40,14 +40,14 @@ contract AxelarChainIdMapping {
         upMapping[_axelarChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) public view returns (string memory axelarChainId) {
+    function down(uint64 lineRegistryChainId) internal view returns (string memory axelarChainId) {
         axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(string memory axelarChainId) public view returns (uint64 lineRegistryChainId) {
+    function up(string memory axelarChainId) internal view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[axelarChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

@@ -41,14 +41,14 @@ contract LayerZeroChainIdMapping {
         upMapping[_lzChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) public view returns (uint16 lzChainId) {
+    function down(uint64 lineRegistryChainId) internal view returns (uint16 lzChainId) {
         lzChainId = downMapping[lineRegistryChainId];
         if (lzChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(uint16 lzChainId) public view returns (uint64 lineRegistryChainId) {
+    function up(uint16 lzChainId) internal view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[lzChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
