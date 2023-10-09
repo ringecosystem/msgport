@@ -18,13 +18,13 @@
 pragma solidity ^0.8.9;
 
 contract CelerChainIdMapping {
-    error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
+    error LineRegistryChainIdNotFound(uint256 lineRegistryChainId);
     error CelerChainIdNotFound(uint64 celerChainId);
 
-    mapping(uint64 => uint64) public downMapping;
-    mapping(uint64 => uint64) public upMapping;
+    mapping(uint256 => uint64) public downMapping;
+    mapping(uint64 => uint256) public upMapping;
 
-    constructor(uint64[] memory _lineRegistryChainIds, uint64[] memory _celerChainIds) {
+    constructor(uint256[] memory _lineRegistryChainIds, uint64[] memory _celerChainIds) {
         require(_lineRegistryChainIds.length == _celerChainIds.length, "Lengths do not match.");
 
         for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
@@ -33,21 +33,21 @@ contract CelerChainIdMapping {
         }
     }
 
-    function _addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) internal {
+    function _addChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) internal {
         require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
         require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
         downMapping[_lineRegistryChainId] = _celerChainId;
         upMapping[_celerChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) internal view returns (uint64 celerChainId) {
+    function down(uint256 lineRegistryChainId) internal view returns (uint64 celerChainId) {
         celerChainId = downMapping[lineRegistryChainId];
         if (celerChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(uint64 celerChainId) internal view returns (uint64 lineRegistryChainId) {
+    function up(uint64 celerChainId) internal view returns (uint256 lineRegistryChainId) {
         lineRegistryChainId = upMapping[celerChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

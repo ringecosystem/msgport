@@ -10,8 +10,8 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
 
     constructor(Metadata memory metadata) LineMetadata(metadata) {}
 
-    function LOCAL_CHAINID() public view returns (uint64) {
-        return uint64(block.chainid);
+    function LOCAL_CHAINID() public view returns (uint256) {
+        return block.chainid;
     }
 
     function _incrementNonce() internal returns (uint256) {
@@ -19,17 +19,17 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         return nonce;
     }
 
-    function _hash(uint64 fromChainId, uint256 nonce_) internal view returns (bytes32) {
+    function _hash(uint256 fromChainId, uint256 nonce_) internal view returns (bytes32) {
         return keccak256(abi.encode(fromChainId, nonce_, address(this)));
     }
 
-    function _send(address fromDapp, uint64 toChainId, address toDapp, bytes memory messagePayload, bytes memory params)
+    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes memory messagePayload, bytes memory params)
         internal
         virtual;
 
-    function send(uint64 toChainId, address toDapp, bytes memory payload, bytes memory params) public payable virtual {
+    function send(uint256 toChainId, address toDapp, bytes memory payload, bytes memory params) public payable virtual {
         uint256 nonce_ = _incrementNonce();
-        uint64 fromChainId = LOCAL_CHAINID();
+        uint256 fromChainId = LOCAL_CHAINID();
         bytes32 messageId = _hash(fromChainId, nonce_);
         bytes memory messagePayloadWithId = abi.encode(messageId, payload);
 
@@ -40,11 +40,11 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         );
     }
 
-    function _recv(uint64 fromChainId, address fromDapp, address toDapp, bytes memory message) internal {
+    function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal {
         (bytes32 messageId, bytes memory messagePayload) = abi.decode(message, (bytes32, bytes));
 
         (bool success, bytes memory returndata) =
-            toDapp.call(abi.encodePacked(messagePayload, messageId, uint256(fromChainId), fromDapp));
+            toDapp.call(abi.encodePacked(messagePayload, messageId, fromChainId, fromDapp));
 
         if (success) {
             emit MessageReceived(messageId, address(this));
@@ -54,7 +54,7 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     }
 
     function estimateFee(
-        uint64, // Dest line chainId
+        uint256, // Dest line chainId
         bytes calldata,
         bytes calldata
     ) external view virtual returns (uint256) {
