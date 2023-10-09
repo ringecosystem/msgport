@@ -17,9 +17,7 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
-
-contract AxelarChainIdMapping is Ownable2Step {
+contract AxelarChainIdMapping {
     error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
     error AxelarChainIdNotFound(string axelarChainId);
 
@@ -35,21 +33,21 @@ contract AxelarChainIdMapping is Ownable2Step {
         }
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+    function _addChainIdMap(uint64 _lineRegistryChainId, string memory _axelarChainId) internal {
         require(bytes(downMapping[_lineRegistryChainId]).length == 0, "LineRegistryChainId already exists.");
         require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
         downMapping[_lineRegistryChainId] = _axelarChainId;
         upMapping[_axelarChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) public view returns (string memory axelarChainId) {
+    function down(uint64 lineRegistryChainId) internal view returns (string memory axelarChainId) {
         axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(string memory axelarChainId) public view returns (uint64 lineRegistryChainId) {
+    function up(string memory axelarChainId) internal view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[axelarChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

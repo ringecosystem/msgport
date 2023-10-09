@@ -17,9 +17,7 @@
 
 pragma solidity ^0.8.9;
 
-import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-
-contract CelerChainIdMapping is Ownable2Step {
+contract CelerChainIdMapping {
     error LineRegistryChainIdNotFound(uint64 lineRegistryChainId);
     error CelerChainIdNotFound(uint64 celerChainId);
 
@@ -35,21 +33,21 @@ contract CelerChainIdMapping is Ownable2Step {
         }
     }
 
-    function addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
+    function _addChainIdMap(uint64 _lineRegistryChainId, uint64 _celerChainId) internal {
         require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
         require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
         downMapping[_lineRegistryChainId] = _celerChainId;
         upMapping[_celerChainId] = _lineRegistryChainId;
     }
 
-    function down(uint64 lineRegistryChainId) external view returns (uint64 celerChainId) {
+    function down(uint64 lineRegistryChainId) internal view returns (uint64 celerChainId) {
         celerChainId = downMapping[lineRegistryChainId];
         if (celerChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
-    function up(uint64 celerChainId) external view returns (uint64 lineRegistryChainId) {
+    function up(uint64 celerChainId) internal view returns (uint64 lineRegistryChainId) {
         lineRegistryChainId = upMapping[celerChainId];
         if (lineRegistryChainId == 0) {
             revert LineRegistryChainIdNotFound(lineRegistryChainId);

@@ -9,16 +9,24 @@ import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
 
-contract LayerZeroLine is BaseMessageLine, FromLineLookup, NonblockingLzApp {
-    address public immutable chainIdMappingAddress;
+contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMapping, NonblockingLzApp {
     address public immutable lowLevelMessager;
 
-    constructor(address _chainIdMappingAddress, address _lzEndpointAddress, Metadata memory _metadata)
+    constructor(
+        address _lzEndpointAddress,
+        Metadata memory _metadata,
+        uint64[] memory _lineRegistryChainIds,
+        uint16[] memory _lzChainIds
+    )
         BaseMessageLine(_metadata)
         NonblockingLzApp(_lzEndpointAddress)
+        LayerZeroChainIdMapping(_lineRegistryChainIds, _lzChainIds)
     {
-        chainIdMappingAddress = _chainIdMappingAddress;
         lowLevelMessager = _lzEndpointAddress;
+    }
+
+    function addChainIdMap(uint64 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
+        _addChainIdMap(_lineRegistryChainId, _lzChainId);
     }
 
     function addFromLine(uint64 _fromChainId, address _fromLineAddress) external onlyOwner {
@@ -33,7 +41,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, NonblockingLzApp {
         bytes memory _params
     ) internal override {
         // set remote line address
-        uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
+        uint16 remoteChainId = down(_toChainId);
 
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
@@ -54,7 +62,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, NonblockingLzApp {
         uint64, /*_nonce*/
         bytes memory _payload
     ) internal virtual override {
-        uint64 srcChainId = LayerZeroChainIdMapping(chainIdMappingAddress).up(_srcChainId);
+        uint64 srcChainId = up(_srcChainId);
         address srcLineAddress = Utils.bytesToAddress(_srcAddress);
 
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
@@ -70,7 +78,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, NonblockingLzApp {
         bytes calldata _payload,
         bytes calldata _params
     ) external view virtual override returns (uint256) {
-        uint16 remoteChainId = LayerZeroChainIdMapping(chainIdMappingAddress).down(_toChainId);
+        uint16 remoteChainId = down(_toChainId);
         bytes memory layerZeroMessage = abi.encode(address(0), address(0), _payload);
         (uint256 nativeFee,) = ILayerZeroEndpoint(lowLevelMessager).estimateFees(
             remoteChainId, address(this), layerZeroMessage, false, _params
