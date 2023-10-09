@@ -70,7 +70,7 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes memory _params
     ) internal virtual;
 
-    function send(address _fromDapp, uint64 _toChainId, address _toDapp, bytes memory _payload, bytes memory _params)
+    function send(uint64 _toChainId, address _toDapp, bytes memory _payload, bytes memory _params)
         public
         payable
         virtual
@@ -79,7 +79,7 @@ abstract contract BaseMessageLine is IMessageLine {
         bytes32 messageId = _hash(LOCAL_CHAINID(), _nonce);
         bytes memory messagePayloadWithId = abi.encode(messageId, _payload);
 
-        _send(_fromDapp, _toChainId, _toDapp, messagePayloadWithId, _params);
+        _send(msg.sender, _toChainId, _toDapp, messagePayloadWithId, _params);
 
         emit MessageSent(
             messageId, LOCAL_CHAINID(), _toChainId, msg.sender, _toDapp, messagePayloadWithId, _params, address(this)
