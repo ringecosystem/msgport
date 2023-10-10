@@ -23,11 +23,19 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         return keccak256(abi.encode(fromChainId, nonce_, address(this)));
     }
 
-    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes memory messagePayload, bytes memory params)
-        internal
-        virtual;
+    function _send(
+        address fromDapp,
+        uint256 toChainId,
+        address toDapp,
+        bytes memory messagePayload,
+        bytes memory params
+    ) internal virtual;
 
-    function send(uint256 toChainId, address toDapp, bytes memory payload, bytes memory params) public payable virtual {
+    function send(uint256 toChainId, address toDapp, bytes memory payload, bytes memory params)
+        public
+        payable
+        virtual
+    {
         uint256 nonce_ = _incrementNonce();
         uint256 fromChainId = LOCAL_CHAINID();
         bytes32 messageId = _hash(fromChainId, nonce_);
