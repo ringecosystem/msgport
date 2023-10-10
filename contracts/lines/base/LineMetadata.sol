@@ -2,7 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-contract LineMetadata {
+import "../../interfaces/ILineMetadata.sol";
+
+contract LineMetadata is ILineMetadata {
     struct Metadata {
         string name;
         string provider;
