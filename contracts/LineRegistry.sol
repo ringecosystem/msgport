@@ -3,35 +3,23 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "./lines/base/LineMetadata.sol";
 
 contract LineRegistry is Ownable2Step {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    // remoteChainId => localLineAddress[]
-    mapping(uint256 => EnumerableSet.AddressSet) private _localLineLookup;
+    // lineName => localLineAddress
+    mapping(string => address) private _localLineLookup;
 
     function LOCAL_CHAINID() public view returns (uint256) {
         return block.chainid;
     }
 
-    function getLocalLinesByToChainId(uint256 toChainId) external view returns (address[] memory) {
-        return _localLineLookup[toChainId].values();
+    function getLocalLine(string memory name) external view returns (address) {
+        return _localLineLookup[name];
     }
 
-    function getLocalLinesLengthByToChainId(uint256 toChainId) external view returns (uint256) {
-        return _localLineLookup[toChainId].length();
-    }
-
-    function getLocalLineByToChainIdAndIndex(uint256 toChainId, uint256 index) external view returns (address) {
-        return _localLineLookup[toChainId].at(index);
-    }
-
-    function addLocalLine(uint256 remoteChainId, address localLine) external onlyOwner {
-        require(_localLineLookup[remoteChainId].add(localLine), "!add");
-    }
-
-    function localLineExists(uint256 remoteChainId, address localLine) public view returns (bool) {
-        return _localLineLookup[remoteChainId].contains(localLine);
+    function addLocalLine(address localLine) external onlyOwner {
+        string memory name = LineMetadata(localLine).name();
+        require(_localLineLookup[name] == address(0), "Line name already exists");
+        _localLineLookup[name] = localLine;
     }
 }
