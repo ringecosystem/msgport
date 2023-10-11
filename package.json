@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx hardhat compile",
     "deps": "git submodule update --init --recursive",
-    "deps-update": "git submodule update --remote && git add . && git commit -m 'git submodule updated' && git push",
+    "deps-update": "git submodule update --remote && git add . && git commit -m 'git submodule updated'",
     "test": "npx hardhat test",
     "clean": "shx rm -rf cache artifacts abi",
     "flatten": "npx hardhat flat"
