@@ -7,7 +7,7 @@ import "./base/FromLineLookup.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
-import "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol";
+import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
 
 contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMapping, NonblockingLzApp {
     address public immutable lowLevelMessager;

@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-foundry");
 require("hardhat-abi-exporter");
 require("hardhat-gas-reporter");
 require("hardhat-change-network");
