@@ -5,6 +5,8 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "npx hardhat compile",
+    "deps": "git submodule update --init --recursive",
+    "deps-update": "git submodule update --remote && git add . && git commit -m 'git submodule updated' && git push",
     "test": "npx hardhat test",
     "clean": "shx rm -rf cache artifacts abi",
     "flatten": "npx hardhat flat"
@@ -28,6 +30,7 @@
     "@darwinia/contracts-utils": "^1.0.0",
     "@layerzerolabs/solidity-examples": "latest",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.0.0",
