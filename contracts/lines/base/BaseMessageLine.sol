@@ -38,6 +38,7 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     {
         uint256 nonce_ = _incrementNonce();
         uint256 fromChainId = LOCAL_CHAINID();
+        require(fromChainId != toChainId(), "!cross-chain");
         bytes32 messageId = _hash(fromChainId, nonce_);
         bytes memory messagePayloadWithId = abi.encode(messageId, payload);
 
