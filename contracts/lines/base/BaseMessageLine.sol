@@ -52,13 +52,12 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal {
         (bytes32 messageId, bytes memory messagePayload) = abi.decode(message, (bytes32, bytes));
 
-        (bool success, bytes memory returndata) =
-            toDapp.call(abi.encodePacked(messagePayload, messageId, fromChainId, fromDapp));
+        (bool success,) = toDapp.call(abi.encodePacked(messagePayload, messageId, fromChainId, fromDapp));
 
         if (success) {
             emit MessageReceived(messageId, address(this));
         } else {
-            emit ReceiverError(messageId, returndata, address(this));
+            emit ReceiverError(messageId, address(this));
         }
     }
 
