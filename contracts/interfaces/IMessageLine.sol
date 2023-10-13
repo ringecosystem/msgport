@@ -15,7 +15,7 @@ interface IMessageLine {
 
     event MessageReceived(bytes32 indexed _messageId, address _toLine);
 
-    event ReceiverError(bytes32 indexed _messageId, bytes _reason, address _toLine);
+    event ReceiverError(bytes32 indexed _messageId, address _toLine);
 
     function send(uint256 _toChainId, address _toDapp, bytes memory _payload, bytes memory _params) external payable;
 
