@@ -33,8 +33,8 @@ contract DarwiniaS2sLine is BaseMessageLine, ToLineLookup, Ownable2Step {
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory _params
+        bytes calldata _messagePayload,
+        bytes calldata _params
     ) internal override {
         (uint32 specVersion, uint256 gasLimit) = abi.decode(_params, (uint32, uint256));
 

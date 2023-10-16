@@ -9,7 +9,7 @@ contract LineRegistry is Ownable2Step {
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
 
-    function getLine(string memory name) external view returns (address) {
+    function getLine(string calldata name) external view returns (address) {
         return _lineLookup[name];
     }
 

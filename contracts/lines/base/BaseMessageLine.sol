@@ -12,11 +12,11 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         return block.chainid;
     }
 
-    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes memory message, bytes memory params)
+    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         virtual;
 
-    function send(uint256 toChainId, address toDapp, bytes memory message, bytes memory params)
+    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         public
         payable
         virtual
@@ -36,11 +36,7 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         }
     }
 
-    function estimateFee(
-        uint256, // Dest line chainId
-        bytes calldata,
-        bytes calldata
-    ) external view virtual returns (uint256) {
+    function fee(uint256, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
         revert("Unimplemented!");
     }
 }

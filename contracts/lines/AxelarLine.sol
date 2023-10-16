@@ -29,7 +29,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function setChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+    function setChainIdMap(uint256 _lineRegistryChainId, string calldata _axelarChainId) external onlyOwner {
         _setChainIdMap(_lineRegistryChainId, _axelarChainId);
     }
 
@@ -45,8 +45,8 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory /*_params*/
+        bytes calldata _messagePayload,
+        bytes calldata /*_params*/
     ) internal override {
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 

@@ -26,7 +26,7 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         return fromLineLookup[fromChainId];
     }
 
-    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes memory message, bytes memory params)
+    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
     {
@@ -34,9 +34,19 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         IEndpoint(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function recv(address fromDapp, address toDapp, bytes memory message) external {
+    function recv(address fromDapp, address toDapp, bytes calldata message) external {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
+    }
+
+    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, msg.sender, toDapp, message);
+        return IEndpoint(TRUSTED_ORMP).fee(toChainId, toDapp, encoded, params);
     }
 }
