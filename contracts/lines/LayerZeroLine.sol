@@ -73,7 +73,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address, bytes calldata message, bytes calldata params)
         external
         view
         override
