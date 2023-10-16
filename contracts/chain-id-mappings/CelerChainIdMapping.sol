@@ -28,14 +28,11 @@ contract CelerChainIdMapping {
         require(_lineRegistryChainIds.length == _celerChainIds.length, "Lengths do not match.");
 
         for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
-            downMapping[_lineRegistryChainIds[i]] = _celerChainIds[i];
-            upMapping[_celerChainIds[i]] = _lineRegistryChainIds[i];
+            _setChainIdMap(_lineRegistryChainIds[i], _celerChainIds[i]);
         }
     }
 
-    function _addChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) internal {
-        require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
-        require(upMapping[_celerChainId] == 0, "celerChainId already exists.");
+    function _setChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) internal {
         downMapping[_lineRegistryChainId] = _celerChainId;
         upMapping[_celerChainId] = _lineRegistryChainId;
     }

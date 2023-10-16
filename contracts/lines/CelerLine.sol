@@ -24,8 +24,8 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
         lowLevelMessager = _messageBus;
     }
 
-    function addChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
-        _addChainIdMap(_lineRegistryChainId, _celerChainId);
+    function setChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
+        _setChainIdMap(_lineRegistryChainId, _celerChainId);
     }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {

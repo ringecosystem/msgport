@@ -29,14 +29,11 @@ contract LayerZeroChainIdMapping {
         require(_lineRegistryChainIds.length == _lzChainIds.length, "Lengths do not match.");
 
         for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
-            downMapping[_lineRegistryChainIds[i]] = _lzChainIds[i];
-            upMapping[_lzChainIds[i]] = _lineRegistryChainIds[i];
+            _setChainIdMap(_lineRegistryChainIds[i], _lzChainIds[i]);
         }
     }
 
-    function _addChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) internal {
-        require(downMapping[_lineRegistryChainId] == 0, "LineRegistryChainId already exists.");
-        require(upMapping[_lzChainId] == 0, "lzChainId already exists.");
+    function _setChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) internal {
         downMapping[_lineRegistryChainId] = _lzChainId;
         upMapping[_lzChainId] = _lineRegistryChainId;
     }
