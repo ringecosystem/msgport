@@ -6,7 +6,7 @@ import "../Application.sol";
 
 contract ExampleReceiverDapp is Application {
     event DappMessageRecv(
-        bytes32 messageId, uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
+        uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
     );
 
     // local line address
@@ -21,11 +21,10 @@ contract ExampleReceiverDapp is Application {
 
     function xxx(bytes calldata message) external {
         uint256 fromChainId = _fromChainId();
-        bytes32 messageId = _messageId();
         address fromDappAddress = _xmsgSender();
         address localLineAddress = _msgSender();
         require(localLineAddress == LINE);
         require(fromDappAddress == DAPP);
-        emit DappMessageRecv(messageId, fromChainId, fromDappAddress, localLineAddress, message);
+        emit DappMessageRecv(fromChainId, fromDappAddress, localLineAddress, message);
     }
 }

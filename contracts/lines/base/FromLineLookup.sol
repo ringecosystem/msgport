@@ -3,15 +3,13 @@
 pragma solidity ^0.8.0;
 
 abstract contract FromLineLookup {
+    event SetFromLine(uint256 fromChainId, address fromLine);
+
     // fromChainId => fromLineAddress
     mapping(uint256 => address) public fromLineLookup;
 
-    function fromLineExists(uint256 fromChainId) public view virtual returns (bool) {
-        return fromLineLookup[fromChainId] != address(0);
-    }
-
-    function _addFromLine(uint256 fromChainId, address fromLine) internal virtual {
-        require(fromLineExists(fromChainId) == false, "Line: FromLine already exists");
+    function _setFromLine(uint256 fromChainId, address fromLine) internal virtual {
         fromLineLookup[fromChainId] = fromLine;
+        emit SetFromLine(fromChainId, fromLine);
     }
 }

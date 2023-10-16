@@ -7,13 +7,6 @@ abstract contract Application {
         _line = payable(msg.sender);
     }
 
-    function _messageId() internal pure returns (bytes32 _msgDataMessageId) {
-        require(msg.data.length >= 84, "!messageId");
-        assembly {
-            _msgDataMessageId := calldataload(sub(calldatasize(), 84))
-        }
-    }
-
     function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
         require(msg.data.length >= 52, "!fromChainId");
         assembly {

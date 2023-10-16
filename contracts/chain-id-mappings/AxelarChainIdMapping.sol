@@ -28,14 +28,11 @@ contract AxelarChainIdMapping {
         require(_lineRegistryChainIds.length == _axelarChainIds.length, "Lengths do not match.");
 
         for (uint256 i = 0; i < _lineRegistryChainIds.length; i++) {
-            downMapping[_lineRegistryChainIds[i]] = _axelarChainIds[i];
-            upMapping[_axelarChainIds[i]] = _lineRegistryChainIds[i];
+            _setChainIdMap(_lineRegistryChainIds[i], _axelarChainIds[i]);
         }
     }
 
-    function _addChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) internal {
-        require(bytes(downMapping[_lineRegistryChainId]).length == 0, "LineRegistryChainId already exists.");
-        require(upMapping[_axelarChainId] == 0, "axelarChainId already exists.");
+    function _setChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) internal {
         downMapping[_lineRegistryChainId] = _axelarChainId;
         upMapping[_axelarChainId] = _lineRegistryChainId;
     }

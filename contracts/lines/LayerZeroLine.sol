@@ -25,12 +25,12 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         lowLevelMessager = _lzEndpointAddress;
     }
 
-    function addChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
-        _addChainIdMap(_lineRegistryChainId, _lzChainId);
+    function setChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
+        _setChainIdMap(_lineRegistryChainId, _lzChainId);
     }
 
-    function addFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _addFromLine(_fromChainId, _fromLineAddress);
+    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
+        _setFromLine(_fromChainId, _fromLineAddress);
     }
 
     function _send(
