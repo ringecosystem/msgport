@@ -28,12 +28,12 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
         _addChainIdMap(_lineRegistryChainId, _celerChainId);
     }
 
-    function addToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _addToLine(_toChainId, _toLineAddress);
+    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
+        _setToLine(_toChainId, _toLineAddress);
     }
 
-    function addFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _addFromLine(_fromChainId, _fromLineAddress);
+    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
+        _setFromLine(_fromChainId, _fromLineAddress);
     }
 
     //////////////////////////////////////////
