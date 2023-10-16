@@ -37,8 +37,8 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory _params
+        bytes calldata _messagePayload,
+        bytes calldata _params
     ) internal override {
         // set remote line address
         uint16 remoteChainId = down(_toChainId);
@@ -73,15 +73,16 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 
-    function estimateFee(
-        uint256 _toChainId, // Dest lineRegistry chainId
-        bytes calldata _payload,
-        bytes calldata _params
-    ) external view virtual override returns (uint256) {
-        uint16 remoteChainId = down(_toChainId);
-        bytes memory layerZeroMessage = abi.encode(address(0), address(0), _payload);
+    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        uint16 remoteChainId = down(toChainId);
+        bytes memory layerZeroMessage = abi.encode(address(0), address(0), message);
         (uint256 nativeFee,) = ILayerZeroEndpoint(lowLevelMessager).estimateFees(
-            remoteChainId, address(this), layerZeroMessage, false, _params
+            remoteChainId, address(this), layerZeroMessage, false, params
         );
         return nativeFee;
     }

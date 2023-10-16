@@ -5,9 +5,7 @@ pragma solidity ^0.8.17;
 import "../Application.sol";
 
 contract ExampleReceiverDapp is Application {
-    event DappMessageRecv(
-        uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message
-    );
+    event DappMessageRecv(uint256 fromChainId, address fromDappAddress, address localLineAddress, bytes message);
 
     // local line address
     address public immutable LINE;

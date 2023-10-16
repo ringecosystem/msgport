@@ -45,8 +45,8 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory /*_params*/
+        bytes calldata _messagePayload,
+        bytes calldata /*_params*/
     ) internal override {
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 

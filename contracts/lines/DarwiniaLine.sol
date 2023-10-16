@@ -41,8 +41,8 @@ contract DarwiniaLine is BaseMessageLine, LineLookup, ICrossChainFilter, Ownable
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory /*_params*/
+        bytes calldata _messagePayload,
+        bytes calldata /*_params*/
     ) internal override {
         // estimate fee on chain
         uint256 fee = feeMarket.market_fee();

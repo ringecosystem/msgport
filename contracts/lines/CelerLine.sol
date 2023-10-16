@@ -44,8 +44,8 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
         address _fromDappAddress,
         uint256 _toChainId,
         address _toDappAddress,
-        bytes memory _messagePayload,
-        bytes memory /*_params*/
+        bytes calldata _messagePayload,
+        bytes calldata /*_params*/
     ) internal override {
         bytes memory celerMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
