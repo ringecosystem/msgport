@@ -34,7 +34,7 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         IEndpoint(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function recv(address fromDapp, address toDapp, bytes memory message) external {
+    function recv(address fromDapp, address toDapp, bytes calldata message) external {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);

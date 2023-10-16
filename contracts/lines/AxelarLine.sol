@@ -29,7 +29,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function setChainIdMap(uint256 _lineRegistryChainId, string memory _axelarChainId) external onlyOwner {
+    function setChainIdMap(uint256 _lineRegistryChainId, string calldata _axelarChainId) external onlyOwner {
         _setChainIdMap(_lineRegistryChainId, _axelarChainId);
     }
 
