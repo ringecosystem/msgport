@@ -38,15 +38,12 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     {
         uint256 nonce_ = _incrementNonce();
         uint256 fromChainId = LOCAL_CHAINID();
-        require(fromChainId != toChainId, "!cross-chain");
         bytes32 messageId = _hash(fromChainId, nonce_);
         bytes memory messagePayloadWithId = abi.encode(messageId, payload);
 
         _send(msg.sender, toChainId, toDapp, messagePayloadWithId, params);
 
-        emit MessageSent(
-            messageId, fromChainId, toChainId, msg.sender, toDapp, messagePayloadWithId, params, address(this)
-        );
+        emit MessageSent(messageId, toChainId, toDapp, messagePayloadWithId, params);
     }
 
     function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal {
@@ -55,9 +52,9 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         (bool success,) = toDapp.call(abi.encodePacked(messagePayload, messageId, fromChainId, fromDapp));
 
         if (success) {
-            emit MessageReceived(messageId, address(this));
+            emit MessageReceived(messageId);
         } else {
-            emit ReceiverError(messageId, address(this));
+            emit ReceiverError(messageId);
         }
     }
 
