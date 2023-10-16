@@ -2,9 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IMessageLine {
-    event MessageSent(bytes32 indexed messageId, uint256 toChainId, address toDapp, bytes messageWithId, bytes params);
-    event MessageReceived(bytes32 indexed messageId);
-    event ReceiverError(bytes32 indexed messageId);
+    error MessageFailure(bytes errorData);
 
     function send(uint256 toChainId, address toDapp, bytes memory payload, bytes memory params) external payable;
 
