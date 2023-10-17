@@ -6,7 +6,7 @@ create2=0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7
 
 contract=${1:?}
 args=${2:?}
-out_dir=$PWD/artifacts
+out_dir=$PWD/out
 bytecode=$(jq -r '.bytecode.object' $out_dir/$contract.sol/$contract.json)
 
 initcode=$bytecode$args

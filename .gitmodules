@@ -4,3 +4,18 @@
 [submodule "lib/ORMP"]
 	path = lib/ORMP
 	url = https://github.com/darwinia-network/ORMP
+[submodule "lib/axelar-gmp-sdk-solidity"]
+	path = lib/axelar-gmp-sdk-solidity
+	url = https://github.com/axelarnetwork/axelar-gmp-sdk-solidity
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "lib/solidity-examples"]
+	path = lib/solidity-examples
+	url = https://github.com/LayerZero-Labs/solidity-examples
+[submodule "lib/sgn-v2-contracts"]
+	path = lib/sgn-v2-contracts
+	url = https://github.com/celer-network/sgn-v2-contracts
+[submodule "lib/darwinia-messages-sol"]
+	path = lib/darwinia-messages-sol
+	url = https://github.com/darwinia-network/darwinia-messages-sol

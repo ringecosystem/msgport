@@ -42,10 +42,6 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 ## Develop
 
-### Package Manager
-
-[yarn](https://yarnpkg.com/getting-started)
-
 ### Foundry
 
 To install dependencies and compile contracts:
@@ -53,6 +49,5 @@ To install dependencies and compile contracts:
 ```sh
 git clone --recurse-submodules https://github.com/darwinia-network/darwinia-msgport.git && cd darwinia-msgport
 make tools
-yarn install
 make
 ```
