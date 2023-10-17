@@ -10,7 +10,7 @@ Please check [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-
 
 1. Get message line addres.
 
-    a. From the address list part: [Msgport addresses](#msgport-addresses)
+    a. From the address list part: [Supported chains](#supported-chains)
 
     b. From the lineRegistry, please check [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
 
@@ -18,7 +18,7 @@ Please check [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-
 
 3. Send message
 
-    - [toChainId: uint256](#msgport-addresses)
+    - toChainId: uint256 We use the standard evm chainId. [Supported chains](#supported-chains)
 
     - toDapp: address Your receiver dApp address
 
@@ -34,7 +34,7 @@ Please check [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-
 
     [Verify example](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol#L20)
 
-## Msgport addresses
+## Supported Chains
 
 ### Testnet
 
