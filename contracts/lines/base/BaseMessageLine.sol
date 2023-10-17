@@ -3,14 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "../../interfaces/IMessageLine.sol";
-import "../../interfaces/ILineMetadata.sol";
+import "./LineMetadata.sol";
 
-abstract contract BaseMessageLine is IMessageLine, ILineMetadata {
-    string public name;
-
-    constructor(string memory name_) {
-        name = name_;
-    }
+abstract contract BaseMessageLine is IMessageLine, LineMetadata {
+    constructor(string memory name) LineMetadata(name) {}
 
     function LOCAL_CHAINID() public view returns (uint256) {
         return block.chainid;
