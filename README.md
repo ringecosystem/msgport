@@ -44,17 +44,17 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 - chainId: `43`
 
-- lineRegistry: `0x123456`
+- lineRegistry: `0x003BE514Ee7cdec49A7d664D39C38274DD4841A6`
 
-- ORMP line: `0x123456`
+- ORMP line: `0xC3cBb8566c9B6BD738a6bF8c3f5332Ac75EBe1C0`
 
 #### Arbitrum Goerli
 
 - chainId: `421613`
 
-- lineRegistry: `0x123456`
+- lineRegistry: `0x003BE514Ee7cdec49A7d664D39C38274DD4841A6`
 
-- ORMP line: `0x123456`
+- ORMP line: `0xef8ef3A1705f42e7FC1e06809940ec5942F5bB98`
 
 ### Mainnet
 
