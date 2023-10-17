@@ -40,17 +40,17 @@ Please check [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-
 
 #### Pangolin
 
-chainId: `43`
+- chainId: `43`
 
-lineRegistry: `0x123456`
+- lineRegistry: `0x123456`
 
 - ORMP line: `0x123456`
 
 #### Arbitrum Goerli
 
-chainId: `421613`
+- chainId: `421613`
 
-lineRegistry: `0x123456`
+- lineRegistry: `0x123456`
 
 - ORMP line: `0x123456`
 
