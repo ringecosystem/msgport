@@ -10,7 +10,7 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 1. Obtain the message line addres.
 
-    a. From the address list part: [Supported chains](#supported-chains)
+    a. From the address list part: [Supported chains](./SUPPORTED.md)
 
     or
 
@@ -24,7 +24,7 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 3. Send the message using the following parameters
 
-    - toChainId: uint256 - Use the standard EVM chainId. [Supported chains](#supported-chains)
+    - toChainId: uint256 - Use the standard EVM chainId. [Supported chains](./SUPPORTED.md)
 
     - toDapp: address - The address of your receiver dApp.
 
@@ -39,32 +39,6 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 4. You can verify the senderLine and senderDapp addresses when reciving the message.
 
     For an example, please check [Verify example](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol#L20)
-
-## Supported Chains
-
-### Testnet
-
-#### Pangolin
-
-- chainId: `43`
-
-- lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
-
-|  Protocol  |  MessageLine Address  |
-|------------|--------------------------------------------|
-| ORMP       | 0x00ed3E22c994aD994fc3C9ab464cd461C78778dC |
-
-#### Arbitrum Goerli
-
-- chainId: `421613`
-
-- lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
-
-|  Protocol  |  MessageLine Address  |
-|------------|--------------------------------------------|
-| ORMP       | 0x00ed3E22c994aD994fc3C9ab464cd461C78778dC |
-
-### Mainnet
 
 ## Develop
 
