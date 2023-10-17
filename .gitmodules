@@ -16,3 +16,6 @@
 [submodule "lib/sgn-v2-contracts"]
 	path = lib/sgn-v2-contracts
 	url = https://github.com/celer-network/sgn-v2-contracts
+[submodule "lib/darwinia-messages-sol"]
+	path = lib/darwinia-messages-sol
+	url = https://github.com/darwinia-network/darwinia-messages-sol
