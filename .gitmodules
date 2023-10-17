@@ -13,3 +13,6 @@
 [submodule "lib/solidity-examples"]
 	path = lib/solidity-examples
 	url = https://github.com/LayerZero-Labs/solidity-examples
+[submodule "lib/sgn-v2-contracts"]
+	path = lib/sgn-v2-contracts
+	url = https://github.com/celer-network/sgn-v2-contracts
