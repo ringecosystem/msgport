@@ -14,7 +14,11 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
     or
 
-    b. From the lineRegistry, please refer to the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md) for more information.
+    b. Through lineRegistry contract: `lineRegistry.getLine(string calldata name)`
+
+    or
+
+    c. Through the sdk, please refer to the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md) for more information.
 
 2. Retrieve the fee and adapter `params` from the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
 
