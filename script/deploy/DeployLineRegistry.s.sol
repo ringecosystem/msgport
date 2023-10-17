@@ -5,7 +5,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
 import "ORMP/script/Common.s.sol";
 
-import "../../contracts/LineRegistry.sol";
+import "../../src/LineRegistry.sol";
 
 interface III {
     function owner() external view returns (address);
