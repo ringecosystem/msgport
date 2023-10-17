@@ -11,7 +11,7 @@ bytecode=$(jq -r '.bytecode.object' $out_dir/$contract.sol/$contract.json)
 
 initcode=$bytecode$args
 
-out=$(cast create2 -i $initcode -d $create2 --starts-with "00" | grep -E '(Address:|Salt:)')
+out=$(cast create2 -i $initcode -d $create2 --starts-with "0000000000" | grep -E '(Address:|Salt:)')
 addr=$(echo $out | awk '{print $2}' )
 salt=$(seth --to-uint256 $(echo $out | awk '{print $4}' ))
 echo -e "$contract: \n Addr: $addr \n Salt: $salt"
