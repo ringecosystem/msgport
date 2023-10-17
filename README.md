@@ -49,6 +49,5 @@ To install dependencies and compile contracts:
 ```sh
 git clone --recurse-submodules https://github.com/darwinia-network/darwinia-msgport.git && cd darwinia-msgport
 make tools
-yarn install
 make
 ```
