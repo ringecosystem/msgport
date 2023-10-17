@@ -4,3 +4,6 @@
 [submodule "lib/ORMP"]
 	path = lib/ORMP
 	url = https://github.com/darwinia-network/ORMP
+[submodule "lib/axelar-gmp-sdk-solidity"]
+	path = lib/axelar-gmp-sdk-solidity
+	url = https://github.com/axelarnetwork/axelar-gmp-sdk-solidity
