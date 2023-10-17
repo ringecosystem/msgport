@@ -47,10 +47,11 @@ contract Deploy is Common {
         require(deployer == msg.sender, "!deployer");
 
         deployLineRegistry();
-        deployORMPLine();
+        address ormpLine = deployORMPLine();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
         ScriptTools.exportContract(outputName, "LINE_REGISTRY", ADDR);
+        ScriptTools.exportContract(outputName, "ORMP_LINE", ormpLine);
     }
 
     function deployLineRegistry() public broadcast returns (address) {
