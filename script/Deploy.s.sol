@@ -19,8 +19,8 @@ contract Deploy is Common {
     using ScriptTools for string;
 
     address immutable ORMP = 0x0000000000BD9dcFDa5C60697039E2b3B28b079b;
-    address immutable ADDR = 0x00E89fd15F05854FcbF1408Da77bef78b6e206B7;
-    bytes32 immutable SALT = 0xf358040b746b8c535ee0fb72a198c57845852999a0eb5d2fd6ada0a7a5c43b08;
+    address immutable ADDR = 0x003BE514Ee7cdec49A7d664D39C38274DD4841A6;
+    bytes32 immutable SALT = 0x1cbc695b2f17fb4c0268bec3185314174b93b9f9f4731a2c8578257a3602d48f;
 
     string config;
     string instanceId;
@@ -70,7 +70,7 @@ contract Deploy is Common {
         ORMPLine ormpLine = new ORMPLine(ORMP, ormpName);
         address line = address(ormpLine);
         setConfig(line);
-        console.log("ORMPLine deployed: %s", line);
+        console.log("ORMPLine deployed:     %s", line);
         return line;
     }
 
