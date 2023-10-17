@@ -14,11 +14,11 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
 
     constructor(
         address _lzEndpointAddress,
-        Metadata memory _metadata,
+        string memory _name,
         uint256[] memory _lineRegistryChainIds,
         uint16[] memory _lzChainIds
     )
-        BaseMessageLine(_metadata)
+        BaseMessageLine(_name)
         NonblockingLzApp(_lzEndpointAddress)
         LayerZeroChainIdMapping(_lineRegistryChainIds, _lzChainIds)
     {

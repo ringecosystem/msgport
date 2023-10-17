@@ -17,10 +17,10 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
 
     constructor(
         address _messageBus,
-        Metadata memory _metadata,
+        string memory _name,
         uint256[] memory _lineRegistryChainIds,
         uint64[] memory _celerChainIds
-    ) BaseMessageLine(_metadata) CelerChainIdMapping(_lineRegistryChainIds, _celerChainIds) {
+    ) BaseMessageLine(_name) CelerChainIdMapping(_lineRegistryChainIds, _celerChainIds) {
         lowLevelMessager = _messageBus;
     }
 

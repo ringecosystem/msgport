@@ -11,3 +11,7 @@ dist
 broadcast
 docs
 out
+
+deployments/*/.deploy
+/script/output/*/*.json
+!/script/output/*/*-latest.json
