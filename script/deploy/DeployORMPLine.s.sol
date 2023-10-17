@@ -5,8 +5,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
 import "ORMP/script/Common.s.sol";
 
-import "../contracts/LineRegistry.sol";
-import "../contracts/lines/ORMPLine.sol";
+import "../../contracts/lines/ORMPLine.sol";
 
 interface III {
     function owner() external view returns (address);
@@ -14,13 +13,13 @@ interface III {
     function pendingOwner() external view returns (address);
 }
 
-contract Deploy is Common {
+contract DeployORMPLine is Common {
     using stdJson for string;
     using ScriptTools for string;
 
     address immutable ORMP = 0x0000000000BD9dcFDa5C60697039E2b3B28b079b;
-    address immutable ADDR = 0x003BE514Ee7cdec49A7d664D39C38274DD4841A6;
-    bytes32 immutable SALT = 0x1cbc695b2f17fb4c0268bec3185314174b93b9f9f4731a2c8578257a3602d48f;
+    address immutable ADDR = 0x0008131d835B64AEd43402B2b4819dD33A61B22f;
+    bytes32 immutable SALT = 0x86871dbe09a9d5bcc1568fec103f7edb02a27999acb76eeb665ff8fcc9d6d195;
 
     string config;
     string instanceId;
@@ -46,31 +45,21 @@ contract Deploy is Common {
     function run() public {
         require(deployer == msg.sender, "!deployer");
 
-        deployLineRegistry();
-        address ormpLine = deployORMPLine();
+        deploy();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
-        ScriptTools.exportContract(outputName, "LINE_REGISTRY", ADDR);
-        ScriptTools.exportContract(outputName, "ORMP_LINE", ormpLine);
+        ScriptTools.exportContract(outputName, "ORMP_LINE", ADDR);
     }
 
-    function deployLineRegistry() public broadcast returns (address) {
-        bytes memory byteCode = type(LineRegistry).creationCode;
-        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer));
-        address registry = _deploy(SALT, initCode);
-        require(registry == ADDR, "!addr");
+    function deploy() public broadcast returns (address) {
+        string memory name_ = "ORMP line by msgport";
+        bytes memory byteCode = type(ORMPLine).creationCode;
+        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, ORMP, name_));
+        address line = _deploy(SALT, initCode);
+        require(line == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        setConfig(ADDR);
-        console.log("LineRegistry deployed: %s", ADDR);
-        return ADDR;
-    }
-
-    function deployORMPLine() public broadcast returns (address) {
-        string memory ormpName = "ORMP line by msgport";
-        ORMPLine ormpLine = new ORMPLine(ORMP, ormpName);
-        address line = address(ormpLine);
         setConfig(line);
-        console.log("ORMPLine deployed:     %s", line);
+        console.log("ORMPLine deployed: %s", line);
         return line;
     }
 

@@ -8,7 +8,9 @@ import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
-    constructor(address ormp, string memory name) BaseMessageLine(name) Application(ormp) {}
+    constructor(address dao, address ormp, string memory name) BaseMessageLine(name) Application(ormp) {
+        _transferOwnership(dao);
+    }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _setToLine(_toChainId, _toLineAddress);
