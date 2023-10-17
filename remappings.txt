@@ -1,8 +1,7 @@
-@axelar-network/=node_modules/@axelar-network/
-@darwinia/=node_modules/@darwinia/
-@layerzerolabs/=node_modules/@layerzerolabs/
-@openzeppelin/=node_modules/@openzeppelin/
-sgn-v2-contracts/=node_modules/sgn-v2-contracts/
+@axelar-network/axelar-gmp-sdk-solidity/=lib/axelar-gmp-sdk-solidity/
+@layerzerolabs/solidity-examples/=lib/solidity-examples/
+@openzeppelin/=lib/openzeppelin-contracts/
+sgn-v2-contracts/=lib/sgn-v2-contracts/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 ORMP/=lib/ORMP/
