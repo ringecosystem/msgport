@@ -17,8 +17,8 @@ contract DeployLineRegistry is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ADDR = 0x003BE514Ee7cdec49A7d664D39C38274DD4841A6;
-    bytes32 immutable SALT = 0x1cbc695b2f17fb4c0268bec3185314174b93b9f9f4731a2c8578257a3602d48f;
+    address immutable ADDR = 0x00b986eA47A20d5E07617670381d3B8074fB82F8;
+    bytes32 immutable SALT = 0xb4b0498c349c4b677b5d163def80005fa9695d5fb811af620a527809e5f7d7f7;
 
     string config;
     string instanceId;
@@ -33,8 +33,8 @@ contract DeployLineRegistry is Common {
     function setUp() public override {
         super.setUp();
 
-        instanceId = vm.envOr("INSTANCE_ID", string("deploy.c"));
-        outputName = "deploy.a";
+        instanceId = vm.envOr("INSTANCE_ID", string("deploy_line_registry.c"));
+        outputName = "deploy_line_registry.a";
         config = ScriptTools.readInput(instanceId);
 
         deployer = config.readAddress(".DEPLOYER");
@@ -45,6 +45,7 @@ contract DeployLineRegistry is Common {
         require(deployer == msg.sender, "!deployer");
 
         deploy();
+        setConfig();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
         ScriptTools.exportContract(outputName, "LINE_REGISTRY", ADDR);
@@ -56,14 +57,13 @@ contract DeployLineRegistry is Common {
         address registry = _deploy(SALT, initCode);
         require(registry == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        setConfig(ADDR);
         console.log("LineRegistry deployed: %s", ADDR);
         return ADDR;
     }
 
-    function setConfig(address addr) public {
-        III(addr).transferOwnership(dao);
-        require(III(addr).pendingOwner() == dao, "!dao");
+    function setConfig() public broadcast {
+        III(ADDR).transferOwnership(dao);
+        require(III(ADDR).pendingOwner() == dao, "!dao");
         // TODO:: dao.acceptOwnership()
     }
 }
