@@ -18,14 +18,10 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
     constructor(
         address _gateway,
         address _gasReceiver,
-        Metadata memory _metadata,
+        string memory _name,
         uint256[] memory _lineRegistryChainIds,
         string[] memory _axelarChainIds
-    )
-        BaseMessageLine(_metadata)
-        AxelarExecutable(_gateway)
-        AxelarChainIdMapping(_lineRegistryChainIds, _axelarChainIds)
-    {
+    ) BaseMessageLine(_name) AxelarExecutable(_gateway) AxelarChainIdMapping(_lineRegistryChainIds, _axelarChainIds) {
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 

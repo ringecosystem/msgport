@@ -21,8 +21,8 @@ contract DarwiniaLine is BaseMessageLine, LineLookup, ICrossChainFilter, Ownable
         address _outboundLane,
         address _inboundLane,
         address _feeMarket,
-        Metadata memory _metadata
-    ) BaseMessageLine(_metadata) {
+        string memory _name
+    ) BaseMessageLine(_name) {
         // add outbound and inbound lane
         _setToLine(_remoteChainId, _remoteLineAddress);
         _setFromLine(_remoteChainId, _remoteLineAddress);

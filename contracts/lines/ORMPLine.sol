@@ -3,12 +3,12 @@ pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
 import "./base/LineLookup.sol";
-import "ORMP/interfaces/IEndpoint.sol";
-import "ORMP/user/Application.sol";
+import "ORMP/src/interfaces/IEndpoint.sol";
+import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
-    constructor(address ormp, Metadata memory metadata) BaseMessageLine(metadata) Application(ormp) {}
+    constructor(address ormp, string memory name) BaseMessageLine(name) Application(ormp) {}
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _setToLine(_toChainId, _toLineAddress);

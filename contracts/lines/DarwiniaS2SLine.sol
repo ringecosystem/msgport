@@ -22,8 +22,8 @@ contract DarwiniaS2sLine is BaseMessageLine, ToLineLookup, Ownable2Step {
         address _darwiniaEndpointAddress,
         uint256 _remoteChainId,
         address _remoteLineAddress,
-        Metadata memory _metadata
-    ) BaseMessageLine(_metadata) {
+        string memory _name
+    ) BaseMessageLine(_name) {
         // add outbound and inbound lane
         _setToLine(_remoteChainId, _remoteLineAddress);
         lowLevelMessager = _darwiniaEndpointAddress;

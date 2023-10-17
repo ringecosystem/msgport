@@ -5,10 +5,19 @@ script = "script"
 out = "artifacts"
 libs = ["node_modules", "lib"]
 auto_detect_remappings = false
+sender = "0x0f14341A7f464320319025540E8Fe48Ad0fe5aec"
 evm_version = "london"
 optimizer = true
 optimizer_runs = 999999
 extra_output = ["devdoc", "userdoc", "metadata", "storageLayout"]
+
+fs_permissions = [
+  { "access" = "read-write", "path" = "./script/output/"},
+  { "access" = "read-write", "path" = "./deployments/" },
+  { "access" = "read", "path" = "./script/input/"},
+  { "access" = "read", "path" = "./broadcast/" },
+  { "access" = "read", "path" = "./artifacts/" },
+]
 
 [fmt]
 line_length = 120
@@ -23,3 +32,11 @@ override_spacing = false
 wrap_comments = false
 ignore = []
 contract_new_lines = false
+
+[rpc_endpoints]
+arbitrum-goerli = "https://goerli-rollup.arbitrum.io/rpc"
+pangolin = "https://pangolin-rpc.darwinia.network"
+
+[etherscan]
+arbitrum-goerli = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
+pangolin = { key = "${ETHERSCAN_PANGOLIN_KEY}", url = "https://pangolin.api.subscan.io/api/scan/evm/contract/verifysource" }
