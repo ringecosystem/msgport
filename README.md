@@ -4,35 +4,37 @@ Darwinia Msgport is built upon a flexible and modular architecture, allowing use
 
 ## Example receiver dApp
 
-Please check [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol)
+For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol) file.
 
-## Send message steps
+## Sending message
 
-1. Get message line addres.
+1. Obtain the message line addres.
 
     a. From the address list part: [Supported chains](#supported-chains)
 
-    b. From the lineRegistry, please check [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
+    or
 
-2. Get fee & adapter params [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
+    b. From the lineRegistry, please refer to the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md) for more information.
 
-3. Send message
+2. Retrieve the fee and adapter `params` from the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
 
-    - toChainId: uint256 We use the standard evm chainId. [Supported chains](#supported-chains)
+3. Send the message using the following parameters
 
-    - toDapp: address Your receiver dApp address
+    - toChainId: uint256 - Use the standard EVM chainId. [Supported chains](#supported-chains)
 
-    - message: bytes Your message payload
+    - toDapp: address - The address of your receiver dApp.
 
-    - params: bytes Adapter params from msgportApi, check step 2
+    - message: bytes - The payload of your message.
+
+    - params: bytes - Adapter params obtained from the Msgport API in step 2.
 
     ```sol
     messageLine.send(toChainId, toDapp, message, params);
     ```
 
-4. You can verify the senderLine and senderDapp address when reciving message
+4. You can verify the senderLine and senderDapp addresses when reciving the message.
 
-    [Verify example](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol#L20)
+    For an example, please check [Verify example](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol#L20)
 
 ## Supported Chains
 
