@@ -50,7 +50,9 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 - lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
 
-- ORMP: `0x00ed3E22c994aD994fc3C9ab464cd461C78778dC`
+|  Protocol  |  MessageLine Address  |
+|------------|--------------------------------------------|
+| ORMP       | 0x00ed3E22c994aD994fc3C9ab464cd461C78778dC |
 
 #### Arbitrum Goerli
 
@@ -58,7 +60,9 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 - lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
 
-- ORMP: `0x00ed3E22c994aD994fc3C9ab464cd461C78778dC`
+|  Protocol  |  MessageLine Address  |
+|------------|--------------------------------------------|
+| ORMP       | 0x00ed3E22c994aD994fc3C9ab464cd461C78778dC |
 
 ### Mainnet
 
