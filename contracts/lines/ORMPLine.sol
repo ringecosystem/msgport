@@ -12,6 +12,10 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         _transferOwnership(dao);
     }
 
+    function setURI(string calldata uri) external onlyOwner {
+        _setURI(uri);
+    }
+
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _setToLine(_toChainId, _toLineAddress);
     }
