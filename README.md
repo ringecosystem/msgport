@@ -42,10 +42,6 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
 ## Develop
 
-### Package Manager
-
-[yarn](https://yarnpkg.com/getting-started)
-
 ### Foundry
 
 To install dependencies and compile contracts:
