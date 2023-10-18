@@ -17,8 +17,8 @@ contract DeployLineRegistry is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ADDR = 0x00b986eA47A20d5E07617670381d3B8074fB82F8;
-    bytes32 immutable SALT = 0xb4b0498c349c4b677b5d163def80005fa9695d5fb811af620a527809e5f7d7f7;
+    address immutable ADDR = 0x0057460B22649fF60d987139687BF6cc46F164B2;
+    bytes32 immutable SALT = 0x5a7432902b0c0f6a904d402f7d56f72c97abd054a22d90ff896e3fce69aa37b5;
 
     string config;
     string instanceId;
