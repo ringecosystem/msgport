@@ -20,6 +20,10 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         _clearFailedMessage(message);
     }
 
+    function setAppConfig(address oracle, address relayer) external onlyOwner {
+        _setAppConfig(oracle, relayer);
+    }
+
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
         _setToLine(_toChainId, _toLineAddress);
     }
