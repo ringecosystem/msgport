@@ -1,5 +1,5 @@
 .PHONY: all fmt clean test deploy
-.PHONY: tools ethabi foundry sync
+.PHONY: tools ethabi foundry sync add
 
 -include .env
 
@@ -15,3 +15,4 @@ ethabi :; cargo install ethabi-cli
 foundry:; curl -L https://foundry.paradigm.xyz | bash
 
 deploy :; @./bin/deploy.sh
+add    :; @./bin/add.sh
