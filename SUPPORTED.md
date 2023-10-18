@@ -2,24 +2,24 @@
 
 ## Testnet
 
-### Pangolin
+### Crab
 
-- chainId: `43`
+- chainId: `44`
 
-- lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
-
-|  Protocol  |  MessageLine Address  |
-|------------|--------------------------------------------|
-| ORMP       | 0x00472b4C5364Dc633454bF86bfD908956CDAa355 |
-
-### Arbitrum Goerli
-
-- chainId: `421613`
-
-- lineRegistry: `0x00b986eA47A20d5E07617670381d3B8074fB82F8`
+- lineRegistry: `0x0057460B22649fF60d987139687BF6cc46F164B2`
 
 |  Protocol  |  MessageLine Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x00472b4C5364Dc633454bF86bfD908956CDAa355 |
+| ORMP       | 0x002546c27AeBa59FB53d65f774f94FC63AC22d18 |
+
+### Arbitrum Sepolia
+
+- chainId: `421614`
+
+- lineRegistry: `0x0057460B22649fF60d987139687BF6cc46F164B2`
+
+|  Protocol  |  MessageLine Address  |
+|------------|--------------------------------------------|
+| ORMP       | 0x002546c27AeBa59FB53d65f774f94FC63AC22d18 |
 
 ## Mainnet

@@ -35,8 +35,12 @@ contract_new_lines = false
 
 [rpc_endpoints]
 arbitrum-goerli = "https://goerli-rollup.arbitrum.io/rpc"
+arbitrum-sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
 pangolin = "https://pangolin-rpc.darwinia.network"
+crab = "https://crab-rpc.darwinia.network"
 
 [etherscan]
 arbitrum-goerli = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
-pangolin = { key = "${ETHERSCAN_PANGOLIN_KEY}", url = "https://pangolin.api.subscan.io/api/scan/evm/contract/verifysource" }
+arbitrum-sepolia = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
+pangolin = { key = "${ETHERSCAN_DARWINIA_KEY}", url = "https://pangolin.api.subscan.io/api/scan/evm/contract/verifysource" }
+crab = { key = "${ETHERSCAN_DARWINIA_KEY}", url = "https://crab.api.subscan.io/api/scan/evm/contract/verifysource" }
