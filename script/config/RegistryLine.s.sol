@@ -24,15 +24,17 @@ contract RegistryLine is Common {
 
     function setUp() public override {
         super.setUp();
-        // string memory deployedLineRegistry = ScriptTools.readOutput("deploy_line_registry.a");
-        // dao = deployedLineRegistry.readAddress(".DAO");
-        // registry = deployedLineRegistry.readAddress(".LINE_REGISTRY");
+        string memory deployedLineRegistry = ScriptTools.readOutput("deploy_line_registry.a");
+        dao = deployedLineRegistry.readAddress(".DAO");
+        registry = deployedLineRegistry.readAddress(".LINE_REGISTRY");
     }
 
-    function run(string memory file, string memory key) public {
-        // require(dao == msg.sender, "!dao");
-        // address line = ScriptTools.readOutput(file).readAddress(key);
-        // addLine(line);
+    function run() public {
+        require(dao == msg.sender, "!dao");
+        string memory file = vm.envOr("LINE_DEPLOY_FILE", string(""));
+        string memory key = vm.envOr("LINE_KEY", string(""));
+        address line = ScriptTools.readOutput(file).readAddress(key);
+        addLine(line);
     }
 
     function addLine(address line) public broadcast {
