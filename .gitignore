@@ -7,3 +7,4 @@
 deployments/*/.deploy
 /script/output/*/*.json
 !/script/output/*/*-latest.json
+!/script/output/*/*.v.json
