@@ -21,7 +21,7 @@ contract LineConfig is Common {
     address line;
 
     function name() public pure override returns (string memory) {
-        return "RegistryLine";
+        return "LineConfig";
     }
 
     function setUp() public override {
