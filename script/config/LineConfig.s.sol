@@ -6,8 +6,10 @@ import {Script} from "forge-std/Script.sol";
 import "ORMP/script/Common.s.sol";
 
 interface III {
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external;
-    function setToLine(uint256 _toChainId, address _toLineAddress) external;
+    function setFromLine(uint256 fromChainId, address fromLineAddress) external;
+    function setToLine(uint256 toChainId, address toLineAddress) external;
+    function fromLineLookup(uint256) external view returns (address);
+    function toLineLookup(uint256) external view returns (address);
 }
 
 contract LineConfig is Common {
@@ -44,7 +46,9 @@ contract LineConfig is Common {
             string memory key = string.concat(".", vm.toString(chainId));
             address l = config.readAddress(key);
             III(line).setFromLine(chainId, l);
+            require(III(line).fromLineLookup(chainId) == l);
             III(line).setToLine(chainId, l);
+            require(III(line).toLineLookup(chainId) == l);
         }
     }
 }
