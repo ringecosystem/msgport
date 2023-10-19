@@ -1,4 +1,4 @@
-.PHONY: all fmt clean test deploy
+.PHONY: all fmt clean test deploy verify
 .PHONY: tools ethabi foundry sync add config
 
 -include .env
@@ -16,4 +16,5 @@ foundry:; curl -L https://foundry.paradigm.xyz | bash
 
 deploy :; @./bin/deploy.sh
 config :; @./bin/config.sh
+verify :; @./bin/verify.sh
 add    :; @./bin/add.sh
