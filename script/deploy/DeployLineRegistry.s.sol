@@ -17,8 +17,8 @@ contract DeployLineRegistry is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ADDR = 0x0057460B22649fF60d987139687BF6cc46F164B2;
-    bytes32 immutable SALT = 0x5a7432902b0c0f6a904d402f7d56f72c97abd054a22d90ff896e3fce69aa37b5;
+    address immutable ADDR = 0x00e89707E761Dd93AbAcC7D1d8687718afD831a8;
+    bytes32 immutable SALT = 0x20bec1239ac5c47fae9056d6f9845c4941f000e6ed2fce4070561c2fd65572fd;
 
     string config;
     string instanceId;
@@ -27,7 +27,7 @@ contract DeployLineRegistry is Common {
     address dao;
 
     function name() public pure override returns (string memory) {
-        return "Deploy";
+        return "DeployLineRegistry";
     }
 
     function setUp() public override {

@@ -18,8 +18,8 @@ contract DeployORMPLine is Common {
     using ScriptTools for string;
 
     address immutable ORMP = 0x0034607daf9c1dc6628f6e09E81bB232B6603A89;
-    address immutable ADDR = 0x002546c27AeBa59FB53d65f774f94FC63AC22d18;
-    bytes32 immutable SALT = 0xe72d1bccd79d0c01af70fcf47164a24ad6a3b7bfede79f3637369686f0c17b91;
+    address immutable ADDR = 0x000C61ca18583C9504691f43Ea43C2c638772487;
+    bytes32 immutable SALT = 0x1b2f099faec9acf3b39aab869e9c491491850d6f423917dacf1492f0c326a4c1;
 
     string config;
     string instanceId;
@@ -28,7 +28,7 @@ contract DeployORMPLine is Common {
     address dao;
 
     function name() public pure override returns (string memory) {
-        return "Deploy";
+        return "DeployORMPLine";
     }
 
     function setUp() public override {
