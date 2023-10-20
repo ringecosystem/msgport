@@ -16,7 +16,8 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         _setURI(uri);
     }
 
-    function clearFailedMessage(Message calldata message) external onlyOwner {
+    function clearFailedMessage(Message calldata message) external {
+        require(msg.sender == message.to, "!auth");
         _clearFailedMessage(message);
     }
 
