@@ -4,7 +4,7 @@ Darwinia Msgport is built upon a flexible and modular architecture, allowing use
 
 ## Example receiver dApp
 
-For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://github.com/darwinia-network/darwinia-msgport/blob/main/contracts/examples/ExampleReceiverDapp.sol) file.
+For an example receiver dApp, please refer to the [ExampleReceiverDapp](./src/examples/ExampleReceiverDapp.sol) file.
 
 ## Sending message
 
@@ -16,11 +16,7 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](https://
 
     b. Through lineRegistry contract: `lineRegistry.getLine(string protocolName)`
 
-    or
-
-    c. Through the sdk, please refer to the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md) for more information.
-
-2. Retrieve the fee and adapter `params` from the [Msgport API](https://github.com/darwinia-network/feestimi/blob/main/README.md)
+2. Retrieve the `fee` and adapter `params` from the [Msgport API](https://github.com/darwinia-network/darwinia-msgport-api/blob/main/README.md)
 
 3. Send the message using the following parameters
 
