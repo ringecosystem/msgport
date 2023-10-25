@@ -1,5 +1,5 @@
 .PHONY: all fmt clean test deploy verify
-.PHONY: tools ethabi foundry sync add config
+.PHONY: tools foundry add config sync create3
 
 -include .env
 
@@ -10,8 +10,8 @@ test   :; @forge test
 
 sync   :; @git submodule update --recursive
 
-tools  :  foundry ethabi
-ethabi :; cargo install ethabi-cli
+tools  :  foundry create3
+create3:; @cargo install --git https://github.com/darwinia-network/create3-deploy -f
 foundry:; curl -L https://foundry.paradigm.xyz | bash
 
 deploy :; @./bin/deploy.sh
