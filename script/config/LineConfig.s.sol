@@ -11,6 +11,8 @@ interface III {
     function setToLine(uint256 toChainId, address toLineAddress) external;
     function fromLineLookup(uint256) external view returns (address);
     function toLineLookup(uint256) external view returns (address);
+    function setURI(string calldata uri) external;
+    function uri() external view returns (string memory);
 }
 
 contract LineConfig is Common {
@@ -36,9 +38,10 @@ contract LineConfig is Common {
         dao = deployedLine.readAddress(".DAO");
     }
 
-    function run(uint256[] memory chainIds) public {
+    function run(uint256[] memory chainIds, string memory uri) public {
         require(dao == msg.sender, "!dao");
         setLine(chainIds);
+        setURI(uri);
     }
 
     function setLine(uint256[] memory chainIds) public broadcast {
@@ -51,5 +54,14 @@ contract LineConfig is Common {
             III(line).setToLine(chainId, l);
             require(III(line).toLineLookup(chainId) == l);
         }
+    }
+
+    function setURI(string memory uri) public broadcast {
+        III(line).setURI(uri);
+        require(eq(III(line).uri(), uri));
+    }
+
+    function eq(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
     }
 }
