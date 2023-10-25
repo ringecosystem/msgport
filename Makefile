@@ -1,4 +1,4 @@
-.PHONY: all fmt clean test deploy verify
+.PHONY: all fmt clean test deploy verify salt
 .PHONY: tools foundry add config sync create3
 
 -include .env
@@ -7,6 +7,7 @@ all    :; @forge build --force
 fmt    :; @forge fmt
 clean  :; @forge clean
 test   :; @forge test
+salt   :; @create3 -s 00000000000000
 
 sync   :; @git submodule update --recursive
 
