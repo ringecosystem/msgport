@@ -3,7 +3,9 @@ pragma solidity ^0.8.17;
 
 import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
-import "ORMP/script/Common.s.sol";
+import {console2 as console} from "forge-std/console2.sol";
+import {Common} from "create3-deploy/script/Common.s.sol";
+import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 import "../../src/LineRegistry.sol";
 
@@ -54,7 +56,7 @@ contract DeployLineRegistry is Common {
     function deploy() public broadcast returns (address) {
         bytes memory byteCode = type(LineRegistry).creationCode;
         bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer));
-        address registry = _deploy(SALT, initCode);
+        address registry = _deploy3(SALT, initCode);
         require(registry == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
         console.log("LineRegistry deployed: %s", ADDR);
