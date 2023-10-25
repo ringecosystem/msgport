@@ -1,6 +1,6 @@
 {
   "name": "ORMP",
   "provider": "Msgport",
-  "description": "ORMP line by msgport",
+  "description": "ORMP line by Msgport",
   "api": "https://github.com/darwinia-network/darwinia-msgport-api/blob/main/README.md"
 }
