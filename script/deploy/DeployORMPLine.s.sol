@@ -3,7 +3,9 @@ pragma solidity ^0.8.17;
 
 import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
-import "ORMP/script/Common.s.sol";
+import {console2 as console} from "forge-std/console2.sol";
+import {Common} from "create3-deploy/script/Common.s.sol";
+import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 import "../../src/lines/ORMPLine.sol";
 
@@ -56,7 +58,7 @@ contract DeployORMPLine is Common {
         string memory name_ = config.readString(".metadata.name");
         bytes memory byteCode = type(ORMPLine).creationCode;
         bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, ORMP, name_));
-        address line = _deploy(SALT, initCode);
+        address line = _deploy3(SALT, initCode);
         require(line == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
         console.log("ORMPLine deployed: %s", line);

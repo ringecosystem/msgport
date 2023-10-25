@@ -3,7 +3,8 @@ pragma solidity ^0.8.17;
 
 import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
-import "ORMP/script/Common.s.sol";
+import {Common} from "create3-deploy/script/Common.s.sol";
+import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 interface III {
     function addLine(address line) external;
