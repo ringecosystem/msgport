@@ -16,11 +16,6 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         _setURI(uri);
     }
 
-    function clearFailedMessage(Message calldata message) external {
-        require(msg.sender == message.to, "!auth");
-        _clearFailedMessage(message);
-    }
-
     function setAppConfig(address oracle, address relayer) external onlyOwner {
         _setAppConfig(oracle, relayer);
     }
@@ -49,7 +44,7 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         IEndpoint(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) external {
+    function recv(address fromDapp, address toDapp, bytes calldata message) external onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
