@@ -28,7 +28,8 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         internal
         returns (bytes memory)
     {
-        (bool success, bytes memory returndata) = toDapp.call(abi.encodePacked(message, fromChainId, fromDapp));
+        (bool success, bytes memory returndata) =
+            toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
         if (success) {
             return returndata;
         } else {
