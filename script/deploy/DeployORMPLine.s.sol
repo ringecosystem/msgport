@@ -19,9 +19,9 @@ contract DeployORMPLine is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ORMP = 0x0034607daf9c1dc6628f6e09E81bB232B6603A89;
-    address immutable ADDR = 0x000C61ca18583C9504691f43Ea43C2c638772487;
-    bytes32 immutable SALT = 0x1b2f099faec9acf3b39aab869e9c491491850d6f423917dacf1492f0c326a4c1;
+    address immutable ORMP = 0x009D223Aad560e72282db9c0438Ef1ef2bf7703D;
+    address immutable ADDR = 0x001ddFd752a071964fe15C2386ec1811963D00C2;
+    bytes32 immutable SALT = 0xee434b1ec4dc63ddd14cc0199092bd3ea9b6315bcf21e06e1579ce107d5bd492;
 
     string config;
     string instanceId;
