@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./base/BaseMessageLine.sol";
 import "./base/LineLookup.sol";
-import "ORMP/src/interfaces/IEndpoint.sol";
+import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
@@ -14,11 +14,6 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
 
     function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
-    }
-
-    function clearFailedMessage(Message calldata message) external {
-        require(msg.sender == message.to, "!auth");
-        _clearFailedMessage(message);
     }
 
     function setAppConfig(address oracle, address relayer) external onlyOwner {
@@ -45,11 +40,12 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         internal
         override
     {
+        (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, fromDapp, toDapp, message);
-        IEndpoint(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), encoded, params);
+        IORMP(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams);
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) external {
+    function recv(address fromDapp, address toDapp, bytes calldata message) external onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
@@ -61,7 +57,8 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         override
         returns (uint256)
     {
+        (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, msg.sender, toDapp, message);
-        return IEndpoint(TRUSTED_ORMP).fee(toChainId, toDapp, encoded, params);
+        return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
