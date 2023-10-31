@@ -21,7 +21,7 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./interfaces/ILineMetadata.sol";
 
 /// @title LineRegistry
-/// @notice LineRegistry will be deployed on each chain. 
+/// @notice LineRegistry will be deployed on each chain.
 ///         It is the registry of messageLine and can be used to verify whether the line has been registered.
 contract LineRegistry is Ownable2Step {
     // lineName => lineAddress
