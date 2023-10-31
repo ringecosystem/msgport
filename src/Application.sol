@@ -30,7 +30,7 @@ abstract contract Application {
         }
     }
 
-    /// @notice Get the remote fromDapp address.
+    /// @notice Get the source chain fromDapp address.
     function _xmsgSender() internal pure returns (address payable _from) {
         require(msg.data.length >= 20, "!fromDapp");
         assembly {
