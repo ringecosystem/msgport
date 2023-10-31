@@ -16,11 +16,7 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         internal
         virtual;
 
-    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
-        public
-        payable
-        virtual
-    {
+    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) public payable {
         _send(msg.sender, toChainId, toDapp, message, params);
     }
 
@@ -28,7 +24,8 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
         internal
         returns (bytes memory)
     {
-        (bool success, bytes memory returndata) = toDapp.call(abi.encodePacked(message, fromChainId, fromDapp));
+        (bool success, bytes memory returndata) =
+            toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
         if (success) {
             return returndata;
         } else {
