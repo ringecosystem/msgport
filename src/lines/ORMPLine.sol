@@ -57,7 +57,8 @@ contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
         override
         returns (uint256)
     {
+        (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, msg.sender, toDapp, message);
-        return IORMP(TRUSTED_ORMP).fee(toChainId, toDapp, encoded, params);
+        return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
