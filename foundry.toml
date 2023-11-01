@@ -9,7 +9,8 @@ sender = "0x0f14341A7f464320319025540E8Fe48Ad0fe5aec"
 evm_version = "london"
 optimizer = true
 optimizer_runs = 999999
-bytecode_hash = "none"
+bytecode_hash = "ipfs"
+cbor_metadata = true
 extra_output = ["devdoc", "userdoc", "metadata", "storageLayout"]
 
 fs_permissions = [
