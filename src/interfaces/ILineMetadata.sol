@@ -18,6 +18,8 @@
 pragma solidity ^0.8.0;
 
 interface ILineMetadata {
+    event URI(string uri);
+
     /// @notice Get the line name, it's globally unique and immutable.
     /// @return The MessageLine name.
     function name() external view returns (string memory);
