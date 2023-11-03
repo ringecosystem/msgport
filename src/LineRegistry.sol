@@ -24,6 +24,8 @@ import "./interfaces/ILineMetadata.sol";
 /// @notice LineRegistry will be deployed on each chain.
 ///         It is the registry of messageLine and can be used to verify whether the line has been registered.
 contract LineRegistry is Ownable2Step {
+    event AddLine(string name, address line);
+
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
 
@@ -39,5 +41,6 @@ contract LineRegistry is Ownable2Step {
         string memory name = ILineMetadata(line).name();
         require(_lineLookup[name] == address(0), "Line name already exists");
         _lineLookup[name] = line;
+        emit AddLine(name, line);
     }
 }
