@@ -29,6 +29,7 @@ contract LineMetadata is ILineMetadata {
 
     function _setURI(string memory uri_) internal virtual {
         _uri = uri_;
+        emit URI(uri_);
     }
 
     function name() public view virtual returns (string memory) {

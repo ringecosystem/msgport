@@ -24,11 +24,22 @@ import "./interfaces/ILineMetadata.sol";
 /// @notice LineRegistry will be deployed on each chain.
 ///         It is the registry of messageLine and can be used to verify whether the line has been registered.
 contract LineRegistry is Ownable2Step {
+    event AddLine(string name, address line);
+
+    string[] private _names;
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
 
     constructor(address dao) {
         _transferOwnership(dao);
+    }
+
+    function count() public view returns (uint256) {
+        return _names.length;
+    }
+
+    function list() public view returns (string[] memory) {
+        return _names;
     }
 
     function getLine(string calldata name) external view returns (address) {
@@ -38,6 +49,8 @@ contract LineRegistry is Ownable2Step {
     function addLine(address line) external onlyOwner {
         string memory name = ILineMetadata(line).name();
         require(_lineLookup[name] == address(0), "Line name already exists");
+        _names.push(name);
         _lineLookup[name] = line;
+        emit AddLine(name, line);
     }
 }
