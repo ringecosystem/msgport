@@ -26,7 +26,7 @@ import "./interfaces/ILineMetadata.sol";
 contract LineRegistry is Ownable2Step {
     event AddLine(string name, address line);
 
-    string[] public _names;
+    string[] private _names;
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
 
@@ -49,6 +49,7 @@ contract LineRegistry is Ownable2Step {
     function addLine(address line) external onlyOwner {
         string memory name = ILineMetadata(line).name();
         require(_lineLookup[name] == address(0), "Line name already exists");
+        _names.push(name);
         _lineLookup[name] = line;
         emit AddLine(name, line);
     }
