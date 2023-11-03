@@ -23,8 +23,8 @@ import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract ORMPLine is BaseMessageLine, Application, LineLookup, Ownable2Step {
-    constructor(address dao, address ormp, string memory name) BaseMessageLine(name) Application(ormp) {
+contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
+    constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessageLine(name) {
         _transferOwnership(dao);
     }
 
