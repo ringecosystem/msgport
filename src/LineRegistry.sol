@@ -26,11 +26,20 @@ import "./interfaces/ILineMetadata.sol";
 contract LineRegistry is Ownable2Step {
     event AddLine(string name, address line);
 
+    string[] public _names;
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
 
     constructor(address dao) {
         _transferOwnership(dao);
+    }
+
+    function count() public view returns (uint256) {
+        return _names.length;
+    }
+
+    function list() public view returns (string[] memory) {
+        return _names;
     }
 
     function getLine(string calldata name) external view returns (address) {
