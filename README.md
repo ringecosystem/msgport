@@ -34,7 +34,7 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](./src/ex
 
 4. You can verify the senderLine and senderDapp addresses when reciving the message.
 
-    For an example, please check [Verify example](./src/examples/ExampleReceiverDapp.sol#L36)
+    For an example, please check [Verify example](./src/examples/ExampleReceiverDapp.sol)
 
 ## Develop
 
