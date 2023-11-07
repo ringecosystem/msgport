@@ -2,10 +2,12 @@
 
 set -eo pipefail
 
-deployer=0x0f14341A7f464320319025540E8Fe48Ad0fe5aec
-ormp=0x009D223Aad560e72282db9c0438Ef1ef2bf7703D
-registry=0x001263Ee00A5296C2226BDa668cDd465925dF372
-ormp_line=0x001ddFd752a071964fe15C2386ec1811963D00C2
+c3=$PWD/script/input/c3.json
+
+deployer=$(jq -r ".DEPLOYER" $C3)
+ormp=$(jq -r ".ORMP_ADDR" $c3)
+registry=$(jq -r ".LINEREGISTRY_ADDR" $c3)
+ormp_line=$(jq -r ".ORMPLINE_ADDR" $c3)
 name="ORMP"
 
 verify() {
