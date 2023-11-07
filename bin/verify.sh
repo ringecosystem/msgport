@@ -4,7 +4,7 @@ set -eo pipefail
 
 c3=$PWD/script/input/c3.json
 
-deployer=$(jq -r ".DEPLOYER" $C3)
+deployer=$(jq -r ".DEPLOYER" $c3)
 ormp=$(jq -r ".ORMP_ADDR" $c3)
 registry=$(jq -r ".LINEREGISTRY_ADDR" $c3)
 ormp_line=$(jq -r ".ORMPLINE_ADDR" $c3)
