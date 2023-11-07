@@ -19,9 +19,10 @@ contract DeployLineRegistry is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ADDR = 0x001263Ee00A5296C2226BDa668cDd465925dF372;
-    bytes32 immutable SALT = 0xc1d1d30dd342a3961e78d67cd6674bbd783a9249871028caf4cb3ef2bb948d82;
+    address ADDR;
+    bytes32 SALT;
 
+    string c3;
     string config;
     string instanceId;
     string outputName;
@@ -38,6 +39,9 @@ contract DeployLineRegistry is Common {
         instanceId = vm.envOr("INSTANCE_ID", string("deploy_line_registry.c"));
         outputName = "deploy_line_registry.a";
         config = ScriptTools.readInput(instanceId);
+        c3 = ScriptTools.readInput("../c3");
+        ADDR = c3.readAddress(".LINEREGISTRY_ADDR");
+        SALT = c3.readBytes32(".LINEREGISTRY_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
         dao = config.readAddress(".DAO");
