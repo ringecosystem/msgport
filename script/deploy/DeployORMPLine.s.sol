@@ -19,10 +19,11 @@ contract DeployORMPLine is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address immutable ORMP = 0x009D223Aad560e72282db9c0438Ef1ef2bf7703D;
-    address immutable ADDR = 0x001ddFd752a071964fe15C2386ec1811963D00C2;
-    bytes32 immutable SALT = 0xee434b1ec4dc63ddd14cc0199092bd3ea9b6315bcf21e06e1579ce107d5bd492;
+    address ORMP;
+    address ADDR;
+    bytes32 SALT;
 
+    string c3;
     string config;
     string instanceId;
     string outputName;
@@ -39,6 +40,10 @@ contract DeployORMPLine is Common {
         instanceId = vm.envOr("INSTANCE_ID", string("deploy_ormp_line.c"));
         outputName = "deploy_ormp_line.a";
         config = ScriptTools.readInput(instanceId);
+        c3 = ScriptTools.readInput("../c3");
+        ORMP = c3.readAddress(".ORMP_ADDR");
+        ADDR = c3.readAddress(".ORMPLINE_ADDR");
+        SALT = c3.readBytes32(".ORMPLINE_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
         dao = config.readAddress(".DAO");
