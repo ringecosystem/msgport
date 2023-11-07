@@ -6,20 +6,20 @@
 
 - chainId: `44`
 
-- lineRegistry: `0x001263Ee00A5296C2226BDa668cDd465925dF372`
+- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
 
 |  Protocol  |  MessageLine Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x001ddFd752a071964fe15C2386ec1811963D00C2 |
+| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
 
 ### Arbitrum Sepolia
 
 - chainId: `421614`
 
-- lineRegistry: `0x001263Ee00A5296C2226BDa668cDd465925dF372`
+- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
 
 |  Protocol  |  MessageLine Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x001ddFd752a071964fe15C2386ec1811963D00C2 |
+| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
 
 ## Mainnet
