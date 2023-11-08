@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
+import {Chains} from "create3-deploy/script/Chains.sol";
 
 import "../../src/lines/ORMPLine.sol";
 import "../../lib/ORMP/src/ORMP.sol";
@@ -10,10 +11,14 @@ import "../../lib/ORMP/src/UserConfig.sol";
 import "../../src/lines/base/FromLineLookup.sol";
 
 contract ORMPLineTest is Test {
+    using Chains for uint256;
+
     ORMPLine ormpLine;
     address dao;
 
     function setUp() public {
+        uint256 chainId = vm.envOr("CHAIN_ID", block.chainid);
+        vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
         ormpLine = new ORMPLine(dao, vm.envOr("ORMP_ADDRESS", address(0)), "ORMP");
     }
@@ -67,7 +72,9 @@ contract ORMPLineTest is Test {
         uint256 toChainId = 421614;
         address toDapp = address(0x1837ff30801F1793563451101350A5f5e14a0a1a);
         address refund = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
-        bytes memory message = bytes("0xd8e68172000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000");
+        bytes memory message = bytes(
+            "0xd8e68172000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000"
+        );
         bytes memory params = bytes("0x");
         bytes memory adapterParams = abi.encode(500000, refund, params);
         uint256 fee = ormpLine.fee(toChainId, toDapp, message, adapterParams);
