@@ -32,9 +32,9 @@ contract ORMPLineTest is Test {
     function testSetAppConfig() public {
         vm.prank(dao);
         ormpLine.setAppConfig(address(0x2), address(0x3));
-        Config memory config = IORMP(vm.envOr("ORMP_ADDRESS", address(0))).getAppConfig(address(ormpLine));
-        assertEq(config.oracle, address(0x2));
-        assertEq(config.relayer, address(0x3));
+        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(0))).getAppConfig(address(ormpLine));
+        assertEq(uc.oracle, address(0x2));
+        assertEq(uc.relayer, address(0x3));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
@@ -64,11 +64,13 @@ contract ORMPLineTest is Test {
     }
 
     function testSend() public {
-        uint256 chainId = 521614;
-        address toDapp = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
-        bytes memory message = bytes("0x12345678");
-        bytes memory params = bytes("0x00000000000000000000000000000000000000000000000000000000000493e0");
-        uint256 fee = ormpLine.fee(chainId, toDapp, message, params);
-        ormpLine.send{value: fee}(chainId, toDapp, message, params);
+        uint256 toChainId = 421614;
+        address toDapp = address(0x1837ff30801F1793563451101350A5f5e14a0a1a);
+        address refund = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
+        bytes memory message = bytes("0xd8e68172000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000");
+        bytes memory params = bytes("0x");
+        bytes memory adapterParams = abi.encode(500000, refund, params);
+        uint256 fee = ormpLine.fee(toChainId, toDapp, message, adapterParams);
+        ormpLine.send{value: fee}(toChainId, toDapp, message, adapterParams);
     }
 }
