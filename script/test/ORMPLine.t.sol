@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import {Chains} from "create3-deploy/script/Chains.sol";
+import "ORMP/src/ORMP.sol";
+import "ORMP/src/interfaces/IORMP.sol";
+import "ORMP/src/UserConfig.sol";
 
 import "../../src/lines/ORMPLine.sol";
-import "../../lib/ORMP/src/ORMP.sol";
-import "../../lib/ORMP/src/interfaces/IORMP.sol";
-import "../../lib/ORMP/src/UserConfig.sol";
 import "../../src/lines/base/FromLineLookup.sol";
 
 contract ORMPLineTest is Test {
@@ -15,12 +15,14 @@ contract ORMPLineTest is Test {
 
     ORMPLine ormpLine;
     address dao;
+    address ormpProtocol;
 
     function setUp() public {
-        uint256 chainId = vm.envOr("CHAIN_ID", block.chainid);
+        uint256 chainId = Chains.Crab;
         vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
-        ormpLine = new ORMPLine(dao, vm.envOr("ORMP_ADDRESS", address(0)), "ORMP");
+        ormpProtocol = address(0x00000000001523057a05d6293C1e5171eE33eE0A);
+        ormpLine = new ORMPLine(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
     }
 
     function testSetUri() public {
@@ -37,7 +39,7 @@ contract ORMPLineTest is Test {
     function testSetAppConfig() public {
         vm.prank(dao);
         ormpLine.setAppConfig(address(0x2), address(0x3));
-        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(0))).getAppConfig(address(ormpLine));
+        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpLine));
         assertEq(uc.oracle, address(0x2));
         assertEq(uc.relayer, address(0x3));
         // Cannot
