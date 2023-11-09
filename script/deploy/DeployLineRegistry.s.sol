@@ -51,7 +51,7 @@ contract DeployLineRegistry is Common {
         require(deployer == msg.sender, "!deployer");
 
         deploy();
-        setConfig();
+        // setConfig();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
         ScriptTools.exportContract(outputName, "LINE_REGISTRY", ADDR);
