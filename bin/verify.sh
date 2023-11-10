@@ -28,8 +28,8 @@ verify() {
     $path > script/output/$chain_id/$name.v.json)
 }
 
-verify $registry  421614 $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
-verify $registry  44     $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
+verify $registry  42161 $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
+verify $registry  46    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
 
-verify $ormp_line 421614 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
-verify $ormp_line 44     $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
+verify $ormp_line 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
+verify $ormp_line 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
