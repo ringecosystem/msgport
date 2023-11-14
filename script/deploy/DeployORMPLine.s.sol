@@ -53,7 +53,7 @@ contract DeployORMPLine is Common {
         require(deployer == msg.sender, "!deployer");
 
         deploy();
-        setConfig();
+        // setConfig();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
         ScriptTools.exportContract(outputName, "ORMP_LINE", ADDR);
