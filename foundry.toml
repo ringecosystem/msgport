@@ -42,6 +42,7 @@ pangolin = "https://pangolin-rpc.darwinia.network"
 crab = "https://crab-rpc.darwinia.network"
 darwinia = "https://rpc.darwinia.network"
 arbitrum = "https://arb1.arbitrum.io/rpc"
+sepolia = "https://sepolia.infura.io/v3/${INFURA_KEY}"
 
 [etherscan]
 arbitrum = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
