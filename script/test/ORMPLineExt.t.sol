@@ -3,13 +3,7 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import {Chains} from "create3-deploy/script/Chains.sol";
-import "ORMP/src/ORMP.sol";
-import "ORMP/src/interfaces/IORMP.sol";
-import "ORMP/src/UserConfig.sol";
 
-import "../../src/lines/ORMPLine.sol";
-import "../../src/lines/base/FromLineLookup.sol";
-import "./ORMPLine.t.sol";
 import "../../src/lines/ORMPLineExt.sol";
 
 contract ORMPLineExtTest is Test {

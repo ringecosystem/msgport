@@ -25,7 +25,6 @@ import "ORMP/src/ORMP.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
-
     // Latest msgHash
     bytes32 public latestMsgHash;
 
@@ -63,7 +62,9 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLineExt.recv.selector, fromDapp, toDapp, message);
-        latestMsgHash = IORMP(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams);
+        latestMsgHash = IORMP(TRUSTED_ORMP).send{value: msg.value}(
+            toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams
+        );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
@@ -84,6 +85,6 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     }
 
     function dones(bytes32 _msgHash) external view returns (bool) {
-       return ORMP(TRUSTED_ORMP).dones(_msgHash);
+        return ORMP(TRUSTED_ORMP).dones(_msgHash);
     }
 }
