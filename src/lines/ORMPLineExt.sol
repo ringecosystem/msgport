@@ -24,7 +24,7 @@ import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 interface IChannel {
-    function dones(bytes32 msgHash) external view returns (bool);
+    function dones(bytes32 messageId) external view returns (bool);
 }
 
 contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
@@ -86,7 +86,7 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
         return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 
-    function dones(bytes32 msgHash) external view returns (bool) {
-        return IChannel(TRUSTED_ORMP).dones(msgHash);
+    function dones(bytes32 _messageId) external view returns (bool) {
+        return IChannel(TRUSTED_ORMP).dones(_messageId);
     }
 }
