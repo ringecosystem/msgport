@@ -28,8 +28,11 @@ interface IChannel {
 }
 
 contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
-    // current meesage id
-    bytes32 public messageId;
+    // Latest sent meesage id
+    bytes32 public sentMessageId;
+
+    // Latest recv meesage id
+    bytes32 public recvMessageId;
 
     constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessageLine(name) {
         _transferOwnership(dao);
@@ -65,7 +68,7 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLineExt.recv.selector, fromDapp, toDapp, message);
-        messageId = IORMP(TRUSTED_ORMP).send{value: msg.value}(
+        sentMessageId = IORMP(TRUSTED_ORMP).send{value: msg.value}(
             toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
@@ -73,7 +76,7 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
-        messageId = _messageId();
+        recvMessageId = _messageId();
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 
