@@ -32,7 +32,7 @@ contract ORMPLineExtTest is Test {
         bytes memory adapterParams = abi.encode(500000, refund, params);
         uint256 fee = ormpLineExt.fee(toChainId, toDapp, message, adapterParams);
         ormpLineExt.send{value: fee}(toChainId, toDapp, message, adapterParams);
-        bytes32 msgHash = ormpLineExt.latestMsgHash();
+        bytes32 msgHash = ormpLineExt.messageId();
         assertEq(msgHash != 0, true);
         bool status = ormpLineExt.dones(msgHash);
         assertEq(status, false);

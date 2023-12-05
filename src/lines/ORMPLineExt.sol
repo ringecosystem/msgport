@@ -21,12 +21,15 @@ import "./base/BaseMessageLine.sol";
 import "./base/LineLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/user/Application.sol";
-import "ORMP/src/ORMP.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
+interface IChannel {
+    function dones(bytes32 msgHash) external view returns (bool);
+}
+
 contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
-    // Latest msgHash
-    bytes32 public latestMsgHash;
+    // current meesage id
+    bytes32 public messageId;
 
     constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessageLine(name) {
         _transferOwnership(dao);
@@ -62,14 +65,13 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLineExt.recv.selector, fromDapp, toDapp, message);
-        latestMsgHash = IORMP(TRUSTED_ORMP).send{value: msg.value}(
-            toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams
-        );
+        IORMP(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams);
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _fromLine(fromChainId), "!auth");
+        messageId = _messageId();
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 
@@ -84,7 +86,7 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
         return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 
-    function dones(bytes32 _msgHash) external view returns (bool) {
-        return ORMP(TRUSTED_ORMP).dones(_msgHash);
+    function dones(bytes32 msgHash) external view returns (bool) {
+        return IChannel(TRUSTED_ORMP).dones(msgHash);
     }
 }
