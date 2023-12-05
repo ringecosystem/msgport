@@ -65,7 +65,9 @@ contract ORMPLineExt is Ownable2Step, Application, BaseMessageLine, LineLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLineExt.recv.selector, fromDapp, toDapp, message);
-        IORMP(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams);
+        messageId = IORMP(TRUSTED_ORMP).send{value: msg.value}(
+            toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams
+        );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
