@@ -11,6 +11,7 @@
 |  Protocol  |  MessageLine Address  |
 |------------|--------------------------------------------|
 | ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMPExt    | 0x000000000EFcBAdA3793cC59c62D79b9f56Ae48F |
 
 ### Arbitrum Sepolia
 
@@ -31,6 +32,7 @@
 |  Protocol  |  MessageLine Address  |
 |------------|--------------------------------------------|
 | ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMPExt    | 0x000000000EFcBAdA3793cC59c62D79b9f56Ae48F |
 
 ## Mainnet
 
