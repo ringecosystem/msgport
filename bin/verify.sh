@@ -7,8 +7,8 @@ c3=$PWD/script/input/c3.json
 deployer=$(jq -r ".DEPLOYER" $c3)
 ormp=$(jq -r ".ORMP_ADDR" $c3)
 registry=$(jq -r ".LINEREGISTRY_ADDR" $c3)
-ormp_line=$(jq -r ".ORMPLINE_ADDR" $c3)
-name="ORMP"
+ormp_line=$(jq -r ".ORMPLINEEXT_ADDR" $c3)
+name="ORMPExt"
 
 verify() {
   local addr; addr=$1
@@ -30,8 +30,9 @@ verify() {
 
 # verify $registry  42161 $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
 # verify $registry  46    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
-verify $registry  11155111    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
+# verify $registry  11155111    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
 
 # verify $ormp_line 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
 # verify $ormp_line 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
-verify $ormp_line 11155111    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
+# verify $ormp_line 44    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLineExt.sol:ORMPLineExt
+verify $ormp_line 11155111    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLineExt.sol:ORMPLineExt
