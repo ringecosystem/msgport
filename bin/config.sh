@@ -6,8 +6,8 @@ export LINE_CONFIG_FILE="ormp_line.c"
 export LINE_DEPLOY_FILE="deploy_ormp_line.a"
 export LINE_KEY=".ORMP_LINE"
 
-cid="QmPqyGBHxRCxZJEKf8WTeDZB2JDMrtfrPqxGcxN2scj64E"
-# cid="QmZkugpAG9Pfp52yjDAxyA7cVGcDAryMJUXPfFDUbp8iGo"
+# cid="QmPqyGBHxRCxZJEKf8WTeDZB2JDMrtfrPqxGcxN2scj64E"
+cid="QmZkugpAG9Pfp52yjDAxyA7cVGcDAryMJUXPfFDUbp8iGo"
 cid=$(ipfs cid format -v 1 -b base32 $cid)
 uri="ipfs://$cid"
 # forge script script/config/LineConfig.s.sol:LineConfig --sig "run(uint256[],string)" "[42161]" $uri --chain-id 46    --broadcast --slow
