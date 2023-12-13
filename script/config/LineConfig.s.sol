@@ -41,7 +41,7 @@ contract LineConfig is Common {
     function run(uint256[] memory chainIds, string memory uri) public {
         require(dao == msg.sender, "!dao");
         // setLine(chainIds);
-        setURI(uri);
+        // setURI(uri);
     }
 
     function setLine(uint256[] memory chainIds) public broadcast {
