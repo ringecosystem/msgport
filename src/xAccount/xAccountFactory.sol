@@ -18,16 +18,15 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "./interfaces/ILineRegistry.sol";
-import "./interfaces/IMessageLine.sol";
-import "./lines/base/LineLookup.sol";
-import "./Application.sol";
+import "../interfaces/ILineRegistry.sol";
+import "../interfaces/IMessageLine.sol";
+import "../lines/base/LineLookup.sol";
+import "../Application.sol";
 
-contract CrossChainAccountFactory is Ownable2Step, Application, LineLookup {
-    uint256 public constant VERSION = 0;
+contract xAccountFactory is Ownable2Step, Application, LineLookup {
     ILineRegistry public immutable REGISTRY;
 
-    event CrossChainAccountCreated(uint256 fromChainId, address deployer, address xAccount);
+    event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
 
     constructor(address dao, address registry) {
         _transferOwnership(dao);
@@ -61,19 +60,19 @@ contract CrossChainAccountFactory is Ownable2Step, Application, LineLookup {
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
-        bytes memory encoded = abi.encodeWithSelector(CrossChainAccountFactory.deploy.selector, deployer);
+        bytes memory encoded = abi.encodeWithSelector(xAccountFactory.deploy.selector, deployer);
         IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
     }
 
     function deploy(address deployer) external payable {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
-        require(ILineRegistry(REGISTRY).isTrustedLine(line), "!line");
+        require(REGISTRY.isTrustedLine(line), "!line");
         require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
         require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
 
         address xAccount = _create2(fromChainId, deployer);
-        emit CrossChainAccountCreated(fromChainId, deployer, xAccount);
+        emit xAccountCreated(fromChainId, deployer, xAccount);
     }
 
     bytes creationCode;
@@ -82,7 +81,7 @@ contract CrossChainAccountFactory is Ownable2Step, Application, LineLookup {
         bytes memory initCode = abi.encodePacked(creationCode, chainId, uint256(uint160(deployer)));
 
         assembly {
-            xAccount := create2(0, add(initCode, 32), mload(initCode), VERSION)
+            xAccount := create2(0, add(initCode, 32), mload(initCode), 0)
         }
         require(xAccount != address(0), "!ceate2");
     }

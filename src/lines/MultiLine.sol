@@ -148,7 +148,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     function multiRecv(LineMsg calldata lineMsg) external payable {
         address line = _msgLine();
-        require(ILineRegistry(REGISTRY).isTrustedLine(line), "!line");
+        require(REGISTRY.isTrustedLine(line), "!line");
         uint256 fromChainId = _fromChainId();
         require(LOCAL_CHAINID() == lineMsg.toChainId, "!toChainId");
         require(fromChainId == lineMsg.fromChainId, "!fromChainId");
