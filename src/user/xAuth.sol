@@ -17,24 +17,20 @@
 
 pragma solidity ^0.8.17;
 
-abstract contract Application {
-    function _msgLine() internal view returns (address _line) {
-        _line = msg.sender;
-    }
+import "../user/Application.sol";
+import "../interfaces/ILineRegistry.sol";
 
-    /// @notice The cross-chain message source chainId
-    function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
-        require(msg.data.length >= 52, "!fromChainId");
-        assembly {
-            _msgDataFromChainId := calldataload(sub(calldatasize(), 52))
-        }
-    }
+abstract contract xAuth is Application {
+    function xOwner() public virtual returns (uint256, address);
+    function registry() public virtual returns (address);
 
-    /// @notice Get the source chain fromDapp address.
-    function _xmsgSender() internal pure returns (address payable _from) {
-        require(msg.data.length >= 20, "!fromDapp");
-        assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
-        }
+    function _checkXAuth() internal virtual {
+        address line = _msgLine();
+        uint256 fromChainId = _fromChainId();
+        (uint256 chainId, address owner) = xOwner();
+        require(fromChainId != block.chainid, "!fromChainId");
+        require(ILineRegistry(registry()).isTrustedLine(line), "!line");
+        require(fromChainId == chainId, "!xOwner");
+        require(_xmsgSender() == owner, "!xOwner");
     }
 }

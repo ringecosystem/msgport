@@ -18,32 +18,27 @@
 pragma solidity ^0.8.17;
 
 import "../interfaces/ILineRegistry.sol";
-import "../user/Application.sol";
+import "../user/xAuth.sol";
 
-contract xAccount is Application {
-    ILineRegistry public immutable REGISTRY;
-    uint256 public immutable CHAINID;
-    address public immutable OWNER;
+contract xAccount is xAuth {
+    ILineRegistry private immutable REGISTRY;
+    uint256 private immutable CHAINID;
+    address private immutable OWNER;
 
-    constructor(address registry, uint256 chainId, address owner) {
-        REGISTRY = ILineRegistry(registry);
+    constructor(address registry_, uint256 chainId, address owner) {
+        REGISTRY = ILineRegistry(registry_);
         CHAINID = chainId;
         OWNER = owner;
     }
 
     receive() external payable {}
 
-    function _checkXAuth() internal virtual {
-        address line = _msgLine();
-        uint256 fromChainId = _fromChainId();
-        require(fromChainId != block.chainid, "!fromChainId");
-        require(REGISTRY.isTrustedLine(line), "!line");
-        require(fromChainId == CHAINID, "!xOwner");
-        require(_xmsgSender() == OWNER, "!xOwner");
+    function xOwner() public view override returns (uint256, address) {
+        return (CHAINID, OWNER);
     }
 
-    function xOwner() public view returns (uint256, address) {
-        return (CHAINID, OWNER);
+    function registry() public view override returns (address) {
+        return address(REGISTRY);
     }
 
     /// @dev Executes a low-level operation if the caller is xOwner.
