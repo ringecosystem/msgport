@@ -137,6 +137,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
             uint256 fee = args.fees[i];
             address line = REGISTRY.getLine(name);
             require(line != address(0), "!name");
+            require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
             IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
@@ -151,6 +152,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 fromChainId = _fromChainId();
         require(LOCAL_CHAINID() == lineMsg.toChainId, "!toChainId");
         require(fromChainId == lineMsg.fromChainId, "!fromChainId");
+        require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
         require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
         bytes32 lineMsgId = hash(lineMsg);
         require(deliverifyOf[lineMsgId][line] == false, "deliveried");
