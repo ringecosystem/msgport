@@ -34,6 +34,18 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 threshold;
     }
 
+    struct MultiSendArgs {
+        string[] names;
+        uint256 toChainId;
+        address toDapp;
+        bytes message;
+        bytes[] params;
+        uint256[] fees;
+        uint256 salt;
+        uint256 expiration;
+        uint256 threshold;
+    }
+
     struct LineMsg {
         uint256 fromChainId;
         uint256 toChainId;
@@ -52,7 +64,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     ILineRegistry public immutable REGISTRY;
 
-    event LineMessageSent(bytes32 indexed lineMsgId, LineMsg lineMsg);
+    event LineMessageSent(bytes32 indexed lineMsgId, string[] names, LineMsg lineMsg);
     event LineMessageConfirmation(bytes32 indexed lineMsgId);
     event LineMessageExpired(bytes32 indexed lineMsgId);
     event LineMessageExecution(bytes32 indexed lineMsgId);
@@ -64,6 +76,10 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     function _msgSender() internal view override(Context, Application) returns (address) {
         return Application._msgSender();
+    }
+
+    function setURI(string calldata uri) external onlyOwner {
+        _setURI(uri);
     }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
@@ -82,58 +98,59 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         return fromLineLookup[fromChainId];
     }
 
-    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function _send(address, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
     {
         RemoteCallArgs memory args = abi.decode(params, (RemoteCallArgs));
         multiSend(
-            args.names, toChainId, toDapp, message, args.params, args.fees, args.salt, args.expiration, args.threshold
+            MultiSendArgs(
+                args.names,
+                toChainId,
+                toDapp,
+                message,
+                args.params,
+                args.fees,
+                args.salt,
+                args.expiration,
+                args.threshold
+            )
         );
     }
 
-    function multiSend(
-        string[] memory names,
-        uint256 toChainId,
-        address toDapp,
-        bytes memory message,
-        bytes[] memory params,
-        uint256[] memory fees,
-        uint256 salt,
-        uint256 expiration,
-        uint256 threshold
-    ) public payable {
+    function multiSend(MultiSendArgs memory args) public payable {
         address fromDapp = msg.sender;
 
         LineMsg memory lineMsg = LineMsg({
             fromChainId: LOCAL_CHAINID(),
-            toChainId: toChainId,
+            toChainId: args.toChainId,
             fromDapp: fromDapp,
-            toDapp: toDapp,
-            salt: salt,
-            message: message,
-            expiration: expiration,
-            threshold: threshold
+            toDapp: args.toDapp,
+            salt: args.salt,
+            message: args.message,
+            expiration: args.expiration,
+            threshold: args.threshold
         });
         bytes32 lineMsgId = hash(lineMsg);
         bytes memory encoded = abi.encodeWithSelector(MultiLine.multiRecv.selector, lineMsg);
 
         uint256 totalFee = 0;
-        for (uint256 i = 0; i < names.length; i++) {
-            string memory name = names[i];
-            bytes memory param = params[i];
-            uint256 fee = fees[i];
+        for (uint256 i = 0; i < args.names.length; i++) {
+            string memory name = args.names[i];
+            bytes memory param = args.params[i];
+            uint256 fee = args.fees[i];
             address line = REGISTRY.getLine(name);
-            IMessageLine(line).send{value: fee}(toChainId, toDapp, encoded, param);
+            IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, param);
             totalFee += fee;
         }
 
         require(totalFee == msg.value, "!fees");
-        emit LineMessageSent(lineMsgId, lineMsg);
+        emit LineMessageSent(lineMsgId, args.names, lineMsg);
     }
 
     function multiRecv(LineMsg calldata lineMsg) external payable {
         address line = _msgSender();
+        require(ILineRegistry(REGISTRY).isTrustedLine(line), "!line");
         uint256 fromChainId = _fromChainId();
         require(LOCAL_CHAINID() == lineMsg.toChainId, "!toChainId");
         require(fromChainId == lineMsg.fromChainId, "!fromChainId");

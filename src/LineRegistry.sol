@@ -29,6 +29,8 @@ contract LineRegistry is Ownable2Step {
     string[] private _names;
     // lineName => lineAddress
     mapping(string => address) private _lineLookup;
+    // lineAddress => trusted
+    mapping(address => bool) private _lines;
 
     constructor(address dao) {
         _transferOwnership(dao);
@@ -51,6 +53,11 @@ contract LineRegistry is Ownable2Step {
         require(_lineLookup[name] == address(0), "Line name already exists");
         _names.push(name);
         _lineLookup[name] = line;
+        _lines[line] = true;
         emit AddLine(name, line);
+    }
+
+    function isTrustedLine(address line) external view returns (bool) {
+        return _lines[line];
     }
 }
