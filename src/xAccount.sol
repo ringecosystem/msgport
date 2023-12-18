@@ -17,24 +17,16 @@
 
 pragma solidity ^0.8.17;
 
-abstract contract Application {
-    function _msgLine() internal view virtual returns (address _line) {
-        _line = msg.sender;
+import "./interfaces/ILineRegistry.sol";
+import "./interfaces/ILineMetadata.sol";
+import "./interfaces/IMessageLine.sol";
+
+contract xAccount {
+    ILineRegistry public immutable REGISTRY;
+
+    constructor(address registry) {
+        REGISTRY = ILineRegistry(registry);
     }
 
-    /// @notice The cross-chain message source chainId
-    function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
-        require(msg.data.length >= 52, "!fromChainId");
-        assembly {
-            _msgDataFromChainId := calldataload(sub(calldatasize(), 52))
-        }
-    }
-
-    /// @notice Get the source chain fromDapp address.
-    function _xmsgSender() internal pure returns (address payable _from) {
-        require(msg.data.length >= 20, "!fromDapp");
-        assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
-        }
-    }
+    function xCreate(uint256 toChainId) external payable {}
 }
