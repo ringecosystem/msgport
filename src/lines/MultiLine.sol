@@ -21,6 +21,7 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessageLine.sol";
 import "./base/LineLookup.sol";
 import "../interfaces/ILineRegistry.sol";
+import "../interfaces/ILineMetadata.sol";
 import "../interfaces/IMessageLine.sol";
 import "../Application.sol";
 
@@ -65,7 +66,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     ILineRegistry public immutable REGISTRY;
 
     event LineMessageSent(bytes32 indexed lineMsgId, string[] names, LineMsg lineMsg);
-    event LineMessageConfirmation(bytes32 indexed lineMsgId);
+    event LineMessageConfirmation(bytes32 indexed lineMsgId, string name);
     event LineMessageExpired(bytes32 indexed lineMsgId);
     event LineMessageExecution(bytes32 indexed lineMsgId);
 
@@ -160,7 +161,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         deliverifyOf[lineMsgId][line] = true;
         ++countOf[lineMsgId];
 
-        emit LineMessageConfirmation(lineMsgId);
+        emit LineMessageConfirmation(lineMsgId, ILineMetadata(line).name());
 
         if (block.timestamp > lineMsg.expiration) {
             emit LineMessageExpired(lineMsgId);
