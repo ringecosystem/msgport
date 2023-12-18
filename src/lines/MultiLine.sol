@@ -138,10 +138,9 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 totalFee = 0;
         for (uint256 i = 0; i < args.names.length; i++) {
             string memory name = args.names[i];
-            bytes memory param = args.params[i];
             uint256 fee = args.fees[i];
             address line = REGISTRY.getLine(name);
-            IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, param);
+            IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
 
