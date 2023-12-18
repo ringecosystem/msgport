@@ -23,7 +23,7 @@ import "./interfaces/IMessageLine.sol";
 import "./lines/base/LineLookup.sol";
 import "./Application.sol";
 
-contract CrossChainAccount is Ownable2Step, Application, LineLookup {
+contract CrossChainAccountFactory is Ownable2Step, Application, LineLookup {
     uint256 public constant VERSION = 0;
     ILineRegistry public immutable REGISTRY;
 
@@ -61,7 +61,7 @@ contract CrossChainAccount is Ownable2Step, Application, LineLookup {
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
-        bytes memory encoded = abi.encodeWithSelector(CrossChainAccount.deploy.selector, deployer);
+        bytes memory encoded = abi.encodeWithSelector(CrossChainAccountFactory.deploy.selector, deployer);
         IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
     }
 
