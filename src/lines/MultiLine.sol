@@ -23,7 +23,7 @@ import "./base/LineLookup.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/ILineMetadata.sol";
 import "../interfaces/IMessageLine.sol";
-import "../Application.sol";
+import "../user/Application.sol";
 
 contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     struct RemoteCallArgs {

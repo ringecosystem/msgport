@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 import "../interfaces/ILineRegistry.sol";
-import "../Application.sol";
+import "../user/Application.sol";
 
 contract xAccount is Application {
     ILineRegistry public immutable REGISTRY;

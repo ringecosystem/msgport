@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.17;
 
-import "../Application.sol";
+import "../user/Application.sol";
 
 contract ExampleReceiverDapp is Application {
     event DappMessageRecv(uint256 fromChainId, address fromDapp, address localLine, bytes message);

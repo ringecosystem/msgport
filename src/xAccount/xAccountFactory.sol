@@ -21,7 +21,7 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../lines/base/LineLookup.sol";
-import "../Application.sol";
+import "../user/Application.sol";
 
 contract xAccountFactory is Ownable2Step, Application, LineLookup {
     ILineRegistry public immutable REGISTRY;
