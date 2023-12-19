@@ -22,19 +22,29 @@ import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../lines/base/LineLookup.sol";
 import "../user/Application.sol";
+import "./xAccountProxy.sol";
 
 contract xAccountFactory is Ownable2Step, Application, LineLookup {
+    address public xAccountLogic;
+
     ILineRegistry public immutable REGISTRY;
 
     event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
+    event NewXAccountLogic(address logic);
 
-    constructor(address dao, address registry) {
+    constructor(address dao, address registry, address logic) {
         _transferOwnership(dao);
         REGISTRY = ILineRegistry(registry);
+        xAccountLogic = logic;
     }
 
     function LOCAL_CHAINID() public view returns (uint256) {
         return block.chainid;
+    }
+
+    function setLogic(address logic) external onlyOwner {
+        xAccountLogic = logic;
+        emit NewXAccountLogic(logic);
     }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
@@ -71,18 +81,17 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
         require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
 
-        address xAccount = _create2(fromChainId, deployer);
-        emit xAccountCreated(fromChainId, deployer, xAccount);
+        address proxy = _create2(fromChainId, deployer);
+        emit xAccountCreated(fromChainId, deployer, proxy);
     }
 
-    bytes creationCode;
-
-    function _create2(uint256 chainId, address deployer) internal returns (address xAccount) {
-        bytes memory initCode = abi.encodePacked(creationCode, chainId, uint256(uint160(deployer)));
+    function _create2(uint256 chainId, address deployer) internal returns (address proxy) {
+        bytes memory initCode =
+            abi.encodePacked(type(xAccountProxy).creationCode, xAccountLogic, chainId, uint256(uint160(deployer)));
 
         assembly {
-            xAccount := create2(0, add(initCode, 32), mload(initCode), 0)
+            proxy := create2(0, add(initCode, 32), mload(initCode), 0)
         }
-        require(xAccount != address(0), "!ceate2");
+        require(proxy != address(0), "!create2");
     }
 }
