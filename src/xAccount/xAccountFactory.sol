@@ -71,11 +71,11 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
-        bytes memory encoded = abi.encodeWithSelector(xAccountFactory.deploy.selector, deployer);
+        bytes memory encoded = abi.encodeWithSelector(xAccountFactory.xDeploy.selector, deployer);
         IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function deploy(address deployer) external payable {
+    function xDeploy(address deployer) external payable {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         require(REGISTRY.isTrustedLine(line), "!line");
@@ -90,8 +90,15 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
 
         assembly {
-            proxy := create2(0, add(initCode, 32), mload(initCode), 0)
+            proxy := create2(callvalue(), add(initCode, 32), mload(initCode), 0)
         }
         IxAccount(proxy).initialize(xAccountLogic);
+    }
+
+    function xAccountOf(uint256 chainId, address deployer) external view returns (address) {
+        require(chainId != LOCAL_CHAINID(), "!chainId");
+        bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
+        address factory = _toLine(chainId);
+        return address(uint160(uint256(keccak256(abi.encodePacked(hex"ff", factory, bytes32(0), keccak256(initCode))))));
     }
 }
