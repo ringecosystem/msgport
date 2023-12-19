@@ -18,11 +18,15 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "./xAccountUtils.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./xAccount.sol";
 
-contract xAccountUpgradeable is UUPSUpgradeable, xAccount {
+contract xAccountUpgradeable is UUPSUpgradeable, Initializable, xAccount {
     constructor(address registry) xAccount(registry) {}
+
+    function initialize(address logic) public initializer {
+        _upgradeToAndCallUUPS(logic, new bytes(0), false);
+    }
 
     function _authorizeUpgrade(address) internal override {
         _checkXAuth();

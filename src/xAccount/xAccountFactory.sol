@@ -20,6 +20,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
+import "../interfaces/IxAccount.sol";
 import "../lines/base/LineLookup.sol";
 import "../user/Application.sol";
 import "./xAccountProxy.sol";
@@ -86,12 +87,11 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     }
 
     function _create2(uint256 chainId, address deployer) internal returns (address proxy) {
-        bytes memory initCode =
-            abi.encodePacked(type(xAccountProxy).creationCode, xAccountLogic, chainId, uint256(uint160(deployer)));
+        bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
 
         assembly {
             proxy := create2(0, add(initCode, 32), mload(initCode), 0)
         }
-        require(proxy != address(0), "!create2");
+        IxAccount(proxy).initialize(xAccountLogic);
     }
 }
