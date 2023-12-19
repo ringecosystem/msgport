@@ -17,16 +17,33 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol";
-import "@openzeppelin/contracts/proxy/proxy.sol";
 import "./xAccountUtils.sol";
 
-contract xAccountProxy is Proxy, ERC1967Upgrade {
+contract xAccountProxy {
     constructor(uint256 chainId, address owner) payable {
         xAccountUtils._setXOwner(chainId, owner);
     }
 
-    function _implementation() internal view virtual override returns (address impl) {
-        return ERC1967Upgrade._getImplementation();
+    function _implementation() internal view virtual returns (address impl) {
+        return xAccountUtils.getImplementation();
+    }
+
+    function _delegate(address implementation) internal virtual {
+        assembly {
+            calldatacopy(0, 0, calldatasize())
+            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)
+            returndatacopy(0, 0, returndatasize())
+            switch result
+            case 0 { revert(0, returndatasize()) }
+            default { return(0, returndatasize()) }
+        }
+    }
+
+    function _fallback() internal virtual {
+        _delegate(_implementation());
+    }
+
+    fallback() external payable virtual {
+        _fallback();
     }
 }

@@ -17,18 +17,70 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./xAccount.sol";
+import "./xAccountUtils.sol";
 
-contract xAccountUpgradeable is UUPSUpgradeable, Initializable, xAccount {
+interface IERC1822Proxiable {
+    function proxiableUUID() external view returns (bytes32);
+}
+
+contract xAccountUpgradeable is Initializable, xAccount {
+    address private immutable __self = address(this);
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+
+    error UUPSUnauthorizedCallContext();
+    error UUPSUnsupportedProxiableUUID(bytes32 slot);
+
     constructor(address registry) xAccount(registry) {}
 
     function initialize(address logic) public initializer {
-        _upgradeToAndCallUUPS(logic, new bytes(0), false);
+        _upgradeToAndCallUUPS(logic, new bytes(0));
     }
 
-    function _authorizeUpgrade(address) internal override {
+    function _authorizeUpgrade(address) internal virtual {
         _checkXAuth();
+    }
+
+    modifier onlyProxy() {
+        _checkProxy();
+        _;
+    }
+
+    modifier notDelegated() {
+        _checkNotDelegated();
+        _;
+    }
+
+    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+        return xAccountUtils.IMPLEMENTATION_SLOT;
+    }
+
+    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
+        _authorizeUpgrade(newImplementation);
+        _upgradeToAndCallUUPS(newImplementation, data);
+    }
+
+    function _checkProxy() internal view virtual {
+        if (address(this) == __self || xAccountUtils.getImplementation() != __self) {
+            revert UUPSUnauthorizedCallContext();
+        }
+    }
+
+    function _checkNotDelegated() internal view virtual {
+        if (address(this) != __self) {
+            revert UUPSUnauthorizedCallContext();
+        }
+    }
+
+    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data) private {
+        try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
+            if (slot != xAccountUtils.IMPLEMENTATION_SLOT) {
+                revert UUPSUnsupportedProxiableUUID(slot);
+            }
+            xAccountUtils.upgradeToAndCall(newImplementation, data);
+        } catch {
+            revert xAccountUtils.ERC1967InvalidImplementation(newImplementation);
+        }
     }
 }
