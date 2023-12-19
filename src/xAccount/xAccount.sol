@@ -19,22 +19,19 @@ pragma solidity ^0.8.17;
 
 import "../interfaces/ILineRegistry.sol";
 import "../user/xAuth.sol";
+import "./xAccountUtils.sol";
 
 contract xAccount is xAuth {
     ILineRegistry private immutable REGISTRY;
-    uint256 private immutable CHAINID;
-    address private immutable OWNER;
 
-    constructor(address registry_, uint256 chainId, address owner) {
+    constructor(address registry_) {
         REGISTRY = ILineRegistry(registry_);
-        CHAINID = chainId;
-        OWNER = owner;
     }
 
     receive() external payable {}
 
     function xOwner() public view override returns (uint256, address) {
-        return (CHAINID, OWNER);
+        return xAccountUtils._getXOwner();
     }
 
     function registry() public view override returns (address) {

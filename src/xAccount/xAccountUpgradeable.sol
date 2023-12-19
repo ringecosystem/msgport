@@ -18,10 +18,11 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "./xAccountUtils.sol";
 import "./xAccount.sol";
 
 contract xAccountUpgradeable is UUPSUpgradeable, xAccount {
-    constructor(address registry, uint256 chainId, address owner) xAccount(registry, chainId, owner) {}
+    constructor(address registry) xAccount(registry) {}
 
     function _authorizeUpgrade(address) internal override {
         _checkXAuth();
