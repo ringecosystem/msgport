@@ -108,4 +108,13 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         require(factory != address(0), "!factory");
         return address(uint160(uint256(keccak256(abi.encodePacked(hex"ff", factory, bytes32(0), keccak256(initCode))))));
     }
+
+    function xAccountOf(uint256 toChainId, address deployer) external view returns (address) {
+        require(toChainId != LOCAL_CHAINID(), "!toChainId");
+        bytes memory initCode =
+            abi.encodePacked(type(xAccountProxy).creationCode, LOCAL_CHAINID(), uint256(uint160(deployer)));
+        address factory = _toLine(toChainId);
+        require(factory != address(0), "!factory");
+        return address(uint160(uint256(keccak256(abi.encodePacked(hex"ff", factory, bytes32(0), keccak256(initCode))))));
+    }
 }
