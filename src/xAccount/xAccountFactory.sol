@@ -76,7 +76,7 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function xDeploy(address deployer) external payable returns (address) {
+    function xDeploy(address deployer) external returns (address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         require(REGISTRY.isTrustedLine(line), "!line");
@@ -85,7 +85,7 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         return _deploy(fromChainId, deployer);
     }
 
-    function deploy(uint256 chainId, address deployer) external payable returns (address) {
+    function deploy(uint256 chainId, address deployer) external returns (address) {
         return _deploy(chainId, deployer);
     }
 
@@ -95,7 +95,7 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
 
         assembly {
-            proxy := create2(callvalue(), add(initCode, 32), mload(initCode), 0)
+            proxy := create2(0, add(initCode, 32), mload(initCode), 0)
         }
         IxAccount(proxy).initialize(xAccountLogic);
 
