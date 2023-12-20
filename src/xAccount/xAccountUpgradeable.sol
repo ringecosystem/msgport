@@ -21,6 +21,8 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./xAccount.sol";
 import "./xAccountUtils.sol";
 
+// Inspired from: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/utils/UUPSUpgradeable.sol
+
 interface IERC1822Proxiable {
     function proxiableUUID() external view returns (bytes32);
 }

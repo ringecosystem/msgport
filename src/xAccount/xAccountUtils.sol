@@ -19,6 +19,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 
+// Inspired from: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/ERC1967/ERC1967Utils.sol
+
 library xAccountUtils {
     event Upgraded(address indexed implementation);
 

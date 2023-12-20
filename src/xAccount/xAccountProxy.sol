@@ -19,6 +19,8 @@ pragma solidity ^0.8.17;
 
 import "./xAccountUtils.sol";
 
+// Inspired from: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/ERC1967/ERC1967Proxy.sol
+
 contract xAccountProxy {
     constructor(uint256 chainId, address owner) payable {
         xAccountUtils._setXOwner(chainId, owner);

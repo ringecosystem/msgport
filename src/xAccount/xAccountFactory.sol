@@ -76,24 +76,30 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
     }
 
-    function xDeploy(address deployer) external payable {
+    function xDeploy(address deployer) external payable returns (address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         require(REGISTRY.isTrustedLine(line), "!line");
         require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
-        require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
 
-        address proxy = _create2(fromChainId, deployer);
-        emit xAccountCreated(fromChainId, deployer, proxy);
+        return _deploy(fromChainId, deployer);
     }
 
-    function _create2(uint256 chainId, address deployer) internal returns (address proxy) {
+    function deploy(uint256 chainId, address deployer) external payable returns (address) {
+        return _deploy(chainId, deployer);
+    }
+
+    function _deploy(uint256 chainId, address deployer) internal returns (address proxy) {
+        require(chainId != LOCAL_CHAINID(), "!chainId");
+
         bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
 
         assembly {
             proxy := create2(callvalue(), add(initCode, 32), mload(initCode), 0)
         }
         IxAccount(proxy).initialize(xAccountLogic);
+
+        emit xAccountCreated(chainId, deployer, proxy);
     }
 
     function xAccountOf(uint256 toChainId, address deployer) public view returns (address) {
