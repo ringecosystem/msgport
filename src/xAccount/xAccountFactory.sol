@@ -56,8 +56,9 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         _setFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _toLine(uint256 toChainId) internal view returns (address) {
-        return toLineLookup[toChainId];
+    function _toLine(uint256 toChainId) internal view returns (address l) {
+        l = toLineLookup[toChainId];
+        require(l != address(0), "!toLine");
     }
 
     function _fromLine(uint256 fromChainId) internal view returns (address) {

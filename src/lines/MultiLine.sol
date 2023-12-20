@@ -87,8 +87,9 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         _setFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _toLine(uint256 toChainId) internal view returns (address) {
-        return toLineLookup[toChainId];
+    function _toLine(uint256 toChainId) internal view returns (address l) {
+        l = toLineLookup[toChainId];
+        require(l != address(0), "!toLine");
     }
 
     function _fromLine(uint256 fromChainId) internal view returns (address) {
@@ -116,8 +117,9 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     }
 
     function multiSend(MultiSendArgs memory args) public payable {
-        address fromDapp = msg.sender;
+        require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
 
+        address fromDapp = msg.sender;
         LineMsg memory lineMsg = LineMsg({
             fromChainId: LOCAL_CHAINID(),
             toChainId: args.toChainId,
@@ -137,7 +139,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
             uint256 fee = args.fees[i];
             address line = REGISTRY.getLine(name);
             require(line != address(0), "!name");
-            require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
             IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
