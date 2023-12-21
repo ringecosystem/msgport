@@ -70,7 +70,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     event LineMessageExpired(bytes32 indexed lineMsgId);
     event LineMessageExecution(bytes32 indexed lineMsgId);
 
-    constructor(address dao, string memory name, address registry) BaseMessageLine(name) {
+    constructor(address dao, address registry, string memory name) BaseMessageLine(name) {
         _transferOwnership(dao);
         REGISTRY = ILineRegistry(registry);
     }
