@@ -51,17 +51,22 @@ contract LineRegistry is Ownable2Step {
 
     function addLine(address line) external onlyOwner {
         string memory name = ILineMetadata(line).name();
-        require(_lineLookup[name] == address(0), "Line name already exists");
+        require(_lineLookup[name] == address(0), "already exist");
         _names.push(name);
         _lineLookup[name] = line;
-        _lines[line] = true;
+        _markLine(line, true);
         emit AddLine(name, line);
     }
 
     function markLine(string calldata name, bool flag) external onlyOwner {
         address line = _lineLookup[name];
-        _lines[line] = flag;
+        require(line != address(0), "!exist");
+        _markLine(line, flag);
         emit MarkLine(name, flag);
+    }
+
+    function _markLine(address line, bool flag) internal {
+        _lines[line] = flag;
     }
 
     function isTrustedLine(address line) external view returns (bool) {
