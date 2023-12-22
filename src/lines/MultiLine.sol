@@ -25,7 +25,16 @@ import "../interfaces/ILineMetadata.sol";
 import "../interfaces/IMessageLine.sol";
 import "../user/Application.sol";
 
+/// @title MultiLine
+/// @notice Send message by multi message line.
 contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
+    /// @dev RemoteCallArgs
+    /// @param names Line names selected to send message.
+    /// @param params Params correspond with the selected lines.
+    /// @param fees Fees correspond with the selected lines.
+    /// @param salt Salt is for unique identify the line message id with LineMsg info.
+    /// @param expiration Expiration timestamp for the message.
+    /// @param threshold Threshold for execute the message.
     struct RemoteCallArgs {
         string[] names;
         bytes[] params;
@@ -58,9 +67,9 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 threshold;
     }
 
-    mapping(bytes32 lineMsgId => uint256 deliveryCount) public countOf;
     mapping(bytes32 lineMsgId => bool done) public doneOf;
-    // protect msg repeat
+    mapping(bytes32 lineMsgId => uint256 deliveryCount) public countOf;
+    // protect msg repeat by underwood
     mapping(bytes32 lineMsgId => mapping(address line => bool isDeliveried)) public deliverifyOf;
 
     ILineRegistry public immutable REGISTRY;
@@ -169,8 +178,8 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
         require(doneOf[lineMsgId] == false, "done");
         if (countOf[lineMsgId] >= lineMsg.threshold) {
-            _recv(lineMsg.fromChainId, lineMsg.fromDapp, lineMsg.toDapp, lineMsg.message);
             doneOf[lineMsgId] = true;
+            _recv(lineMsg.fromChainId, lineMsg.fromDapp, lineMsg.toDapp, lineMsg.message);
             emit LineMessageExecution(lineMsgId);
         }
     }

@@ -22,8 +22,8 @@ import "./interfaces/ILineMetadata.sol";
 
 /// @title LineRegistry
 /// @notice LineRegistry will be deployed on each chain.
-///         - Could be used to verify whether the line has been registered.
-///         - Lines that be audited by MsgDAO is marked as `trusted`.
+/// - Could be used to verify whether the line has been registered.
+/// - Lines that be audited by MsgDAO is marked as `trusted`.
 contract LineRegistry is Ownable2Step {
     event AddLine(string name, address line);
     event MarkLine(string name, bool flag);

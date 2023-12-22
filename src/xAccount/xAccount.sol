@@ -30,10 +30,15 @@ contract xAccount is xAuth {
 
     receive() external payable {}
 
+    /// @dev Fetch the xAccount xOwner.
+    /// @return (chainId, owner)
+    ///   - chainId Chain id that xAccount belongs in.
+    ///   - owner Owner that xAccount belongs to.
     function xOwner() public view override returns (uint256, address) {
         return xAccountUtils._getXOwner();
     }
 
+    /// @dev Return line registry
     function registry() public view override returns (address) {
         return address(REGISTRY);
     }
