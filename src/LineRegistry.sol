@@ -25,6 +25,7 @@ import "./interfaces/ILineMetadata.sol";
 ///         It is the registry of messageLine and can be used to verify whether the line has been registered.
 contract LineRegistry is Ownable2Step {
     event AddLine(string name, address line);
+    event MarkLine(string name, bool flag);
 
     string[] private _names;
     // lineName => lineAddress
@@ -55,6 +56,12 @@ contract LineRegistry is Ownable2Step {
         _lineLookup[name] = line;
         _lines[line] = true;
         emit AddLine(name, line);
+    }
+
+    function markLine(string calldata name, bool flag) external onlyOwner {
+        address line = _lineLookup[name];
+        _lines[line] = flag;
+        emit MarkLine(name, flag);
     }
 
     function isTrustedLine(address line) external view returns (bool) {
