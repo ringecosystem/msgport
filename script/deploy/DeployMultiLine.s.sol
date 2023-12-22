@@ -28,7 +28,6 @@ contract DeployMultiLine is Common {
     string instanceId;
     string outputName;
     address deployer;
-    address dao;
 
     function name() public pure override returns (string memory) {
         return "DeployMultiLine";
@@ -46,16 +45,13 @@ contract DeployMultiLine is Common {
         SALT = c3.readBytes32(".MULTILINE_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
-        dao = config.readAddress(".DAO");
     }
 
     function run() public {
         require(deployer == msg.sender, "!deployer");
 
         deploy();
-        // setConfig();
 
-        ScriptTools.exportContract(outputName, "DAO", dao);
         ScriptTools.exportContract(outputName, "MULTI_LINE", ADDR);
     }
 
@@ -68,11 +64,5 @@ contract DeployMultiLine is Common {
         require(III(ADDR).owner() == deployer);
         console.log("MultiLine deployed: %s", line);
         return line;
-    }
-
-    function setConfig() public broadcast {
-        III(ADDR).transferOwnership(dao);
-        require(III(ADDR).pendingOwner() == dao, "!dao");
-        // TODO:: dao.acceptOwnership()
     }
 }
