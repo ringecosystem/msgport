@@ -61,7 +61,7 @@ contract xAccount is xAuth {
     /// @param data      The encoded operation calldata
     /// @param operation A value indicating the type of operation to perform
     /// @return The result of the operation
-    function execute(address target, uint256 value, bytes calldata data, uint8 operation)
+    function xExecute(address target, uint256 value, bytes calldata data, uint8 operation)
         external
         payable
         returns (bytes memory)

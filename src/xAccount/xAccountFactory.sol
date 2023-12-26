@@ -127,7 +127,6 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     function xAccountOf(uint256 toChainId, address deployer) public view returns (address) {
         address factory = _toLine(toChainId);
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
-        require(factory != address(0), "!factory");
         return xAccountOf(LOCAL_CHAINID(), deployer, factory);
     }
 
