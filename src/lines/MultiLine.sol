@@ -18,6 +18,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./base/BaseMessageLine.sol";
 import "./base/LineLookup.sol";
 import "../interfaces/ILineRegistry.sol";
@@ -28,24 +29,24 @@ import "../user/Application.sol";
 /// @title MultiLine
 /// @notice Send message by multi message line.
 contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     /// @dev RemoteCallArgs
-    /// @param names Line names selected to send message.
+    /// @param lines Line selected to send message.
     /// @param params Params correspond with the selected lines.
     /// @param fees Fees correspond with the selected lines.
     /// @param salt Salt is for unique identify the line message id with LineMsg info.
     /// @param expiration Expiration timestamp for the message.
-    /// @param threshold Threshold for execute the message.
     struct RemoteCallArgs {
-        string[] names;
+        address[] lines;
         bytes[] params;
         uint256[] fees;
         uint256 salt;
         uint256 expiration;
-        uint256 threshold;
     }
 
     struct MultiSendArgs {
-        string[] names;
+        address[] lines;
         uint256 toChainId;
         address toDapp;
         bytes message;
@@ -53,7 +54,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256[] fees;
         uint256 salt;
         uint256 expiration;
-        uint256 threshold;
     }
 
     struct LineMsg {
@@ -64,8 +64,10 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 salt;
         bytes message;
         uint256 expiration;
-        uint256 threshold;
     }
+
+    uint256 public threshold;
+    EnumerableSet.AddressSet private _trustedLines;
 
     mapping(bytes32 lineMsgId => bool done) public doneOf;
     mapping(bytes32 lineMsgId => uint256 deliveryCount) public countOf;
@@ -74,7 +76,8 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     ILineRegistry public immutable REGISTRY;
 
-    event LineMessageSent(bytes32 indexed lineMsgId, string[] names, LineMsg lineMsg);
+    event SetThreshold(uint256 threshold);
+    event LineMessageSent(bytes32 indexed lineMsgId, address[] lines, LineMsg lineMsg);
     event LineMessageConfirmation(bytes32 indexed lineMsgId, string name);
     event LineMessageExpired(bytes32 indexed lineMsgId);
     event LineMessageExecution(bytes32 indexed lineMsgId);
@@ -86,6 +89,31 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
+    }
+
+    function setThreshold(uint256 _threshold) external onlyOwner {
+        threshold = _threshold;
+        emit SetThreshold(_threshold);
+    }
+
+    function addTrustedLine(address line) external onlyOwner {
+        require(_trustedLines.add(line), "!add");
+    }
+
+    function rmTrustedLine(address line) external onlyOwner {
+        require(_trustedLines.remove(line), "!rm");
+    }
+
+    function trustedLines() external view returns (address[] memory) {
+        return _trustedLines.values();
+    }
+
+    function trustedLineCount() external view returns (uint256) {
+        return _trustedLines.length();
+    }
+
+    function isTrustedLine(address line) public view returns (bool) {
+        return _trustedLines.contains(line);
     }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
@@ -111,22 +139,14 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     {
         RemoteCallArgs memory args = abi.decode(params, (RemoteCallArgs));
         multiSend(
-            MultiSendArgs(
-                args.names,
-                toChainId,
-                toDapp,
-                message,
-                args.params,
-                args.fees,
-                args.salt,
-                args.expiration,
-                args.threshold
-            )
+            MultiSendArgs(args.lines, toChainId, toDapp, message, args.params, args.fees, args.salt, args.expiration)
         );
     }
 
     function multiSend(MultiSendArgs memory args) public payable {
         require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
+        require(args.lines.length == args.params.length, "!len");
+        require(args.lines.length == args.fees.length, "!len");
 
         address fromDapp = msg.sender;
         LineMsg memory lineMsg = LineMsg({
@@ -136,29 +156,27 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
             toDapp: args.toDapp,
             salt: args.salt,
             message: args.message,
-            expiration: args.expiration,
-            threshold: args.threshold
+            expiration: args.expiration
         });
         bytes32 lineMsgId = hash(lineMsg);
         bytes memory encoded = abi.encodeWithSelector(MultiLine.multiRecv.selector, lineMsg);
 
         uint256 totalFee = 0;
-        for (uint256 i = 0; i < args.names.length; i++) {
-            string memory name = args.names[i];
+        for (uint256 i = 0; i < args.lines.length; i++) {
             uint256 fee = args.fees[i];
-            address line = REGISTRY.getLine(name);
-            require(line != address(0), "!name");
+            address line = args.lines[i];
+            require(isTrustedLine(line), "!trusted");
             IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
 
         require(totalFee == msg.value, "!fees");
-        emit LineMessageSent(lineMsgId, args.names, lineMsg);
+        emit LineMessageSent(lineMsgId, args.lines, lineMsg);
     }
 
     function multiRecv(LineMsg calldata lineMsg) external payable {
         address line = _msgLine();
-        require(REGISTRY.isTrustedLine(line), "!line");
+        require(isTrustedLine(line), "!trusted");
         uint256 fromChainId = _fromChainId();
         require(LOCAL_CHAINID() == lineMsg.toChainId, "!toChainId");
         require(fromChainId == lineMsg.fromChainId, "!fromChainId");
@@ -177,7 +195,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         }
 
         require(doneOf[lineMsgId] == false, "done");
-        if (countOf[lineMsgId] >= lineMsg.threshold) {
+        if (countOf[lineMsgId] >= threshold) {
             doneOf[lineMsgId] = true;
             _recv(lineMsg.fromChainId, lineMsg.fromDapp, lineMsg.toDapp, lineMsg.message);
             emit LineMessageExecution(lineMsgId);

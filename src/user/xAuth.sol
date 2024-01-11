@@ -17,20 +17,20 @@
 
 pragma solidity ^0.8.17;
 
-import "../user/Application.sol";
+import "./Application.sol";
 import "../interfaces/ILineRegistry.sol";
 
 abstract contract xAuth is Application {
     function xOwner() public virtual returns (uint256, address);
-    function registry() public virtual returns (address);
+    function isTrustedLine(address line) public virtual returns (bool);
 
     function _checkXAuth() internal virtual {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         (uint256 chainId, address owner) = xOwner();
         require(fromChainId != block.chainid, "!fromChainId");
-        require(ILineRegistry(registry()).isTrustedLine(line), "!line");
-        require(fromChainId == chainId, "!xOwner");
-        require(_xmsgSender() == owner, "!xOwner");
+        require(isTrustedLine(line), "!trusted");
+        require(fromChainId == chainId, "!xOwner.chainId");
+        require(_xmsgSender() == owner, "!xOwner.owner");
     }
 }

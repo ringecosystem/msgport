@@ -21,5 +21,6 @@ interface ILineRegistry {
     function count() external view returns (uint256);
     function list() external view returns (string[] memory);
     function getLine(string calldata name) external view returns (address);
-    function isTrustedLine(address line) external view returns (bool);
+    function getLine(bytes4 code) external view returns (address);
+    function getCode(address line) external view returns (bytes4);
 }

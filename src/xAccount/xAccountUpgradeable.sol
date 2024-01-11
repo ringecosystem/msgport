@@ -34,8 +34,6 @@ contract xAccountUpgradeable is Initializable, xAccount {
     error UUPSUnauthorizedCallContext();
     error UUPSUnsupportedProxiableUUID(bytes32 slot);
 
-    constructor(address registry) xAccount(registry) {}
-
     function initialize(address logic) public initializer {
         _upgradeToAndCallUUPS(logic, new bytes(0));
     }

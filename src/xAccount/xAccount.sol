@@ -22,12 +22,6 @@ import "../user/xAuth.sol";
 import "./xAccountUtils.sol";
 
 contract xAccount is xAuth {
-    ILineRegistry private immutable REGISTRY;
-
-    constructor(address registry_) {
-        REGISTRY = ILineRegistry(registry_);
-    }
-
     receive() external payable {}
 
     /// @dev Fetch the xAccount xOwner.
@@ -38,9 +32,15 @@ contract xAccount is xAuth {
         return xAccountUtils._getXOwner();
     }
 
-    /// @dev Return line registry
-    function registry() public view override returns (address) {
-        return address(REGISTRY);
+    /// @dev Check the line is trusted or not.
+    /// @return Check result.
+    function isTrustedLine(address line) public view override returns (bool) {
+        return xAccountUtils._getTrustedLine() == line;
+    }
+
+    function setTrustedLine(address line) external {
+        _checkXAuth();
+        xAccountUtils._setTrustedLine(line);
     }
 
     /// @dev Executes a low-level operation if the caller is xOwner.

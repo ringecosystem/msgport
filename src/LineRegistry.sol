@@ -32,8 +32,6 @@ contract LineRegistry is Ownable2Step {
     string[] private _names;
     /// @dev lineName => lineAddress
     mapping(string => address) private _lineLookup;
-    /// @dev lineAddress => trusted
-    mapping(address => bool) private _lines;
 
     constructor(address dao) {
         _transferOwnership(dao);
@@ -61,25 +59,6 @@ contract LineRegistry is Ownable2Step {
         require(_lineLookup[name] == address(0), "already exist");
         _names.push(name);
         _lineLookup[name] = line;
-        _markLine(line, true);
         emit AddLine(name, line);
-    }
-
-    /// @dev Mark the line to be trusted or not.
-    /// @notice Revert if the line name is not exist.
-    function markLine(string calldata name, bool flag) external onlyOwner {
-        address line = _lineLookup[name];
-        require(line != address(0), "!exist");
-        _markLine(line, flag);
-        emit MarkLine(name, flag);
-    }
-
-    function _markLine(address line, bool flag) internal {
-        _lines[line] = flag;
-    }
-
-    /// @dev Query if the line is trusted by MsgDAO.
-    function isTrustedLine(address line) external view returns (bool) {
-        return _lines[line];
     }
 }

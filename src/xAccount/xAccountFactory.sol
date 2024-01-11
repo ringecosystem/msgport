@@ -31,17 +31,15 @@ import "./xAccountProxy.sol";
 contract xAccountFactory is Ownable2Step, Application, LineLookup {
     /// @dev xAccount logic contract.
     address public xAccountLogic;
-
-    /// @dev Line Registry.
-    ILineRegistry public immutable REGISTRY;
+    address public trustedLine;
 
     event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
     event NewXAccountLogic(address logic);
 
-    constructor(address dao, address registry, address logic) {
+    constructor(address dao, address logic, address line) {
         _transferOwnership(dao);
-        REGISTRY = ILineRegistry(registry);
         xAccountLogic = logic;
+        trustedLine = line;
     }
 
     function LOCAL_CHAINID() public view returns (uint256) {
@@ -51,6 +49,14 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     function setLogic(address logic) external onlyOwner {
         xAccountLogic = logic;
         emit NewXAccountLogic(logic);
+    }
+
+    function setTrustedLine(address line) external onlyOwner {
+        trustedLine = line;
+    }
+
+    function isTrustedLine(address line) public view returns (bool) {
+        return trustedLine == line;
     }
 
     function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
@@ -71,13 +77,11 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     }
 
     /// @dev Cross chian function for create xAccount on target chain.
-    /// @param name Line name that used for create xAccount.
+    /// @param line Line that used for create xAccount.
     /// @param toChainId Target chain id.
     /// @param params Line params correspond with the line.
-    function xCreate(string calldata name, uint256 toChainId, bytes calldata params) external payable {
-        address line = REGISTRY.getLine(name);
+    function xCreate(address line, uint256 toChainId, bytes calldata params) external payable {
         uint256 fee = msg.value;
-        require(line != address(0), "!name");
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
@@ -92,7 +96,7 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     function xDeploy(address deployer) external returns (address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
-        require(REGISTRY.isTrustedLine(line), "!line");
+        require(isTrustedLine(line), "!trusted");
         require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
 
         return _deploy(fromChainId, deployer);

@@ -25,7 +25,8 @@ library xAccountUtils {
     event Upgraded(address indexed implementation);
 
     struct xOwnerSlot {
-        uint96 chainId;
+        uint32 reserved;
+        uint64 chainId;
         address owner;
     }
 
@@ -38,7 +39,8 @@ library xAccountUtils {
 
     error ERC1967InvalidImplementation(address implementation);
     error ERC1967NonPayable();
-    error xAcountChainIdOverflow();
+    error xAcountInvalidChainId();
+    error xAccountInvalidLine(address line);
 
     function _getXOwner() internal view returns (uint256, address) {
         xOwnerSlot storage x = _getXOwnerSlot(XOWNER_SLOT);
@@ -46,11 +48,11 @@ library xAccountUtils {
     }
 
     function _setXOwner(uint256 chainId, address owner_) internal {
-        if (chainId > type(uint96).max) {
-            revert xAcountChainIdOverflow();
+        if (chainId > type(uint64).max) {
+            revert xAcountInvalidChainId();
         }
         xOwnerSlot storage x = _getXOwnerSlot(XOWNER_SLOT);
-        x.chainId = uint96(chainId);
+        x.chainId = uint64(chainId);
         x.owner = owner_;
     }
 
@@ -66,6 +68,20 @@ library xAccountUtils {
         assembly {
             r.slot := slot
         }
+    }
+
+    // This is the keccak-256 hash of "xAccount.proxy.trustedLine" subtracted by 1.
+    bytes32 internal constant TRUSTEDLINE_SLOT = 0x1eb2a1a7835111ae8407d8b37fc012b0afc528636a3b4ed149389c83112a5aca;
+
+    function _getTrustedLine() internal view returns (address) {
+        return _getAddressSlot(TRUSTEDLINE_SLOT).value;
+    }
+
+    function _setTrustedLine(address line) internal {
+        if (line.code.length == 0) {
+            revert xAccountInvalidLine(line);
+        }
+        _getAddressSlot(TRUSTEDLINE_SLOT).value = line;
     }
 
     // This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1.
