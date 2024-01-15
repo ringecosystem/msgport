@@ -32,28 +32,19 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @dev RemoteCallArgs
-    /// @param lines Line selected to send message.
-    /// @param params Params correspond with the selected lines.
-    /// @param fees Fees correspond with the selected lines.
-    /// @param salt Salt is for unique identify the line message id with LineMsg info.
-    /// @param expiration Expiration timestamp for the message.
+    /// @param params Params correspond with the trusted lines.
+    /// @param fees Fees correspond with the trusted lines.
     struct RemoteCallArgs {
-        address[] lines;
         bytes[] params;
         uint256[] fees;
-        uint256 salt;
-        uint256 expiration;
     }
 
     struct MultiSendArgs {
-        address[] lines;
         uint256 toChainId;
         address toDapp;
         bytes message;
         bytes[] params;
         uint256[] fees;
-        uint256 salt;
-        uint256 expiration;
     }
 
     struct LineMsg {
@@ -61,12 +52,14 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256 toChainId;
         address fromDapp;
         address toDapp;
-        uint256 salt;
-        bytes message;
+        uint256 nonce;
         uint256 expiration;
+        bytes message;
     }
 
+    uint256 public nonce;
     uint256 public threshold;
+    uint256 public expiration;
     EnumerableSet.AddressSet private _trustedLines;
 
     mapping(bytes32 lineMsgId => bool done) public doneOf;
@@ -74,26 +67,35 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
     // protect msg repeat by underwood
     mapping(bytes32 lineMsgId => mapping(address line => bool isDeliveried)) public deliverifyOf;
 
-    ILineRegistry public immutable REGISTRY;
-
     event SetThreshold(uint256 threshold);
-    event LineMessageSent(bytes32 indexed lineMsgId, address[] lines, LineMsg lineMsg);
+    event SetExpiration(uint256 expiration);
+    event LineMessageSent(bytes32 indexed lineMsgId, LineMsg lineMsg);
     event LineMessageConfirmation(bytes32 indexed lineMsgId, string name);
     event LineMessageExpired(bytes32 indexed lineMsgId);
     event LineMessageExecution(bytes32 indexed lineMsgId);
 
-    constructor(address dao, address registry, string memory name) BaseMessageLine(name) {
+    constructor(address dao, uint256 threshold_, string memory name) BaseMessageLine(name) {
         _transferOwnership(dao);
-        REGISTRY = ILineRegistry(registry);
+        _setThreshold(threshold_);
     }
 
     function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
     }
 
-    function setThreshold(uint256 _threshold) external onlyOwner {
-        threshold = _threshold;
-        emit SetThreshold(_threshold);
+    function setThreshold(uint256 threshold_) external onlyOwner {
+        _setThreshold(threshold_);
+    }
+
+    function _setThreshold(uint256 threshold_) internal {
+        require(threshold_ > 0, "!threshold");
+        threshold = threshold_;
+        emit SetThreshold(threshold_);
+    }
+
+    function setExpiration(uint256 expiration_) external onlyOwner {
+        expiration = expiration_;
+        emit SetExpiration(expiration_);
     }
 
     function addTrustedLine(address line) external onlyOwner {
@@ -104,11 +106,11 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         require(_trustedLines.remove(line), "!rm");
     }
 
-    function trustedLines() external view returns (address[] memory) {
+    function trustedLines() public view returns (address[] memory) {
         return _trustedLines.values();
     }
 
-    function trustedLineCount() external view returns (uint256) {
+    function trustedLineCount() public view returns (uint256) {
         return _trustedLines.length();
     }
 
@@ -116,12 +118,12 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         return _trustedLines.contains(line);
     }
 
-    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _setToLine(_toChainId, _toLineAddress);
+    function setToLine(uint256 toChainId, address toLineAddress) external onlyOwner {
+        _setToLine(toChainId, toLineAddress);
     }
 
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
+    function setFromLine(uint256 fromChainId, address fromLineAddress) external onlyOwner {
+        _setFromLine(fromChainId, fromLineAddress);
     }
 
     function _toLine(uint256 toChainId) internal view returns (address l) {
@@ -138,15 +140,17 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         override
     {
         RemoteCallArgs memory args = abi.decode(params, (RemoteCallArgs));
-        multiSend(
-            MultiSendArgs(args.lines, toChainId, toDapp, message, args.params, args.fees, args.salt, args.expiration)
-        );
+        multiSend(MultiSendArgs(toChainId, toDapp, message, args.params, args.fees));
     }
 
     function multiSend(MultiSendArgs memory args) public payable {
+        uint256 len = trustedLineCount();
         require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
-        require(args.lines.length == args.params.length, "!len");
-        require(args.lines.length == args.fees.length, "!len");
+        require(len >= threshold, "!len");
+        require(len == args.params.length, "!len");
+        require(len == args.fees.length, "!len");
+
+        ++nonce;
 
         address fromDapp = msg.sender;
         LineMsg memory lineMsg = LineMsg({
@@ -154,24 +158,30 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
             toChainId: args.toChainId,
             fromDapp: fromDapp,
             toDapp: args.toDapp,
-            salt: args.salt,
-            message: args.message,
-            expiration: args.expiration
+            nonce: nonce,
+            expiration: block.timestamp + expiration,
+            message: args.message
         });
-        bytes32 lineMsgId = hash(lineMsg);
         bytes memory encoded = abi.encodeWithSelector(MultiLine.multiRecv.selector, lineMsg);
+        bytes32 lineMsgId = hash(lineMsg);
 
+        _multiSend(args, encoded);
+        emit LineMessageSent(lineMsgId, lineMsg);
+    }
+
+    function _multiSend(MultiSendArgs memory args, bytes memory encoded) internal {
+        address[] memory lines = trustedLines();
+        uint256 len = lines.length;
         uint256 totalFee = 0;
-        for (uint256 i = 0; i < args.lines.length; i++) {
+        for (uint256 i = 0; i < len; i++) {
             uint256 fee = args.fees[i];
-            address line = args.lines[i];
+            address line = lines[i];
             require(isTrustedLine(line), "!trusted");
             IMessageLine(line).send{value: fee}(args.toChainId, _toLine(args.toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
 
         require(totalFee == msg.value, "!fees");
-        emit LineMessageSent(lineMsgId, args.lines, lineMsg);
     }
 
     function multiRecv(LineMsg calldata lineMsg) external payable {
