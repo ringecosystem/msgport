@@ -221,7 +221,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
         emit LineMessageConfirmation(lineMsgId, line);
 
-        if (block.timestamp > lineMsg.expiration) {
+        if (block.timestamp > lineMsg.expiration || block.timestamp + MAX_MESSAGE_EXPIRATION <= args.expiration) {
             emit LineMessageExpired(lineMsgId);
             return;
         }
