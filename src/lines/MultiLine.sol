@@ -66,8 +66,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         bytes message;
     }
 
-    /// @dev Nonce for lineMsgId uniqueness.
-    uint256 public nonce;
     /// @dev Threshold for multi line confirmation to execute msg.
     uint256 public threshold;
     /// @dev The message considered be stale after the expiration time in the number seconds.
