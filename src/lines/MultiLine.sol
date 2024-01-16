@@ -156,7 +156,9 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
         require(len == args.params.length, "!len");
         require(len == args.fees.length, "!len");
-        require(block.timestamp - MAX_MESSAGE_EXPIRATION < args.expiration, "!expiration");
+        if (block.timestamp > args.expiration || block.timestamp + MAX_MESSAGE_EXPIRATION < args.expiration) {
+            revert("!expiration");
+        }
 
         address fromDapp = msg.sender;
         LineMsg memory lineMsg = LineMsg({
@@ -217,7 +219,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
         emit LineMessageConfirmation(lineMsgId, line);
 
-        if (block.timestamp > lineMsg.expiration || block.timestamp - MAX_MESSAGE_EXPIRATION >= args.expiration) {
+        if (block.timestamp > lineMsg.expiration || block.timestamp + MAX_MESSAGE_EXPIRATION < args.expiration) {
             emit LineMessageExpired(lineMsgId);
             return;
         }
