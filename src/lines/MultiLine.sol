@@ -68,8 +68,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
 
     /// @dev Threshold for multi line confirmation to execute msg.
     uint256 public threshold;
-    /// @dev The message considered be stale after the expiration time in the number seconds.
-    uint256 public expiration;
     /// @dev Trusted lines managed by dao.
     EnumerableSet.AddressSet private _trustedLines;
 
