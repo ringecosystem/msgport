@@ -114,7 +114,9 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     function _deploy(uint256 chainId, address deployer) internal returns (address proxy) {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
-        bytes memory initCode = abi.encodePacked(type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)));
+        bytes memory initCode = abi.encodePacked(
+            type(xAccountProxy).creationCode, chainId, uint256(uint160(deployer)), uint256(uint160(trustedLine))
+        );
 
         assembly {
             proxy := create2(0, add(initCode, 32), mload(initCode), 0)
