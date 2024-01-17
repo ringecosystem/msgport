@@ -45,17 +45,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         uint256[] fees;
     }
 
-    struct MultiSendArgs {
-        address[] lines;
-        uint256 toChainId;
-        address toDapp;
-        uint256 nonce;
-        uint256 expiration;
-        bytes message;
-        bytes[] params;
-        uint256[] fees;
-    }
-
     struct LineMsg {
         uint256 fromChainId;
         uint256 toChainId;
@@ -141,43 +130,40 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         return fromLineLookup[fromChainId];
     }
 
-    function _send(address, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
     {
         RemoteCallArgs memory args = abi.decode(params, (RemoteCallArgs));
-        multiSend(
-            MultiSendArgs(args.lines, toChainId, toDapp, args.nonce, args.expiration, message, args.params, args.fees)
-        );
-    }
 
-    function multiSend(MultiSendArgs memory args) public payable {
         uint256 len = args.lines.length;
-        require(args.toChainId != LOCAL_CHAINID(), "!toChainId");
+        require(toChainId != LOCAL_CHAINID(), "!toChainId");
         require(len == args.params.length, "!len");
         require(len == args.fees.length, "!len");
         if (block.timestamp > args.expiration || block.timestamp + MAX_MESSAGE_EXPIRATION < args.expiration) {
             revert("!expiration");
         }
 
-        address fromDapp = msg.sender;
         LineMsg memory lineMsg = LineMsg({
             fromChainId: LOCAL_CHAINID(),
-            toChainId: args.toChainId,
+            toChainId: toChainId,
             fromDapp: fromDapp,
-            toDapp: args.toDapp,
+            toDapp: toDapp,
             nonce: args.nonce,
             expiration: args.expiration,
-            message: args.message
+            message: message
         });
         bytes memory encoded = abi.encodeWithSelector(MultiLine.multiRecv.selector, lineMsg);
         bytes32 lineMsgId = hash(lineMsg);
 
-        bool[] memory sentResult = _multiSend(args, encoded);
+        bool[] memory sentResult = _multiSend(args, toChainId, encoded);
         emit LineMessageSent(lineMsgId, lineMsg, sentResult);
     }
 
-    function _multiSend(MultiSendArgs memory args, bytes memory encoded) internal returns (bool[] memory) {
+    function _multiSend(RemoteCallArgs memory args, uint256 toChainId, bytes memory encoded)
+        internal
+        returns (bool[] memory)
+    {
         uint256 len = args.lines.length;
         uint256 totalFee = 0;
         bool[] memory sentResult = new bool[](len);
@@ -185,7 +171,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
             uint256 fee = args.fees[i];
             address line = args.lines[i];
             require(isTrustedLine(line), "!trusted");
-            sentResult[i] = _sendMessage(line, fee, args.toChainId, encoded, args.params[i]);
+            sentResult[i] = _sendMessage(line, fee, toChainId, encoded, args.params[i]);
             totalFee += fee;
         }
 
