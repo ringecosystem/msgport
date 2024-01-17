@@ -34,8 +34,10 @@ contract xAccountUpgradeable is Initializable, xAccount {
     error UUPSUnauthorizedCallContext();
     error UUPSUnsupportedProxiableUUID(bytes32 slot);
 
-    function initialize(address logic) public initializer {
+    function initialize(address logic, uint256 chainId, address owner, address line) public initializer {
         _upgradeToAndCallUUPS(logic, new bytes(0));
+        xAccountUtils._setXOwner(chainId, owner);
+        xAccountUtils._setTrustedLine(line);
     }
 
     function _authorizeUpgrade(address) internal virtual {

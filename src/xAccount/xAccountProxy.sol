@@ -17,18 +17,13 @@
 
 pragma solidity ^0.8.17;
 
-import "./xAccountUtils.sol";
-
 // Inspired from: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/ERC1967/ERC1967Proxy.sol
 
 contract xAccountProxy {
-    constructor(uint256 chainId, address owner, address line) payable {
-        xAccountUtils._setXOwner(chainId, owner);
-        xAccountUtils._setTrustedLine(line);
-    }
-
     function _implementation() internal view virtual returns (address impl) {
-        return xAccountUtils.getImplementation();
+        assembly {
+            impl := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)
+        }
     }
 
     function _delegate(address implementation) internal virtual {

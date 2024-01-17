@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 interface IxAccount {
-    function initialize(address logic) external;
+    function initialize(address logic, uint256 chainId, address owner, address line) external;
     function xOwner() external view returns (uint256, address);
     function registry() external view returns (address);
     function execute(address target, uint256 value, bytes calldata data, uint8 operation)
