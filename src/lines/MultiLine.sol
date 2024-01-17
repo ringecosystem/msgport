@@ -121,15 +121,6 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         _setFromLine(fromChainId, fromLineAddress);
     }
 
-    function _toLine(uint256 toChainId) internal view returns (address l) {
-        l = toLineLookup[toChainId];
-        require(l != address(0), "!toLine");
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
-    }
-
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
@@ -183,7 +174,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         internal
         returns (bool r)
     {
-        try IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params) {
+        try IMessageLine(line).send{value: fee}(toChainId, _checkedToLine(toChainId), encoded, params) {
             r = true;
         } catch {
             r = false;
@@ -197,7 +188,7 @@ contract MultiLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         require(LOCAL_CHAINID() == lineMsg.toChainId, "!toChainId");
         require(fromChainId == lineMsg.fromChainId, "!fromChainId");
         require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
-        require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
+        require(_xmsgSender() == _checkedFromLine(fromChainId), "!xmsgSender");
         bytes32 lineMsgId = hash(lineMsg);
         require(deliverifyOf[lineMsgId][line] == false, "deliveried");
         deliverifyOf[lineMsgId][line] = true;

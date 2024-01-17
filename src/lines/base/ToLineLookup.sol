@@ -27,4 +27,13 @@ abstract contract ToLineLookup {
         toLineLookup[toChainId] = toLine;
         emit SetToLine(toChainId, toLine);
     }
+
+    function _toLine(uint256 toChainId) internal view returns (address) {
+        return toLineLookup[toChainId];
+    }
+
+    function _checkedToLine(uint256 toChainId) internal view returns (address l) {
+        l = toLineLookup[toChainId];
+        require(l != address(0), "!toLine");
+    }
 }

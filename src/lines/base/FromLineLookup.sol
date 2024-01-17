@@ -27,4 +27,13 @@ abstract contract FromLineLookup {
         fromLineLookup[fromChainId] = fromLine;
         emit SetFromLine(fromChainId, fromLine);
     }
+
+    function _fromLine(uint256 fromChainId) internal view returns (address) {
+        return fromLineLookup[fromChainId];
+    }
+
+    function _checkedFromLine(uint256 fromChainId) internal view returns (address l) {
+        l = fromLineLookup[fromChainId];
+        require(l != address(0), "!fromLine");
+    }
 }

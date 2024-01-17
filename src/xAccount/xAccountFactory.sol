@@ -56,6 +56,10 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
         _setURI(uri);
     }
 
+    function isRegistred(address line) public view returns (bool) {
+        return REGISTRY.get(LOCAL_CHAINID(), line) != bytes4(0);
+    }
+
     function _toFactory(uint256 toChainId) internal view returns (address l) {
         l = REGISTRY.get(toChainId, code());
         require(l != address(0), "!to");
@@ -86,8 +90,7 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
     function xDeploy(address deployer) external returns (address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
-        bytes4 code = REGISTRY.get(LOCAL_CHAINID(), line);
-        require(code != bytes4(0), "!line");
+        require(isRegistred(line), "!line");
         require(_xmsgSender() == _fromFactory(fromChainId), "!xmsgSender");
 
         return _deploy(fromChainId, deployer, line);
