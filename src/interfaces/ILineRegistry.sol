@@ -18,9 +18,6 @@
 pragma solidity ^0.8.0;
 
 interface ILineRegistry {
-    function count() external view returns (uint256);
-    function list() external view returns (string[] memory);
-    function getLine(string calldata name) external view returns (address);
-    function getLine(bytes4 code) external view returns (address);
-    function getCode(address line) external view returns (bytes4);
+    function get(uint256 chainId, address line) external view returns (bytes4);
+    function get(uint256 chainId, bytes4 code) external view returns (address);
 }

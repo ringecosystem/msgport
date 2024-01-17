@@ -36,6 +36,10 @@ contract LineMetadata is ILineMetadata {
         return _name;
     }
 
+    function code() public view virtual returns (bytes4) {
+        return bytes4(keccak256(bytes(_name)));
+    }
+
     function uri() public view virtual returns (string memory) {
         return _uri;
     }

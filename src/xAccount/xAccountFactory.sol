@@ -21,25 +21,26 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../interfaces/IxAccount.sol";
-import "../lines/base/LineLookup.sol";
+import "../lines/base/LineMetadata.sol";
 import "../user/Application.sol";
 import "./xAccountProxy.sol";
 
 /// @title xAccountFactory
 /// @dev xAccountFactory is a factory contract for create xAccount.
 ///   - 1 account only have 1 xAccount on target chain for each factory.
-contract xAccountFactory is Ownable2Step, Application, LineLookup {
+contract xAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @dev xAccount logic contract.
     address public xAccountLogic;
-    address public trustedLine;
+
+    ILineRegistry public immutable REGISTRY;
 
     event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
     event NewXAccountLogic(address logic);
 
-    constructor(address dao, address logic, address line) {
+    constructor(address dao, address logic, address registry, string memory name) LineMetadata(name) {
         _transferOwnership(dao);
         xAccountLogic = logic;
-        trustedLine = line;
+        REGISTRY = ILineRegistry(registry);
     }
 
     function LOCAL_CHAINID() public view returns (uint256) {
@@ -51,42 +52,31 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         emit NewXAccountLogic(logic);
     }
 
-    function setTrustedLine(address line) external onlyOwner {
-        trustedLine = line;
+    function setURI(string calldata uri) external onlyOwner {
+        _setURI(uri);
     }
 
-    function isTrustedLine(address line) public view returns (bool) {
-        return trustedLine == line;
+    function _toFactory(uint256 toChainId) internal view returns (address l) {
+        l = REGISTRY.get(toChainId, code());
+        require(l != address(0), "!to");
     }
 
-    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _setToLine(_toChainId, _toLineAddress);
-    }
-
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
-    }
-
-    function _toLine(uint256 toChainId) internal view returns (address l) {
-        l = toLineLookup[toChainId];
-        require(l != address(0), "!toLine");
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
+    function _fromFactory(uint256 fromChainId) internal view returns (address) {
+        return REGISTRY.get(fromChainId, code());
     }
 
     /// @dev Cross chian function for create xAccount on target chain.
-    /// @param line Line that used for create xAccount.
+    /// @param code Line code that used for create xAccount.
     /// @param toChainId Target chain id.
     /// @param params Line params correspond with the line.
-    function xCreate(address line, uint256 toChainId, bytes calldata params) external payable {
+    function xCreate(bytes4 code, uint256 toChainId, bytes calldata params) external payable {
         uint256 fee = msg.value;
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
         bytes memory encoded = abi.encodeWithSelector(xAccountFactory.xDeploy.selector, deployer);
-        IMessageLine(line).send{value: fee}(toChainId, _toLine(toChainId), encoded, params);
+        address line = REGISTRY.get(LOCAL_CHAINID(), code);
+        IMessageLine(line).send{value: fee}(toChainId, _toFactory(toChainId), encoded, params);
     }
 
     /// @dev Create xAccount on target chain.
@@ -96,22 +86,14 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
     function xDeploy(address deployer) external returns (address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
-        require(isTrustedLine(line), "!trusted");
-        require(_xmsgSender() == _fromLine(fromChainId), "!xmsgSender");
+        bytes4 code = REGISTRY.get(LOCAL_CHAINID(), line);
+        require(code != bytes4(0), "!line");
+        require(_xmsgSender() == _fromFactory(fromChainId), "!xmsgSender");
 
-        return _deploy(fromChainId, deployer);
+        return _deploy(fromChainId, deployer, line);
     }
 
-    /// @dev Create xAccount on source chain.
-    /// @notice Everyone could create xAccount for other.
-    /// @param chainId Chaind id that xAccount belongs in.
-    /// @param deployer Owner that xAccount belongs to.
-    /// @return Deployed xAccount address.
-    function deploy(uint256 chainId, address deployer) external returns (address) {
-        return _deploy(chainId, deployer);
-    }
-
-    function _deploy(uint256 chainId, address deployer) internal returns (address proxy) {
+    function _deploy(uint256 chainId, address deployer, address line) internal returns (address proxy) {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
         bytes memory initCode = type(xAccountProxy).creationCode;
@@ -120,19 +102,18 @@ contract xAccountFactory is Ownable2Step, Application, LineLookup {
         assembly {
             proxy := create2(0, add(initCode, 32), mload(initCode), salt)
         }
-        IxAccount(proxy).initialize(xAccountLogic, chainId, deployer, trustedLine);
+        IxAccount(proxy).initialize(xAccountLogic, chainId, deployer, line);
 
         emit xAccountCreated(chainId, deployer, proxy);
     }
 
     /// @dev Calculate xAccount address on target chain.
-    /// @param toChainId Chain id that xAccount live in.
+    /// @param fromChainId Chain id that xAccount belongs in.
+    /// @param toChainId Chain id that xAccount lives in.
     /// @param deployer Owner that xAccount belongs to.
     /// @return xAccount address.
-    function xAccountOf(uint256 toChainId, address deployer) public view returns (address) {
-        address factory = _toLine(toChainId);
-        require(toChainId != LOCAL_CHAINID(), "!toChainId");
-        return xAccountOf(LOCAL_CHAINID(), deployer, factory);
+    function xAccountOf(uint256 fromChainId, uint256 toChainId, address deployer) public view returns (address) {
+        return xAccountOf(fromChainId, deployer, _toFactory(toChainId));
     }
 
     /// @dev Calculate xAccount address.

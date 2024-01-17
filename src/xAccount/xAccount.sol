@@ -17,7 +17,6 @@
 
 pragma solidity ^0.8.17;
 
-import "../interfaces/ILineRegistry.sol";
 import "../user/xAuth.sol";
 import "./xAccountUtils.sol";
 

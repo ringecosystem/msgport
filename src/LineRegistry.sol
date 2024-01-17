@@ -18,47 +18,45 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "./interfaces/ILineMetadata.sol";
 
 /// @title LineRegistry
 /// @notice LineRegistry will be deployed on each chain.
 /// - Could be used to verify whether the line has been registered.
 /// - Lines that be audited by MsgDAO is marked as `trusted`.
 contract LineRegistry is Ownable2Step {
-    event AddLine(string name, address line);
-    event MarkLine(string name, bool flag);
+    event SetLine(uint256 chainId, bytes4 code, address line);
+    event DeleteLine(uint256 chainId, bytes4 code, address line);
 
-    /// @dev All line names in registry
-    string[] private _names;
-    /// @dev lineName => lineAddress
-    mapping(string => address) private _lineLookup;
+    mapping(uint256 chainId => mapping(bytes4 code => address line)) private _lineLookup;
+    mapping(uint256 chainId => mapping(address line => bytes4 code)) private _codeLookup;
 
     constructor(address dao) {
         _transferOwnership(dao);
     }
 
-    /// @dev Return all line count.
-    function count() public view returns (uint256) {
-        return _names.length;
+    /// @dev Fetch line address by chainId and line code.
+    function get(uint256 chainId, bytes4 code) external view returns (address) {
+        return _lineLookup[chainId][code];
     }
 
-    /// @dev Return all line names.
-    function list() public view returns (string[] memory) {
-        return _names;
+    /// @dev Fetch line code by chainId and line address.
+    function get(uint256 chainId, address line) external view returns (bytes4) {
+        return _codeLookup[chainId][line];
     }
 
-    /// @dev Fetch line address by line name.
-    function getLine(string calldata name) external view returns (address) {
-        return _lineLookup[name];
+    /// @dev Set a line.
+    function set(uint256 chainId, bytes4 code, address line) external onlyOwner {
+        require(code != bytes4(0), "!code");
+        require(line != address(0), "!line");
+        _lineLookup[chainId][code] = line;
+        _codeLookup[chainId][line] = code;
+        emit SetLine(chainId, code, line);
     }
 
-    /// @dev Add a line.
-    /// @notice Revert if the line name is existed.
-    function addLine(address line) external onlyOwner {
-        string memory name = ILineMetadata(line).name();
-        require(_lineLookup[name] == address(0), "already exist");
-        _names.push(name);
-        _lineLookup[name] = line;
-        emit AddLine(name, line);
+    /// @dev Delete a line.
+    function del(uint256 chainId, bytes4 code, address line) external onlyOwner {
+        delete _lineLookup[chainId][code];
+        delete _codeLookup[chainId][line];
+        emit DeleteLine(chainId, code, line);
     }
 }
