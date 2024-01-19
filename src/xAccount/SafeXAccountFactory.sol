@@ -119,7 +119,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
         proxy = _deploySafeXAccount(salt);
 
-        slat = keccak256(abi.encodePacked(proxy, salt));
+        salt = keccak256(abi.encodePacked(proxy, salt));
         module = _deploySafeMsgportModule(salt, proxy, chainId, deployer, line);
 
         bytes memory initModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
@@ -151,8 +151,12 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @param fromChainId Chain id that xAccount belongs in.
     /// @param toChainId Chain id that xAccount lives in.
     /// @param deployer Owner that xAccount belongs to.
-    /// @return xAccount address.
-    function safeXAccountOf(uint256 fromChainId, uint256 toChainId, address deployer) public view returns (address) {
+    /// @return (xAccount address, module address).
+    function safeXAccountOf(uint256 fromChainId, uint256 toChainId, address deployer)
+        public
+        view
+        returns (address, address)
+    {
         return xAccountOf(fromChainId, deployer, _toFactory(toChainId));
     }
 
@@ -161,9 +165,16 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @param deployer Owner that xAccount belongs to.
     /// @param factory Factory that create xAccount.
     /// @return xAccount address.
-    function safeXAccountOf(uint256 fromChainId, address deployer, address factory) public pure returns (address) {
-        bytes memory initCode =
-            abi.encodePacked(type(xAccountProxy).creationCode, fromChainId, uint256(uint160(deployer)));
-        return address(uint160(uint256(keccak256(abi.encodePacked(hex"ff", factory, bytes32(0), keccak256(initCode))))));
+    function safeXAccountOf(uint256 fromChainId, address deployer, address factory)
+        public
+        pure
+        returns (address, address)
+    {
+        // TODO:: fix create3 only could fetch address(this) deployed contract address.
+        bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
+        address xAccount = CREATE3.getDeployed(salt);
+        salt = keccak256(abi.encodePacked(xAccount, salt));
+        address module = CREATE3.getDeployed(salt);
+        return (xAccount, module);
     }
 }
