@@ -39,7 +39,6 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
     address internal constant DEAD_OWNER = 0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd;
 
-    event NewSafeSingleton(address singleton);
     event SafeXAccountCreated(uint256 fromChainId, address deployer, address xAccount, address module, address line);
 
     constructor(
@@ -63,7 +62,10 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
     function setSingleton(address singleton) external onlyOwner {
         safeSingleton = singleton;
-        emit NewSafeSingleton(singleton);
+    }
+
+    function setFallbackHandler(address fallbackHandler) external onlyOwner {
+        safeFallbackHandler = fallbackHandler;
     }
 
     function setURI(string calldata uri) external onlyOwner {
