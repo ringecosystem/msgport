@@ -1,5 +1,5 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 //
 // import {stdJson} from "forge-std/StdJson.sol";
 // import {Script} from "forge-std/Script.sol";

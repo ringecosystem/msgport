@@ -33,7 +33,7 @@ contract SafeMsgportModule is xAuth {
 
     constructor(address xAccount, uint256 chainId, address owner, address line) {
         trustedLine = line;
-        X_SAFE_ACCOUNT = xAccount;
+        CHILD_SAFE_XACCOUNT = xAccount;
         ROOT_CHAINID = chainId;
         ROOT_OWNER = owner;
         emit SetTrustedLine(line);
