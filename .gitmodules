@@ -22,3 +22,6 @@
 [submodule "lib/create3-deploy"]
 	path = lib/create3-deploy
 	url = https://github.com/darwinia-network/create3-deploy
+[submodule "lib/solmate"]
+	path = lib/solmate
+	url = https://github.com/transmissions11/solmate
