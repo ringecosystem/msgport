@@ -144,6 +144,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         internal
         returns (address module)
     {
+        // TODO: add minimal proxy to create module
         bytes memory creationCode = type(SafeMsgportModule).creationCode;
         bytes memory deploymentCode = abi.encodePacked(
             creationCode, uint256(uint160(xAccount)), chainId, uint256(uint160(owner)), uint256(uint160(line))
@@ -174,7 +175,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         view
         returns (address, address)
     {
-        // TODO:: fix create3 only could fetch address(this) deployed contract address.
+        // TODO: fix create3 only could fetch address(this) deployed contract address.
         bytes32 salt = keccak256(abi.encodePacked(fromChainId, deployer));
         address xAccount = CREATE3.getDeployed(salt);
         salt = keccak256(abi.encodePacked(xAccount, salt));
