@@ -153,6 +153,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     }
 
     /// @dev Calculate xAccount address on target chain.
+    /// @notice The module address is only effective during its creation and may be replaced by the xAccount in the future.
     /// @param fromChainId Chain id that xAccount belongs in.
     /// @param toChainId Chain id that xAccount lives in.
     /// @param deployer Owner that xAccount belongs to.
@@ -166,6 +167,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     }
 
     /// @dev Calculate xAccount address.
+    /// @notice The module address is only effective during its creation and may be replaced by the xAccount in the future.
     /// @param fromChainId Chain id that xAccount belongs in.
     /// @param deployer Owner that xAccount belongs to.
     /// @param factory Factory that create xAccount.
