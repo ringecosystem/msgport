@@ -17,29 +17,42 @@
 
 pragma solidity ^0.8.17;
 
+import "solmate/utils/CREATE3.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "../interfaces/ISafeProxyFactory.sol";
+import "../interfaces/ISafe.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
-import "../interfaces/IxAccount.sol";
 import "../lines/base/LineMetadata.sol";
 import "../user/Application.sol";
-import "./xAccountProxy.sol";
 
 /// @title xAccountFactory
 /// @dev xAccountFactory is a factory contract for create xAccount.
 ///   - 1 account only have 1 xAccount on target chain for each factory.
 contract xAccountFactory is Ownable2Step, Application, LineMetadata {
-    /// @dev xAccount logic contract.
-    address public xAccountLogic;
+    address public safeFallbackHandler;
+    address public safeSingleton;
 
+    ISafeProxyFactory public immutable SAFE_FACTORY;
     ILineRegistry public immutable REGISTRY;
 
-    event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
-    event NewXAccountLogic(address logic);
+    address internal constant DEAD_OWNER = 0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd;
 
-    constructor(address dao, address logic, address registry, string memory name) LineMetadata(name) {
+    event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
+    event NewSafeSingleton(address singleton);
+
+    constructor(
+        address dao,
+        address factory,
+        address singleton,
+        address fallbackHandler,
+        address registry,
+        string memory name
+    ) LineMetadata(name) {
         _transferOwnership(dao);
-        xAccountLogic = logic;
+        safeSingleton = singleton;
+        safeFallbackHandler = fallbackHandler;
+        SAFE_FACTORY = ISafeProxyFactory(factory);
         REGISTRY = ILineRegistry(registry);
     }
 
@@ -47,9 +60,9 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
         return block.chainid;
     }
 
-    function setLogic(address logic) external onlyOwner {
-        xAccountLogic = logic;
-        emit NewXAccountLogic(logic);
+    function setSingleton(address singleton) external onlyOwner {
+        safeSingleton = singleton;
+        emit NewSafeSingleton(singleton);
     }
 
     function setURI(string calldata uri) external onlyOwner {
@@ -99,13 +112,19 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
     function _deploy(uint256 chainId, address deployer, address line) internal returns (address proxy) {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
-        bytes memory initCode = type(xAccountProxy).creationCode;
+        bytes memory creationCode = SAFE_FACTORY.proxyCreationCode();
+        bytes memory deploymentCode = abi.encodePacked(creationCode, uint256(uint160(SAFE_SINGLETON)));
+
         bytes32 salt = keccak256(abi.encode(chainId, deployer));
 
-        assembly {
-            proxy := create2(0, add(initCode, 32), mload(initCode), salt)
-        }
-        IxAccount(proxy).initialize(xAccountLogic, chainId, deployer, line);
+        proxy = CREATE3.deploy(salt, deploymentCode, 0);
+
+        address module = address(0xffff);
+        bytes memory initModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
+
+        address[] memory owners = new address[](1);
+        owners[0] = DEAD_OWNER;
+        ISafe(proxy).setup(owners, 1, safeSingleton, initModule, safeFallbackHandler, address(0x0), 0, address(0x0));
 
         emit xAccountCreated(chainId, deployer, proxy);
     }
