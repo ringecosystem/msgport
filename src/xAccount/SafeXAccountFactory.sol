@@ -25,11 +25,12 @@ import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../lines/base/LineMetadata.sol";
 import "../user/Application.sol";
+import "./SafeMsgportModule.sol";
 
-/// @title xAccountFactory
-/// @dev xAccountFactory is a factory contract for create xAccount.
+/// @title SafeXAccountFactory
+/// @dev SafeXAccountFactory is a factory contract for create xAccount.
 ///   - 1 account only have 1 xAccount on target chain for each factory.
-contract xAccountFactory is Ownable2Step, Application, LineMetadata {
+contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     address public safeFallbackHandler;
     address public safeSingleton;
 
@@ -38,8 +39,8 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
 
     address internal constant DEAD_OWNER = 0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd;
 
-    event xAccountCreated(uint256 fromChainId, address deployer, address xAccount);
     event NewSafeSingleton(address singleton);
+    event SafeXAccountCreated(uint256 fromChainId, address deployer, address xAccount, address module, address line);
 
     constructor(
         address dao,
@@ -109,24 +110,41 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
         return _deploy(fromChainId, deployer, line);
     }
 
-    function _deploy(uint256 chainId, address deployer, address line) internal returns (address proxy) {
+    function _deploy(uint256 chainId, address deployer, address line)
+        internal
+        returns (address proxy, address module)
+    {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
-        bytes memory creationCode = SAFE_FACTORY.proxyCreationCode();
-        bytes memory deploymentCode = abi.encodePacked(creationCode, uint256(uint160(SAFE_SINGLETON)));
+        bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
+        proxy = _deploySafeXAccount(salt);
 
-        bytes32 salt = keccak256(abi.encode(chainId, deployer));
+        slat = keccak256(abi.encodePacked(proxy, salt));
+        module = _deploySafeMsgportModule(salt, proxy, chainId, deployer, line);
 
-        proxy = CREATE3.deploy(salt, deploymentCode, 0);
-
-        address module = address(0xffff);
         bytes memory initModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
-
         address[] memory owners = new address[](1);
         owners[0] = DEAD_OWNER;
         ISafe(proxy).setup(owners, 1, safeSingleton, initModule, safeFallbackHandler, address(0x0), 0, address(0x0));
 
-        emit xAccountCreated(chainId, deployer, proxy);
+        emit SafeXAccountCreated(chainId, deployer, proxy, module, line);
+    }
+
+    function _deploySafeXAccount(bytes32 salt) internal returns (address proxy) {
+        bytes memory creationCode = SAFE_FACTORY.proxyCreationCode();
+        bytes memory deploymentCode = abi.encodePacked(creationCode, uint256(uint160(SAFE_SINGLETON)));
+        proxy = CREATE3.deploy(salt, deploymentCode, 0);
+    }
+
+    function _deploySafeMsgportModule(bytes32 salt, address xAccount, uint256 chainId, address owner, address line)
+        internal
+        returns (address module)
+    {
+        bytes memory creationCode = type(SafeMsgportModule).creationCode;
+        bytes memory deploymentCode = abi.encodePacked(
+            creationCode, uint256(uint160(xAccount)), chainId, uint256(uint160(owner)), uint256(uint160(line))
+        );
+        module = CREATE3.deploy(salt, deploymentCode, 0);
     }
 
     /// @dev Calculate xAccount address on target chain.
@@ -134,7 +152,7 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @param toChainId Chain id that xAccount lives in.
     /// @param deployer Owner that xAccount belongs to.
     /// @return xAccount address.
-    function xAccountOf(uint256 fromChainId, uint256 toChainId, address deployer) public view returns (address) {
+    function safeXAccountOf(uint256 fromChainId, uint256 toChainId, address deployer) public view returns (address) {
         return xAccountOf(fromChainId, deployer, _toFactory(toChainId));
     }
 
@@ -143,7 +161,7 @@ contract xAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @param deployer Owner that xAccount belongs to.
     /// @param factory Factory that create xAccount.
     /// @return xAccount address.
-    function xAccountOf(uint256 fromChainId, address deployer, address factory) public pure returns (address) {
+    function safeXAccountOf(uint256 fromChainId, address deployer, address factory) public pure returns (address) {
         bytes memory initCode =
             abi.encodePacked(type(xAccountProxy).creationCode, fromChainId, uint256(uint160(deployer)));
         return address(uint160(uint256(keccak256(abi.encodePacked(hex"ff", factory, bytes32(0), keccak256(initCode))))));
