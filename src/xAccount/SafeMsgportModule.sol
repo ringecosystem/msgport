@@ -30,6 +30,7 @@ contract SafeMsgportModule is xAuth {
     event SetTrustedLine(address line);
 
     error ModuleTransactionFailed(bytes reason);
+    error SendEtherFailed(bytes reason);
 
     constructor(address xAccount, uint256 chainId, address owner, address line) {
         trustedLine = line;
@@ -63,9 +64,14 @@ contract SafeMsgportModule is xAuth {
 
     function xExecute(address target, uint256 value, bytes calldata data, Operation operation)
         external
+        payable
         returns (bytes memory)
     {
         _checkXAuth();
+        if (msg.value > 0) {
+            (bool s, bytes memory r) = CHILD_SAFE_XACCOUNT.call{value: msg.value}("");
+            if (!s) revert SendEtherFailed(r);
+        }
         (bool success, bytes memory returnData) =
             ISafe(CHILD_SAFE_XACCOUNT).execTransactionFromModuleReturnData(target, value, data, operation);
         if (!success) revert ModuleTransactionFailed(returnData);
