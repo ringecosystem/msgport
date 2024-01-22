@@ -18,21 +18,25 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title LineRegistry
 /// @notice LineRegistry will be deployed on each chain.
 /// - Could be used to verify whether the line has been registered.
 /// - Lines that be audited by MsgDAO is marked as `trusted`.
-contract LineRegistry is Ownable2Step {
+contract LineRegistry is Initializable, Ownable2Step, UUPSUpgradeable {
     event SetLine(uint256 chainId, bytes4 code, address line);
     event DeleteLine(uint256 chainId, bytes4 code, address line);
 
     mapping(uint256 chainId => mapping(bytes4 code => address line)) private _lineLookup;
     mapping(uint256 chainId => mapping(address line => bytes4 code)) private _codeLookup;
 
-    constructor(address dao) {
+    function initialize(address dao) public initializer {
         _transferOwnership(dao);
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /// @dev Fetch line address by chainId and line code.
     function get(uint256 chainId, bytes4 code) external view returns (address) {

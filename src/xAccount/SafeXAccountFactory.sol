@@ -61,7 +61,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     }
 
     function setSafeFactory(address factory) external onlyOwner {
-        safeFactory = factory;
+        safeFactory = ISafeProxyFactory(factory);
     }
 
     function setSafeSingleton(address singleton) external onlyOwner {
