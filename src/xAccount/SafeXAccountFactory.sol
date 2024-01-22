@@ -33,8 +33,8 @@ import "./SafeMsgportModule.sol";
 contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     address public safeFallbackHandler;
     address public safeSingleton;
+    ISafeProxyFactory public safeFactory;
 
-    ISafeProxyFactory public immutable SAFE_FACTORY;
     ILineRegistry public immutable REGISTRY;
 
     address internal constant DEAD_OWNER = 0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd;
@@ -52,7 +52,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         _transferOwnership(dao);
         safeSingleton = singleton;
         safeFallbackHandler = fallbackHandler;
-        SAFE_FACTORY = ISafeProxyFactory(factory);
+        safeFactory = ISafeProxyFactory(factory);
         REGISTRY = ILineRegistry(registry);
     }
 
@@ -60,11 +60,15 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         return block.chainid;
     }
 
-    function setSingleton(address singleton) external onlyOwner {
+    function setSafeFactory(address factory) external onlyOwner {
+        safeFactory = factory;
+    }
+
+    function setSafeSingleton(address singleton) external onlyOwner {
         safeSingleton = singleton;
     }
 
-    function setFallbackHandler(address fallbackHandler) external onlyOwner {
+    function setSafeFallbackHandler(address fallbackHandler) external onlyOwner {
         safeFallbackHandler = fallbackHandler;
     }
 
@@ -135,7 +139,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         internal
         returns (address proxy, address module)
     {
-        bytes memory creationCode1 = SAFE_FACTORY.proxyCreationCode();
+        bytes memory creationCode1 = safeFactory.proxyCreationCode();
         bytes memory deploymentCode1 = abi.encodePacked(creationCode1, uint256(uint160(safeSingleton)));
 
         bytes memory creationCode2 = type(SafeMsgportModule).creationCode;
