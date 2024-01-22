@@ -62,6 +62,12 @@ contract SafeMsgportModule is xAuth {
         emit SetTrustedLine(line);
     }
 
+    /// @dev Receive xCall from root chain xOwner.
+    /// @param target Target of the transaction that should be executed
+    /// @param value Wei value of the transaction that should be executed
+    /// @param data Data of the transaction that should be executed
+    /// @param operation Operation (Call or Delegatecall) of the transaction that should be executed
+    /// @return xExecute return data Return data after xCall.
     function xExecute(address target, uint256 value, bytes calldata data, Operation operation)
         external
         payable
