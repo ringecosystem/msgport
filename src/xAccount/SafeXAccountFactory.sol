@@ -124,15 +124,19 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
         (proxy, module) = _deploySafeXAccount(salt, chainId, deployer, line);
+        _setUp(proxy, module);
 
-        bytes memory initModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
+        emit SafeXAccountCreated(chainId, deployer, proxy, module, line);
+    }
+
+    function _setUp(address proxy, address module) internal {
+        bytes memory setupModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
+        uint256 threshold = 1;
         address[] memory owners = new address[](1);
         owners[0] = DEAD_OWNER;
         ISafe(proxy).setup(
-            owners, 1, safeSingleton, initModule, safeFallbackHandler, address(0x0), 0, payable(address(0x0))
+            owners, threshold, safeSingleton, setupModule, safeFallbackHandler, address(0x0), 0, payable(address(0x0))
         );
-
-        emit SafeXAccountCreated(chainId, deployer, proxy, module, line);
     }
 
     function _deploySafeXAccount(bytes32 salt, uint256 chainId, address owner, address line)
