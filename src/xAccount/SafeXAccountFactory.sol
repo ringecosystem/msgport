@@ -17,7 +17,6 @@
 
 pragma solidity ^0.8.17;
 
-import "solmate/utils/CREATE3.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../interfaces/ISafeProxyFactory.sol";
 import "../interfaces/ISafe.sol";
@@ -25,6 +24,7 @@ import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../lines/base/LineMetadata.sol";
 import "../user/Application.sol";
+import "../utils/CREATE3.sol";
 import "./SafeMsgportModule.sol";
 
 /// @title SafeXAccountFactory
@@ -119,10 +119,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
-        proxy = _deploySafeXAccount(salt);
-
-        salt = keccak256(abi.encodePacked(proxy, salt));
-        module = _deploySafeMsgportModule(salt, proxy, chainId, deployer, line);
+        (proxy, module) = _deploySafeXAccount(salt, chainId, deployer, line);
 
         bytes memory initModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
         address[] memory owners = new address[](1);
@@ -134,22 +131,18 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         emit SafeXAccountCreated(chainId, deployer, proxy, module, line);
     }
 
-    function _deploySafeXAccount(bytes32 salt) internal returns (address proxy) {
-        bytes memory creationCode = SAFE_FACTORY.proxyCreationCode();
-        bytes memory deploymentCode = abi.encodePacked(creationCode, uint256(uint160(safeSingleton)));
-        proxy = CREATE3.deploy(salt, deploymentCode, 0);
-    }
-
-    function _deploySafeMsgportModule(bytes32 salt, address xAccount, uint256 chainId, address owner, address line)
+    function _deploySafeXAccount(bytes32 salt, uint256 chainId, address owner, address line)
         internal
-        returns (address module)
+        returns (address proxy, address module)
     {
-        // TODO: add minimal proxy to create module
-        bytes memory creationCode = type(SafeMsgportModule).creationCode;
-        bytes memory deploymentCode = abi.encodePacked(
-            creationCode, uint256(uint160(xAccount)), chainId, uint256(uint160(owner)), uint256(uint160(line))
+        bytes memory creationCode1 = SAFE_FACTORY.proxyCreationCode();
+        bytes memory deploymentCode1 = abi.encodePacked(creationCode1, uint256(uint160(safeSingleton)));
+
+        bytes memory creationCode2 = type(SafeMsgportModule).creationCode;
+        bytes memory deploymentCode2 = abi.encodePacked(
+            creationCode2, uint256(uint160(proxy)), chainId, uint256(uint160(owner)), uint256(uint160(line))
         );
-        module = CREATE3.deploy(salt, deploymentCode, 0);
+        (proxy, module) = CREATE3.deploy(salt, deploymentCode1, deploymentCode2);
     }
 
     /// @dev Calculate xAccount address on target chain.
@@ -174,14 +167,10 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @return (xAccount address, module address).
     function safeXAccountOf(uint256 fromChainId, address deployer, address factory)
         public
-        view
+        pure
         returns (address, address)
     {
-        // TODO: fix create3 only could fetch address(this) deployed contract address.
         bytes32 salt = keccak256(abi.encodePacked(fromChainId, deployer));
-        address xAccount = CREATE3.getDeployed(salt);
-        salt = keccak256(abi.encodePacked(xAccount, salt));
-        address module = CREATE3.getDeployed(salt);
-        return (xAccount, module);
+        return CREATE3.getDeployed(salt, factory);
     }
 }
