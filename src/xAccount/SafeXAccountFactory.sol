@@ -97,15 +97,17 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     }
 
     /// @dev Cross chian function for create xAccount on target chain.
+    /// @notice If recovery address is `address(0)`, do not enabale recovery module.
     /// @param code Line code that used for create xAccount.
     /// @param toChainId Target chain id.
     /// @param params Line params correspond with the line.
-    function xCreate(bytes4 code, uint256 toChainId, bytes calldata params) external payable {
+    /// @param recovery The default safe recovery module address on target chain for xAccount.
+    function xCreate(bytes4 code, uint256 toChainId, bytes calldata params, address recovery) external payable {
         uint256 fee = msg.value;
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
-        bytes memory encoded = abi.encodeWithSelector(SafeXAccountFactory.xDeploy.selector, deployer);
+        bytes memory encoded = abi.encodeWithSelector(SafeXAccountFactory.xDeploy.selector, deployer, recovery);
         address line = REGISTRY.get(LOCAL_CHAINID(), code);
         IMessageLine(line).send{value: fee}(toChainId, _toFactory(toChainId), encoded, params);
     }
@@ -113,17 +115,18 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     /// @dev Create xAccount on target chain.
     /// @notice Only could be called by source chain.
     /// @param deployer Deployer on source chain.
+    /// @param recovery The default safe recovery module address for xAccount.
     /// @return Deployed xAccount address.
-    function xDeploy(address deployer) external returns (address, address) {
+    function xDeploy(address deployer, address recovery) external returns (address, address) {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         require(isRegistred(line), "!line");
         require(_xmsgSender() == _fromFactory(fromChainId), "!xmsgSender");
 
-        return _deploy(fromChainId, deployer, line);
+        return _deploy(fromChainId, deployer, line, recovery);
     }
 
-    function _deploy(uint256 chainId, address deployer, address line)
+    function _deploy(uint256 chainId, address deployer, address line, address recovery)
         internal
         returns (address proxy, address module)
     {
@@ -131,18 +134,32 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
         (proxy, module) = _deploySafeXAccount(salt, chainId, deployer, line);
-        _setUp(proxy, module);
+        _setUp(proxy, module, recovery);
 
         emit SafeXAccountCreated(chainId, deployer, proxy, module, line);
     }
 
-    function _setUp(address proxy, address module) internal {
-        bytes memory setupModule = abi.encodeWithSelector(ISafe.enableModule.selector, module);
+    function setupModules(address module, address recovery) external {
+        ISafe safe = ISafe(address(this));
+        safe.enableModule(module);
+        if (recovery != address(0)) safe.enableModule(recovery);
+    }
+
+    function _setUp(address proxy, address module, address recovery) internal {
+        bytes memory setupModulesData =
+            abi.encodeWithSelector(SafeXAccountFactory.setupModules.selector, module, recovery);
         uint256 threshold = 1;
         address[] memory owners = new address[](1);
         owners[0] = DEAD_OWNER;
         ISafe(proxy).setup(
-            owners, threshold, safeSingleton, setupModule, safeFallbackHandler, address(0x0), 0, payable(address(0x0))
+            owners,
+            threshold,
+            address(this),
+            setupModulesData,
+            safeFallbackHandler,
+            address(0x0),
+            0,
+            payable(address(0x0))
         );
     }
 
