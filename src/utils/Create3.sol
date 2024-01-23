@@ -69,7 +69,7 @@ library CREATE3 {
             .fromLast20Bytes();
 
         address deployed2 = keccak256(abi.encodePacked(hex"d694", proxy, hex"02")) // Nonce of the proxy contract (2)
-            // 0xd6 = 0xc0 (short RLP prefix) + 0x16 (length of: 0x94 ++ proxy ++ 0x01)
+            // 0xd6 = 0xc0 (short RLP prefix) + 0x16 (length of: 0x94 ++ proxy ++ 0x02)
             // 0x94 = 0x80 + 0x14 (0x14 = the length of an address, 20 bytes, in hex)
             .fromLast20Bytes();
         return (deployed1, deployed2);
