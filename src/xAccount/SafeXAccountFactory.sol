@@ -19,13 +19,13 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../interfaces/ISafeProxyFactory.sol";
+import "../interfaces/IModuleFactory.sol";
 import "../interfaces/ISafe.sol";
 import "../interfaces/ILineRegistry.sol";
 import "../interfaces/IMessageLine.sol";
 import "../lines/base/LineMetadata.sol";
 import "../user/Application.sol";
 import "../utils/CREATE3.sol";
-import "./SafeMsgportModule.sol";
 
 /// @title SafeXAccountFactory
 /// @dev SafeXAccountFactory is a factory contract for create xAccount.
@@ -34,6 +34,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
     address public safeFallbackHandler;
     address public safeSingleton;
     ISafeProxyFactory public safeFactory;
+    IModuleFactory public moduleFactory;
 
     ILineRegistry public immutable REGISTRY;
 
@@ -43,7 +44,8 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
     constructor(
         address dao,
-        address factory,
+        address mfactory,
+        address sfactory,
         address singleton,
         address fallbackHandler,
         address registry,
@@ -52,7 +54,8 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         _transferOwnership(dao);
         safeSingleton = singleton;
         safeFallbackHandler = fallbackHandler;
-        safeFactory = ISafeProxyFactory(factory);
+        safeFactory = ISafeProxyFactory(sfactory);
+        moduleFactory = IModuleFactory(mfactory);
         REGISTRY = ILineRegistry(registry);
     }
 
@@ -70,6 +73,10 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
 
     function setSafeFallbackHandler(address fallbackHandler) external onlyOwner {
         safeFallbackHandler = fallbackHandler;
+    }
+
+    function setModuleFactory(address factory) external onlyOwner {
+        moduleFactory = IModuleFactory(factory);
     }
 
     function setURI(string calldata uri) external onlyOwner {
@@ -146,7 +153,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         bytes memory creationCode1 = safeFactory.proxyCreationCode();
         bytes memory deploymentCode1 = abi.encodePacked(creationCode1, uint256(uint160(safeSingleton)));
 
-        bytes memory creationCode2 = type(SafeMsgportModule).creationCode;
+        bytes memory creationCode2 = moduleFactory.moduleCreationCode();
         bytes memory deploymentCode2 = abi.encodePacked(
             creationCode2, uint256(uint160(proxy)), chainId, uint256(uint160(owner)), uint256(uint160(line))
         );
