@@ -21,23 +21,23 @@ import "../interfaces/ISafe.sol";
 import "../user/xAuth.sol";
 
 contract SafeMsgportModule is xAuth {
-    address public trustedLine;
+    address public line;
 
     address public immutable CHILD_SAFE_XACCOUNT;
     uint256 public immutable ROOT_CHAINID;
     address public immutable ROOT_OWNER;
 
-    event SetTrustedLine(address line);
+    event SetLine(address line);
 
     error ModuleTransactionFailed(bytes reason);
     error SendEtherFailed(bytes reason);
 
-    constructor(address xAccount, uint256 chainId, address owner, address line) {
-        trustedLine = line;
+    constructor(address xAccount, uint256 chainId, address owner, address line_) {
+        line = line_;
         CHILD_SAFE_XACCOUNT = xAccount;
         ROOT_CHAINID = chainId;
         ROOT_OWNER = owner;
-        emit SetTrustedLine(line);
+        emit SetLine(line_);
     }
 
     /// @dev Fetch the xAccount xOwner.
@@ -48,18 +48,18 @@ contract SafeMsgportModule is xAuth {
         return (ROOT_CHAINID, ROOT_OWNER);
     }
 
-    /// @dev Check the line is trusted or not.
+    /// @dev Check that the xCall originates from the line.
     /// @return Check result.
-    function isTrustedLine(address line) public view override returns (bool) {
-        return trustedLine == line;
+    function checkLine(address line_) public view override returns (bool) {
+        return line == line_;
     }
 
-    /// @dev Set trusted line.
-    /// @param line New trusted line.
-    function setTrustedLine(address line) external {
+    /// @dev Set line.
+    /// @param line_ New line.
+    function setLine(address line_) external {
         _checkXAuth();
-        trustedLine = line;
-        emit SetTrustedLine(line);
+        line = line_;
+        emit SetLine(line_);
     }
 
     /// @dev Receive xCall from root chain xOwner.

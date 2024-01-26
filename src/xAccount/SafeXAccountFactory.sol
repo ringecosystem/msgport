@@ -167,6 +167,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, LineMetadata {
         internal
         returns (address proxy, address module)
     {
+        (proxy, module) = CREATE3.getDeployed(salt, address(this));
         bytes memory creationCode1 = safeFactory.proxyCreationCode();
         bytes memory deploymentCode1 = abi.encodePacked(creationCode1, uint256(uint160(safeSingleton)));
 

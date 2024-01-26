@@ -22,14 +22,14 @@ import "../interfaces/ILineRegistry.sol";
 
 abstract contract xAuth is Application {
     function xOwner() public virtual returns (uint256, address);
-    function isTrustedLine(address line) public virtual returns (bool);
+    function checkLine(address line) public virtual returns (bool);
 
     function _checkXAuth() internal virtual {
         address line = _msgLine();
         uint256 fromChainId = _fromChainId();
         (uint256 chainId, address owner) = xOwner();
         require(fromChainId != block.chainid, "!fromChainId");
-        require(isTrustedLine(line), "!trusted");
+        require(checkLine(line), "!trusted");
         require(fromChainId == chainId, "!xOwner.chainId");
         require(_xmsgSender() == owner, "!xOwner.owner");
     }
