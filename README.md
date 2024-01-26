@@ -47,3 +47,7 @@ git clone --recurse-submodules https://github.com/darwinia-network/darwinia-msgp
 make tools
 make
 ```
+
+## Security and Liability
+
+All contracts are WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

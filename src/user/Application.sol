@@ -18,8 +18,8 @@
 pragma solidity ^0.8.17;
 
 abstract contract Application {
-    function _msgSender() internal view returns (address payable _line) {
-        _line = payable(msg.sender);
+    function _msgLine() internal view returns (address _line) {
+        _line = msg.sender;
     }
 
     /// @notice The cross-chain message source chainId

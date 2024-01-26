@@ -15,25 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-abstract contract FromLineLookup {
-    event SetFromLine(uint256 fromChainId, address fromLine);
+import "./SafeMsgportModule.sol";
 
-    // fromChainId => fromLineAddress
-    mapping(uint256 => address) public fromLineLookup;
-
-    function _setFromLine(uint256 fromChainId, address fromLine) internal virtual {
-        fromLineLookup[fromChainId] = fromLine;
-        emit SetFromLine(fromChainId, fromLine);
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
-    }
-
-    function _checkedFromLine(uint256 fromChainId) internal view returns (address l) {
-        l = fromLineLookup[fromChainId];
-        require(l != address(0), "!fromLine");
+contract ModuleFactory {
+    function moduleCreationCode() public pure returns (bytes memory) {
+        return type(SafeMsgportModule).creationCode;
     }
 }

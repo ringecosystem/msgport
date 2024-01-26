@@ -44,26 +44,20 @@ contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         _setFromLine(_fromChainId, _fromLineAddress);
     }
 
-    function _toLine(uint256 toChainId) internal view returns (address) {
-        return toLineLookup[toChainId];
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
-    }
-
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, fromDapp, toDapp, message);
-        IORMP(TRUSTED_ORMP).send{value: msg.value}(toChainId, _toLine(toChainId), gasLimit, encoded, refund, ormpParams);
+        IORMP(TRUSTED_ORMP).send{value: msg.value}(
+            toChainId, _checkedToLine(toChainId), gasLimit, encoded, refund, ormpParams
+        );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
         uint256 fromChainId = _fromChainId();
-        require(_xmsgSender() == _fromLine(fromChainId), "!auth");
+        require(_xmsgSender() == _checkedFromLine(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 

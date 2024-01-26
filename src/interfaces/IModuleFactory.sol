@@ -17,23 +17,6 @@
 
 pragma solidity ^0.8.0;
 
-abstract contract FromLineLookup {
-    event SetFromLine(uint256 fromChainId, address fromLine);
-
-    // fromChainId => fromLineAddress
-    mapping(uint256 => address) public fromLineLookup;
-
-    function _setFromLine(uint256 fromChainId, address fromLine) internal virtual {
-        fromLineLookup[fromChainId] = fromLine;
-        emit SetFromLine(fromChainId, fromLine);
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
-    }
-
-    function _checkedFromLine(uint256 fromChainId) internal view returns (address l) {
-        l = fromLineLookup[fromChainId];
-        require(l != address(0), "!fromLine");
-    }
+interface IModuleFactory {
+    function moduleCreationCode() external pure returns (bytes memory);
 }

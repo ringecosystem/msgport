@@ -7,3 +7,4 @@ ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 ORMP/=lib/ORMP/
 create3-deploy/=lib/create3-deploy/
+solmate/=lib/solmate/src/

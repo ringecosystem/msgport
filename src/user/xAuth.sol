@@ -15,25 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-abstract contract FromLineLookup {
-    event SetFromLine(uint256 fromChainId, address fromLine);
+import "./Application.sol";
+import "../interfaces/ILineRegistry.sol";
 
-    // fromChainId => fromLineAddress
-    mapping(uint256 => address) public fromLineLookup;
+abstract contract xAuth is Application {
+    function xOwner() public virtual returns (uint256, address);
+    function checkLine(address line) public virtual returns (bool);
 
-    function _setFromLine(uint256 fromChainId, address fromLine) internal virtual {
-        fromLineLookup[fromChainId] = fromLine;
-        emit SetFromLine(fromChainId, fromLine);
-    }
-
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
-    }
-
-    function _checkedFromLine(uint256 fromChainId) internal view returns (address l) {
-        l = fromLineLookup[fromChainId];
-        require(l != address(0), "!fromLine");
+    function _checkXAuth() internal virtual {
+        address line = _msgLine();
+        uint256 fromChainId = _fromChainId();
+        (uint256 chainId, address owner) = xOwner();
+        require(fromChainId != block.chainid, "!fromChainId");
+        require(checkLine(line), "!trusted");
+        require(fromChainId == chainId, "!xOwner.chainId");
+        require(_xmsgSender() == owner, "!xOwner.owner");
     }
 }

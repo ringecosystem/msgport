@@ -3,7 +3,7 @@
 
 -include .env
 
-all    :; @forge build --force
+all    :; @forge build
 fmt    :; @forge fmt
 clean  :; @forge clean
 test   :; @forge test
