@@ -17,11 +17,11 @@
 
 pragma solidity ^0.8.0;
 
-interface IMessageLine {
+interface IMessagePort {
     error MessageFailure(bytes errorData);
 
-    /// @dev Send a cross-chain message over the MessageLine.
-    /// @notice Send a cross-chain message over the MessageLine.
+    /// @dev Send a cross-chain message over the MessagePort.
+    /// @notice Send a cross-chain message over the MessagePort.
     /// @param toChainId The message destination chain id. <https://eips.ethereum.org/EIPS/eip-155>
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
@@ -29,7 +29,7 @@ interface IMessageLine {
     function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) external payable;
 
     /// @notice Get a quote in source native gas, for the amount that send() requires to pay for message delivery.
-    ///         It should be noted that not all lines will implement this interface.
+    ///         It should be noted that not all ports will implement this interface.
     /// @dev If the messaging protocol does not support on-chain fetch fee, then revert with "Unimplemented!".
     /// @param toChainId The message destination chain id. <https://eips.ethereum.org/EIPS/eip-155>
     /// @param toDapp The user application contract address which receive the message.

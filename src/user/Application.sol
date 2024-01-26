@@ -18,8 +18,8 @@
 pragma solidity ^0.8.17;
 
 abstract contract Application {
-    function _msgLine() internal view returns (address _line) {
-        _line = msg.sender;
+    function _msgPort() internal view returns (address _port) {
+        _port = msg.sender;
     }
 
     /// @notice The cross-chain message source chainId

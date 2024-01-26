@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageLine.sol";
-import "./base/LineLookup.sol";
+import "./base/BaseMessagePort.sol";
+import "./base/PortLookup.sol";
 import "../chain-id-mappings/AxelarChainIdMapping.sol";
 import "../utils/Utils.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
@@ -27,29 +27,29 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, AxelarExecutable, Ownable2Step {
+contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, AxelarExecutable, Ownable2Step {
     IAxelarGasService public immutable GAS_SERVICE;
 
     constructor(
         address _gateway,
         address _gasReceiver,
         string memory _name,
-        uint256[] memory _lineRegistryChainIds,
+        uint256[] memory _portRegistryChainIds,
         string[] memory _axelarChainIds
-    ) BaseMessageLine(_name) AxelarExecutable(_gateway) AxelarChainIdMapping(_lineRegistryChainIds, _axelarChainIds) {
+    ) BaseMessagePort(_name) AxelarExecutable(_gateway) AxelarChainIdMapping(_portRegistryChainIds, _axelarChainIds) {
         GAS_SERVICE = IAxelarGasService(_gasReceiver);
     }
 
-    function setChainIdMap(uint256 _lineRegistryChainId, string calldata _axelarChainId) external onlyOwner {
-        _setChainIdMap(_lineRegistryChainId, _axelarChainId);
+    function setChainIdMap(uint256 _portRegistryChainId, string calldata _axelarChainId) external onlyOwner {
+        _setChainIdMap(_portRegistryChainId, _axelarChainId);
     }
 
-    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _setToLine(_toChainId, _toLineAddress);
+    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
+        _setToPort(_toChainId, _toPortAddress);
     }
 
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
+        _setFromPort(_fromChainId, _fromPortAddress);
     }
 
     function _send(
@@ -62,15 +62,15 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = down(_toChainId);
-        string memory toLineAddress = Utils.addressToHexString(toLineLookup[_toChainId]);
+        string memory toPortAddress = Utils.addressToHexString(toPortLookup[_toChainId]);
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
-                address(this), toChainId, toLineAddress, axelarMessage, msg.sender
+                address(this), toChainId, toPortAddress, axelarMessage, msg.sender
             );
         }
 
-        gateway.callContract(toChainId, toLineAddress, axelarMessage);
+        gateway.callContract(toChainId, toPortAddress, axelarMessage);
     }
 
     function _execute(string calldata sourceChain_, string calldata sourceAddress_, bytes calldata payload_)
@@ -81,7 +81,7 @@ contract AxelarLine is BaseMessageLine, LineLookup, AxelarChainIdMapping, Axelar
             abi.decode(payload_, (address, address, bytes));
 
         uint256 fromChainId = up(sourceChain_);
-        require(fromLineLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source line address");
+        require(fromPortLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source port address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }

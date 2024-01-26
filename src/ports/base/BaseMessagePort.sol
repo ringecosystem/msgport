@@ -17,18 +17,18 @@
 
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IMessageLine.sol";
-import "./LineMetadata.sol";
+import "../../interfaces/IMessagePort.sol";
+import "./PortMetadata.sol";
 
-abstract contract BaseMessageLine is IMessageLine, LineMetadata {
-    constructor(string memory name) LineMetadata(name) {}
+abstract contract BaseMessagePort is IMessagePort, PortMetadata {
+    constructor(string memory name) PortMetadata(name) {}
 
     function LOCAL_CHAINID() public view returns (uint256) {
         return block.chainid;
     }
 
-    /// @dev Send a cross-chain message over the MessageLine.
-    ///      Line developer should implement this, then it will be called by `send`.
+    /// @dev Send a cross-chain message over the MessagePort.
+    ///      Port developer should implement this, then it will be called by `send`.
     /// @param fromDapp The real sender account who send the message.
     /// @param toChainId The message destination chain id. <https://eips.ethereum.org/EIPS/eip-155>
     /// @param toDapp The user application contract address which receive the message.
@@ -43,7 +43,7 @@ abstract contract BaseMessageLine is IMessageLine, LineMetadata {
     }
 
     /// @dev Make toDapp accept messages.
-    ///      This should be called by message line when a message is received.
+    ///      This should be called by message port when a message is received.
     /// @param fromChainId The source chainId, standard evm chainId.
     /// @param fromDapp The message sender in source chain.
     /// @param toDapp The message receiver in dest chain.

@@ -15,10 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+abstract contract ToPortLookup {
+    event SetToPort(uint256 toChainId, address toPort);
 
-contract LineRegistryProxy is ERC1967Proxy {
-    constructor(address logic, bytes memory data) ERC1967Proxy(logic, data) {}
+    // toChainId => toPortAddress
+    mapping(uint256 => address) public toPortLookup;
+
+    function _setToPort(uint256 toChainId, address toPort) internal virtual {
+        toPortLookup[toChainId] = toPort;
+        emit SetToPort(toChainId, toPort);
+    }
+
+    function _toPort(uint256 toChainId) internal view returns (address) {
+        return toPortLookup[toChainId];
+    }
+
+    function _checkedToPort(uint256 toChainId) internal view returns (address l) {
+        l = toPortLookup[toChainId];
+        require(l != address(0), "!toPort");
+    }
 }

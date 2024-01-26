@@ -17,35 +17,35 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageLine.sol";
-import "./base/FromLineLookup.sol";
+import "./base/BaseMessagePort.sol";
+import "./base/FromPortLookup.sol";
 import "../utils/Utils.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
 
-contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMapping, NonblockingLzApp {
+contract LayerZeroPort is BaseMessagePort, FromPortLookup, LayerZeroChainIdMapping, NonblockingLzApp {
     address public immutable lowLevelMessager;
 
     constructor(
         address _lzEndpointAddress,
         string memory _name,
-        uint256[] memory _lineRegistryChainIds,
+        uint256[] memory _portRegistryChainIds,
         uint16[] memory _lzChainIds
     )
-        BaseMessageLine(_name)
+        BaseMessagePort(_name)
         NonblockingLzApp(_lzEndpointAddress)
-        LayerZeroChainIdMapping(_lineRegistryChainIds, _lzChainIds)
+        LayerZeroChainIdMapping(_portRegistryChainIds, _lzChainIds)
     {
         lowLevelMessager = _lzEndpointAddress;
     }
 
-    function setChainIdMap(uint256 _lineRegistryChainId, uint16 _lzChainId) external onlyOwner {
-        _setChainIdMap(_lineRegistryChainId, _lzChainId);
+    function setChainIdMap(uint256 _portRegistryChainId, uint16 _lzChainId) external onlyOwner {
+        _setChainIdMap(_portRegistryChainId, _lzChainId);
     }
 
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
+        _setFromPort(_fromChainId, _fromPortAddress);
     }
 
     function _send(
@@ -55,7 +55,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         bytes calldata _messagePayload,
         bytes calldata _params
     ) internal override {
-        // set remote line address
+        // set remote port address
         uint16 remoteChainId = down(_toChainId);
 
         // build layer zero message
@@ -64,7 +64,7 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         _lzSend(
             remoteChainId,
             layerZeroMessage,
-            payable(msg.sender), // refund to lineRegistry
+            payable(msg.sender), // refund to portRegistry
             address(0x0), // zro payment address
             _params, // adapter params
             msg.value
@@ -78,12 +78,12 @@ contract LayerZeroLine is BaseMessageLine, FromLineLookup, LayerZeroChainIdMappi
         bytes memory _payload
     ) internal virtual override {
         uint256 srcChainId = up(_srcChainId);
-        address srcLineAddress = Utils.bytesToAddress(_srcAddress);
+        address srcPortAddress = Utils.bytesToAddress(_srcAddress);
 
         (address fromDappAddress, address toDappAddress, bytes memory messagePayload) =
             abi.decode(_payload, (address, address, bytes));
 
-        require(fromLineLookup[srcChainId] == srcLineAddress, "invalid source line address");
+        require(fromPortLookup[srcChainId] == srcPortAddress, "invalid source port address");
 
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }

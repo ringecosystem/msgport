@@ -17,14 +17,14 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessageLine.sol";
-import "./base/LineLookup.sol";
+import "./base/BaseMessagePort.sol";
+import "./base/PortLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
-    constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessageLine(name) {
+contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
+    constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessagePort(name) {
         _transferOwnership(dao);
     }
 
@@ -36,12 +36,12 @@ contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         _setAppConfig(oracle, relayer);
     }
 
-    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _setToLine(_toChainId, _toLineAddress);
+    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
+        _setToPort(_toChainId, _toPortAddress);
     }
 
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
+        _setFromPort(_fromChainId, _fromPortAddress);
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -49,15 +49,15 @@ contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         override
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, fromDapp, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, fromDapp, toDapp, message);
         IORMP(TRUSTED_ORMP).send{value: msg.value}(
-            toChainId, _checkedToLine(toChainId), gasLimit, encoded, refund, ormpParams
+            toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
         uint256 fromChainId = _fromChainId();
-        require(_xmsgSender() == _checkedFromLine(fromChainId), "!auth");
+        require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 
@@ -68,7 +68,7 @@ contract ORMPLine is Ownable2Step, Application, BaseMessageLine, LineLookup {
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(ORMPLine.recv.selector, msg.sender, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, msg.sender, toDapp, message);
         return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }

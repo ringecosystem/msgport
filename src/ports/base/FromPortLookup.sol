@@ -17,23 +17,23 @@
 
 pragma solidity ^0.8.0;
 
-abstract contract FromLineLookup {
-    event SetFromLine(uint256 fromChainId, address fromLine);
+abstract contract FromPortLookup {
+    event SetFromPort(uint256 fromChainId, address fromPort);
 
-    // fromChainId => fromLineAddress
-    mapping(uint256 => address) public fromLineLookup;
+    // fromChainId => fromPortAddress
+    mapping(uint256 => address) public fromPortLookup;
 
-    function _setFromLine(uint256 fromChainId, address fromLine) internal virtual {
-        fromLineLookup[fromChainId] = fromLine;
-        emit SetFromLine(fromChainId, fromLine);
+    function _setFromPort(uint256 fromChainId, address fromPort) internal virtual {
+        fromPortLookup[fromChainId] = fromPort;
+        emit SetFromPort(fromChainId, fromPort);
     }
 
-    function _fromLine(uint256 fromChainId) internal view returns (address) {
-        return fromLineLookup[fromChainId];
+    function _fromPort(uint256 fromChainId) internal view returns (address) {
+        return fromPortLookup[fromChainId];
     }
 
-    function _checkedFromLine(uint256 fromChainId) internal view returns (address l) {
-        l = fromLineLookup[fromChainId];
-        require(l != address(0), "!fromLine");
+    function _checkedFromPort(uint256 fromChainId) internal view returns (address l) {
+        l = fromPortLookup[fromChainId];
+        require(l != address(0), "!fromPort");
     }
 }

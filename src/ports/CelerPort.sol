@@ -17,8 +17,8 @@
 
 pragma solidity 0.8.9;
 
-import "./base/BaseMessageLine.sol";
-import "./base/LineLookup.sol";
+import "./base/BaseMessagePort.sol";
+import "./base/PortLookup.sol";
 import "../chain-id-mappings/CelerChainIdMapping.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
@@ -26,35 +26,35 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageSenderApp, MessageReceiverApp {
-    address public remoteLineAddress;
+contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageSenderApp, MessageReceiverApp {
+    address public remotePortAddress;
     address public immutable lowLevelMessager;
 
     constructor(
         address _messageBus,
         string memory _name,
-        uint256[] memory _lineRegistryChainIds,
+        uint256[] memory _portRegistryChainIds,
         uint64[] memory _celerChainIds
-    ) BaseMessageLine(_name) CelerChainIdMapping(_lineRegistryChainIds, _celerChainIds) {
+    ) BaseMessagePort(_name) CelerChainIdMapping(_portRegistryChainIds, _celerChainIds) {
         lowLevelMessager = _messageBus;
     }
 
-    function setChainIdMap(uint256 _lineRegistryChainId, uint64 _celerChainId) external onlyOwner {
-        _setChainIdMap(_lineRegistryChainId, _celerChainId);
+    function setChainIdMap(uint256 _portRegistryChainId, uint64 _celerChainId) external onlyOwner {
+        _setChainIdMap(_portRegistryChainId, _celerChainId);
     }
 
-    function setToLine(uint256 _toChainId, address _toLineAddress) external onlyOwner {
-        _setToLine(_toChainId, _toLineAddress);
+    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
+        _setToPort(_toChainId, _toPortAddress);
     }
 
-    function setFromLine(uint256 _fromChainId, address _fromLineAddress) external onlyOwner {
-        _setFromLine(_fromChainId, _fromLineAddress);
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
+        _setFromPort(_fromChainId, _fromPortAddress);
     }
 
     //////////////////////////////////////////
     // For sending
     //////////////////////////////////////////
-    // override BaseMessageLine
+    // override BaseMessagePort
     function _send(
         address _fromDappAddress,
         uint256 _toChainId,
@@ -76,7 +76,7 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
             payable(msg.sender).transfer(paid - fee);
         }
 
-        sendMessage(toLineLookup[_toChainId], down(_toChainId), celerMessage, fee);
+        sendMessage(toPortLookup[_toChainId], down(_toChainId), celerMessage, fee);
     }
 
     //////////////////////////////////////////
@@ -96,7 +96,7 @@ contract CelerLine is BaseMessageLine, LineLookup, CelerChainIdMapping, MessageS
 
         require(msg.sender == lowLevelMessager, "caller is not message bus");
 
-        require(fromLineLookup[fromChainId] == _srcContract, "invalid source line address");
+        require(fromPortLookup[fromChainId] == _srcContract, "invalid source port address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 

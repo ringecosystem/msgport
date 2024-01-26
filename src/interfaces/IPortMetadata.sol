@@ -17,23 +17,13 @@
 
 pragma solidity ^0.8.0;
 
-abstract contract ToLineLookup {
-    event SetToLine(uint256 toChainId, address toLine);
+interface IPortMetadata {
+    event URI(string uri);
 
-    // toChainId => toLineAddress
-    mapping(uint256 => address) public toLineLookup;
+    /// @notice Get the port name, it's globally unique and immutable.
+    /// @return The MessagePort name.
+    function name() external view returns (string memory);
 
-    function _setToLine(uint256 toChainId, address toLine) internal virtual {
-        toLineLookup[toChainId] = toLine;
-        emit SetToLine(toChainId, toLine);
-    }
-
-    function _toLine(uint256 toChainId) internal view returns (address) {
-        return toLineLookup[toChainId];
-    }
-
-    function _checkedToLine(uint256 toChainId) internal view returns (address l) {
-        l = toLineLookup[toChainId];
-        require(l != address(0), "!toLine");
-    }
+    /// @return The port metadata uri.
+    function uri() external view returns (string memory);
 }

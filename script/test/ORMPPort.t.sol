@@ -7,13 +7,13 @@ import "ORMP/src/ORMP.sol";
 import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/UserConfig.sol";
 
-import "../../src/lines/ORMPLine.sol";
-import "../../src/lines/base/FromLineLookup.sol";
+import "../../src/ports/ORMPPort.sol";
+import "../../src/ports/base/FromPortLookup.sol";
 
-contract ORMPLineTest is Test {
+contract ORMPPortTest is Test {
     using Chains for uint256;
 
-    ORMPLine ormpLine;
+    ORMPPort ormpPort;
     address dao;
     address ormpProtocol;
 
@@ -22,52 +22,52 @@ contract ORMPLineTest is Test {
         vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
         ormpProtocol = address(0x00000000001523057a05d6293C1e5171eE33eE0A);
-        ormpLine = new ORMPLine(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
+        ormpPort = new ORMPPort(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
     }
 
     function testSetUri() public {
         string memory testUri = "https://test.uri";
         vm.prank(dao);
-        ormpLine.setURI(testUri);
-        assertEq(ormpLine.uri(), testUri);
+        ormpPort.setURI(testUri);
+        assertEq(ormpPort.uri(), testUri);
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
-        ormpLine.setURI("https://test.uri");
+        ormpPort.setURI("https://test.uri");
     }
 
     function testSetAppConfig() public {
         vm.prank(dao);
-        ormpLine.setAppConfig(address(0x2), address(0x3));
-        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpLine));
+        ormpPort.setAppConfig(address(0x2), address(0x3));
+        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpPort));
         assertEq(uc.oracle, address(0x2));
         assertEq(uc.relayer, address(0x3));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
-        ormpLine.setAppConfig(address(0x2), address(0x3));
+        ormpPort.setAppConfig(address(0x2), address(0x3));
     }
 
-    function testSetLine() public {
-        // From line
+    function testSetPort() public {
+        // From port
         vm.prank(dao);
-        ormpLine.setFromLine(1, address(0x1));
+        ormpPort.setFromPort(1, address(0x1));
         vm.prank(dao);
-        ormpLine.setFromLine(2, address(0x2));
-        assertEq(LineLookup(ormpLine).fromLineLookup(1), address(0x1));
-        assertEq(LineLookup(ormpLine).fromLineLookup(2), address(0x2));
-        // To line
+        ormpPort.setFromPort(2, address(0x2));
+        assertEq(PortLookup(ormpPort).fromPortLookup(1), address(0x1));
+        assertEq(PortLookup(ormpPort).fromPortLookup(2), address(0x2));
+        // To port
         vm.prank(dao);
-        ormpLine.setToLine(3, address(0x3));
+        ormpPort.setToPort(3, address(0x3));
         vm.prank(dao);
-        ormpLine.setToLine(4, address(0x4));
-        assertEq(LineLookup(ormpLine).toLineLookup(3), address(0x3));
-        assertEq(LineLookup(ormpLine).toLineLookup(4), address(0x4));
+        ormpPort.setToPort(4, address(0x4));
+        assertEq(PortLookup(ormpPort).toPortLookup(3), address(0x3));
+        assertEq(PortLookup(ormpPort).toPortLookup(4), address(0x4));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
-        ormpLine.setFromLine(5, address(0x5));
+        ormpPort.setFromPort(5, address(0x5));
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
-        ormpLine.setFromLine(6, address(0x6));
+        ormpPort.setFromPort(6, address(0x6));
     }
 
     function testSend() public {
@@ -79,7 +79,7 @@ contract ORMPLineTest is Test {
         );
         bytes memory params = bytes("0x");
         bytes memory adapterParams = abi.encode(500000, refund, params);
-        uint256 fee = ormpLine.fee(toChainId, toDapp, message, adapterParams);
-        ormpLine.send{value: fee}(toChainId, toDapp, message, adapterParams);
+        uint256 fee = ormpPort.fee(toChainId, toDapp, message, adapterParams);
+        ormpPort.send{value: fee}(toChainId, toDapp, message, adapterParams);
     }
 }

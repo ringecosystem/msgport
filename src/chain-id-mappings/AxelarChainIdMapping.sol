@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 contract AxelarChainIdMapping {
-    error LineRegistryChainIdNotFound(uint256 lineRegistryChainId);
+    error RegistryChainIdNotFound(uint256 lineRegistryChainId);
     error AxelarChainIdNotFound(string axelarChainId);
 
     mapping(uint256 => string) public downMapping;
@@ -40,14 +40,14 @@ contract AxelarChainIdMapping {
     function down(uint256 lineRegistryChainId) internal view returns (string memory axelarChainId) {
         axelarChainId = downMapping[lineRegistryChainId];
         if (bytes(axelarChainId).length == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
     function up(string memory axelarChainId) internal view returns (uint256 lineRegistryChainId) {
         lineRegistryChainId = upMapping[axelarChainId];
         if (lineRegistryChainId == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 }

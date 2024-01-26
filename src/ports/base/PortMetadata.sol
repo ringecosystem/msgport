@@ -17,9 +17,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../../interfaces/ILineMetadata.sol";
+import "../../interfaces/IPortMetadata.sol";
 
-contract LineMetadata is ILineMetadata {
+contract PortMetadata is IPortMetadata {
     string internal _name;
     string internal _uri;
 

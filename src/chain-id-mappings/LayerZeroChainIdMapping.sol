@@ -19,7 +19,7 @@ pragma solidity ^0.8.17;
 
 // https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
 contract LayerZeroChainIdMapping {
-    error LineRegistryChainIdNotFound(uint256 lineRegistryChainId);
+    error RegistryChainIdNotFound(uint256 lineRegistryChainId);
     error LzChainIdNotFound(uint16 lzChainId);
 
     mapping(uint256 => uint16) public downMapping;
@@ -41,14 +41,14 @@ contract LayerZeroChainIdMapping {
     function down(uint256 lineRegistryChainId) internal view returns (uint16 lzChainId) {
         lzChainId = downMapping[lineRegistryChainId];
         if (lzChainId == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
     function up(uint16 lzChainId) internal view returns (uint256 lineRegistryChainId) {
         lineRegistryChainId = upMapping[lzChainId];
         if (lineRegistryChainId == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 }

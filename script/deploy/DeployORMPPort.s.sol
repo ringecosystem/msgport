@@ -7,7 +7,7 @@ import {console2 as console} from "forge-std/console2.sol";
 import {Common} from "create3-deploy/script/Common.s.sol";
 import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
-import "../../src/lines/ORMPLine.sol";
+import "../../src/ports/ORMPPort.sol";
 
 interface III {
     function owner() external view returns (address);
@@ -15,7 +15,7 @@ interface III {
     function pendingOwner() external view returns (address);
 }
 
-contract DeployORMPLine is Common {
+contract DeployORMPPort is Common {
     using stdJson for string;
     using ScriptTools for string;
 
@@ -31,19 +31,19 @@ contract DeployORMPLine is Common {
     address dao;
 
     function name() public pure override returns (string memory) {
-        return "DeployORMPLine";
+        return "DeployORMPPort";
     }
 
     function setUp() public override {
         super.setUp();
 
-        instanceId = vm.envOr("INSTANCE_ID", string("deploy_ormp_line.c"));
-        outputName = "deploy_ormp_line.a";
+        instanceId = vm.envOr("INSTANCE_ID", string("deploy_ormp_port.c"));
+        outputName = "deploy_ormp_port.a";
         config = ScriptTools.readInput(instanceId);
         c3 = ScriptTools.readInput("../c3");
         ORMP = c3.readAddress(".ORMP_ADDR");
-        ADDR = c3.readAddress(".ORMPLINE_ADDR");
-        SALT = c3.readBytes32(".ORMPLINE_SALT");
+        ADDR = c3.readAddress(".ORMPPORT_ADDR");
+        SALT = c3.readBytes32(".ORMPPORT_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
         dao = config.readAddress(".DAO");
@@ -56,18 +56,18 @@ contract DeployORMPLine is Common {
         // setConfig();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
-        ScriptTools.exportContract(outputName, "ORMP_LINE", ADDR);
+        ScriptTools.exportContract(outputName, "ORMP_port", ADDR);
     }
 
     function deploy() public broadcast returns (address) {
         string memory name_ = config.readString(".metadata.name");
-        bytes memory byteCode = type(ORMPLine).creationCode;
+        bytes memory byteCode = type(ORMPPort).creationCode;
         bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, ORMP, name_));
-        address line = _deploy3(SALT, initCode);
-        require(line == ADDR, "!addr");
+        address port = _deploy3(SALT, initCode);
+        require(port == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        console.log("ORMPLine deployed: %s", line);
-        return line;
+        console.log("ORMPPort deployed: %s", port);
+        return port;
     }
 
     function setConfig() public broadcast {

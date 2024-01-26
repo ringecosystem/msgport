@@ -15,15 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-interface ILineMetadata {
-    event URI(string uri);
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-    /// @notice Get the line name, it's globally unique and immutable.
-    /// @return The MessageLine name.
-    function name() external view returns (string memory);
-
-    /// @return The line metadata uri.
-    function uri() external view returns (string memory);
+contract PortRegistryProxy is ERC1967Proxy {
+    constructor(address logic, bytes memory data) ERC1967Proxy(logic, data) {}
 }

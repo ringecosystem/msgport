@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./FromLineLookup.sol";
-import "./ToLineLookup.sol";
-
-abstract contract LineLookup is FromLineLookup, ToLineLookup {}
+interface IPortRegistry {
+    function get(uint256 chainId, address port) external view returns (bytes4);
+    function get(uint256 chainId, bytes4 code) external view returns (address);
+}

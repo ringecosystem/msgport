@@ -18,7 +18,7 @@
 pragma solidity ^0.8.9;
 
 contract CelerChainIdMapping {
-    error LineRegistryChainIdNotFound(uint256 lineRegistryChainId);
+    error RegistryChainIdNotFound(uint256 lineRegistryChainId);
     error CelerChainIdNotFound(uint64 celerChainId);
 
     mapping(uint256 => uint64) public downMapping;
@@ -40,14 +40,14 @@ contract CelerChainIdMapping {
     function down(uint256 lineRegistryChainId) internal view returns (uint64 celerChainId) {
         celerChainId = downMapping[lineRegistryChainId];
         if (celerChainId == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 
     function up(uint64 celerChainId) internal view returns (uint256 lineRegistryChainId) {
         lineRegistryChainId = upMapping[celerChainId];
         if (lineRegistryChainId == 0) {
-            revert LineRegistryChainIdNotFound(lineRegistryChainId);
+            revert RegistryChainIdNotFound(lineRegistryChainId);
         }
     }
 }

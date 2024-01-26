@@ -7,7 +7,7 @@ import {console2 as console} from "forge-std/console2.sol";
 import {Common} from "create3-deploy/script/Common.s.sol";
 import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
-import "../../src/LineRegistry.sol";
+import "../../src/ports/MultiPort.sol";
 
 interface III {
     function owner() external view returns (address);
@@ -15,10 +15,11 @@ interface III {
     function pendingOwner() external view returns (address);
 }
 
-contract DeployLineRegistry is Common {
+contract DeployMultiPort is Common {
     using stdJson for string;
     using ScriptTools for string;
 
+    address REGISTRY;
     address ADDR;
     bytes32 SALT;
 
@@ -27,49 +28,41 @@ contract DeployLineRegistry is Common {
     string instanceId;
     string outputName;
     address deployer;
-    address dao;
 
     function name() public pure override returns (string memory) {
-        return "DeployLineRegistry";
+        return "DeployMultiPort";
     }
 
     function setUp() public override {
         super.setUp();
 
-        instanceId = vm.envOr("INSTANCE_ID", string("deploy_line_registry.c"));
-        outputName = "deploy_line_registry.a";
+        instanceId = vm.envOr("INSTANCE_ID", string("deploy_multi_port.c"));
+        outputName = "deploy_multi_port.a";
         config = ScriptTools.readInput(instanceId);
         c3 = ScriptTools.readInput("../c3");
-        ADDR = c3.readAddress(".LINEREGISTRY_ADDR");
-        SALT = c3.readBytes32(".LINEREGISTRY_SALT");
+        REGISTRY = c3.readAddress(".PORTREGISTRY_ADDR");
+        ADDR = c3.readAddress(".MULTIPORT_ADDR");
+        SALT = c3.readBytes32(".MULTIPORT_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
-        dao = config.readAddress(".DAO");
     }
 
     function run() public {
         require(deployer == msg.sender, "!deployer");
 
         deploy();
-        // setConfig();
 
-        ScriptTools.exportContract(outputName, "DAO", dao);
-        ScriptTools.exportContract(outputName, "LINE_REGISTRY", ADDR);
+        ScriptTools.exportContract(outputName, "MULTI_port", ADDR);
     }
 
     function deploy() public broadcast returns (address) {
-        bytes memory byteCode = type(LineRegistry).creationCode;
-        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer));
-        address registry = _deploy3(SALT, initCode);
-        require(registry == ADDR, "!addr");
+        string memory name_ = config.readString(".metadata.name");
+        bytes memory byteCode = type(MultiPort).creationCode;
+        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, REGISTRY, name_));
+        address port = _deploy3(SALT, initCode);
+        require(port == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        console.log("LineRegistry deployed: %s", ADDR);
-        return ADDR;
-    }
-
-    function setConfig() public broadcast {
-        III(ADDR).transferOwnership(dao);
-        require(III(ADDR).pendingOwner() == dao, "!dao");
-        // TODO:: dao.acceptOwnership()
+        console.log("MultiPort deployed: %s", port);
+        return port;
     }
 }
