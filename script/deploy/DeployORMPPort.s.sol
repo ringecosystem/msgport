@@ -56,7 +56,7 @@ contract DeployORMPPort is Common {
         // setConfig();
 
         ScriptTools.exportContract(outputName, "DAO", dao);
-        ScriptTools.exportContract(outputName, "ORMP_port", ADDR);
+        ScriptTools.exportContract(outputName, "ORMP_PORT", ADDR);
     }
 
     function deploy() public broadcast returns (address) {
