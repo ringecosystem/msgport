@@ -6,31 +6,31 @@
 
 - chainId: `44`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
 
 ### Arbitrum Sepolia
 
 - chainId: `421614`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
 
 ### Sepolia
 
 - chainId: `11155111`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
 
 ## Mainnet
 
@@ -38,28 +38,28 @@
 
 - chainId: `46`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
 
 ### Arbitrum
 
 - chainId: `42161`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
 
 ### Ethereum
 
 - chainId: `1`
 
-- lineRegistry: `0x0000000000f09FAA02ee4347F7c846Ea2C4477e6`
+- portRegistry: ``
 
-|  Protocol  |  MessageLine Address  |
+|  Protocol  |  MessagePort Address  |
 |------------|--------------------------------------------|
-| ORMP       | 0x0000000000D2de3e2444926c4577b0A59F1DD8BC |
+| ORMP       |  |
