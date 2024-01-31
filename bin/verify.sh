@@ -8,9 +8,7 @@ deployer=$(jq -r ".DEPLOYER" $c3)
 ormp=$(jq -r ".ORMP_ADDR" $c3)
 registry=$(jq -r ".PORTREGISTRY_ADDR" $c3)
 ormp_port=$(jq -r ".ORMPPORT_ADDR" $c3)
-ormp_port_ext=$(jq -r ".ORMPPORTEXT_ADDR" $c3)
 name="ORMP"
-name_ext="ORMPExt"
 
 verify() {
   local addr; addr=$1
@@ -34,9 +32,6 @@ verify() {
 # verify $registry  46    $(cast abi-encode "constructor(address)" $deployer) src/PortRegistry.sol:PortRegistry
 # verify $registry  1    $(cast abi-encode "constructor(address)" $deployer) src/PortRegistry.sol:PortRegistry
 
-# verify $ormp_port 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-# verify $ormp_port 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-# verify $ormp_port 44    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPortExt.sol:ORMPPortExt
-# verify $ormp_port 1    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-# verify $ormp_port_ext 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name_ext) src/ports/ORMPPortExt.sol:ORMPPortExt
-verify $ormp_port_ext 42161    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name_ext) src/ports/ORMPPortExt.sol:ORMPPortExt
+verify $ormp_port 421614   $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+verify $ormp_port 44       $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+verify $ormp_port 11155111 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
