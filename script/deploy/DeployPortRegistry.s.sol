@@ -40,8 +40,8 @@ contract DeployPortRegistry is Common {
         outputName = "deploy_port_registry.a";
         config = ScriptTools.readInput(instanceId);
         c3 = ScriptTools.readInput("../c3");
-        ADDR = c3.readAddress(".portREGISTRY_ADDR");
-        SALT = c3.readBytes32(".portREGISTRY_SALT");
+        ADDR = c3.readAddress(".PORTREGISTRY_ADDR");
+        SALT = c3.readBytes32(".PORTREGISTRY_SALT");
 
         deployer = config.readAddress(".DEPLOYER");
         dao = config.readAddress(".DAO");

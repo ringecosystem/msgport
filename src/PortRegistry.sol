@@ -21,7 +21,7 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-/// @title PotRegistry
+/// @title PortRegistry
 /// @notice PortRegistry will be deployed on each chain.
 /// - Could be used to verify whether the port has been registered.
 /// - Ports that be audited by MsgDAO is marked as `trusted`.
