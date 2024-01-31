@@ -6,7 +6,7 @@ export PORT_CONFIG_FILE="ormp_port.c"
 export PORT_DEPLOY_FILE="deploy_ormp_port.a"
 export PORT_KEY=".ORMP_PORT"
 
-cid="QmRwznMkfrTWqoU77MH4Bd7bGFE2f5FzKbZqbHgRdtKGw8"
+cid="QmWpJRDW55oEPxcvKPbCg8p31odC2CnDJLqeT9MFn3peYi"
 cid=$(ipfs cid format -v 1 -b base32 $cid)
 uri="ipfs://$cid"
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[42161]" $uri --chain-id 46    --broadcast --slow
