@@ -41,7 +41,7 @@ contract PortConfig is Common {
     function run(uint256[] memory chainIds, string memory uri) public {
         require(dao == msg.sender, "!dao");
         setPort(chainIds);
-        // setURI(uri);
+        setURI(uri);
     }
 
     function setPort(uint256[] memory chainIds) public broadcast {
