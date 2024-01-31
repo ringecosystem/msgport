@@ -1,65 +1,9 @@
-# Supported Chains
+## Canonical Cross-chain Deployment Addresses
+| Port     |   Name  |  Canonical Cross-chain Deployment Address  |
+|----------|---------|--------------------------------------------|
+| ORMPPort |   ORMP  | 0x0000000005d961F950adA391C1511c92bbc64D9F |
 
-## Testnet
-
-### Crab
-
-- chainId: `44`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
-
-### Arbitrum Sepolia
-
-- chainId: `421614`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
-
-### Sepolia
-
-- chainId: `11155111`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
-
-## Mainnet
-
-### Darwinia
-
-- chainId: `46`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
-
-### Arbitrum
-
-- chainId: `42161`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
-
-### Ethereum
-
-- chainId: `1`
-
-- portRegistry: ``
-
-|  Protocol  |  MessagePort Address  |
-|------------|--------------------------------------------|
-| ORMP       |  |
+## Supported Chains
+- Crab
+- Sepolia
+- Arbitrum Sepolia
