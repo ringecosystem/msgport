@@ -54,7 +54,7 @@ interface IMessagePort {
 }
 
 /// @dev SafeXAccountDemo is a demonstration showcasing the utilization of SafeXAccount to execute an xCall.
-contract SafeXAccountDemo {
+contract ExampleSafeXAccount {
     // SafeXAccountFactory address
     address public factory;
     // PortRegistry address
