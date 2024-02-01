@@ -87,6 +87,6 @@ contract ExampleSafeXAccount {
             abi.encodeWithSelector(ISafeMsgportModule.xExecute.selector, target, value, data, operation);
         address port = IPortRegistry(registry).get(toChainId, code);
         (, address module) = ISafeXAccountFactory(factory).safeXAccountOf(block.chainid, toChainId, address(this));
-        IMessagePort(port).send(toChainId, module, message, params);
+        IMessagePort(port).send{value: msg.value}(toChainId, module, message, params);
     }
 }
