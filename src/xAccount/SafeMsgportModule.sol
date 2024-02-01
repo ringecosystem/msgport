@@ -21,23 +21,23 @@ import "../interfaces/ISafe.sol";
 import "../user/xAuth.sol";
 
 contract SafeMsgportModule is xAuth {
-    address public line;
+    address public port;
 
     address public immutable CHILD_SAFE_XACCOUNT;
     uint256 public immutable ROOT_CHAINID;
     address public immutable ROOT_OWNER;
 
-    event SetLine(address line);
+    event SetPort(address port);
 
     error ModuleTransactionFailed(bytes reason);
     error SendEtherFailed(bytes reason);
 
-    constructor(address xAccount, uint256 chainId, address owner, address line_) {
-        line = line_;
+    constructor(address xAccount, uint256 chainId, address owner, address port_) {
+        port = port_;
         CHILD_SAFE_XACCOUNT = xAccount;
         ROOT_CHAINID = chainId;
         ROOT_OWNER = owner;
-        emit SetLine(line_);
+        emit SetPort(port_);
     }
 
     /// @dev Fetch the xAccount xOwner.
@@ -48,18 +48,18 @@ contract SafeMsgportModule is xAuth {
         return (ROOT_CHAINID, ROOT_OWNER);
     }
 
-    /// @dev Check that the xCall originates from the line.
+    /// @dev Check that the xCall originates from the port.
     /// @return Check result.
-    function checkLine(address line_) public view override returns (bool) {
-        return line == line_;
+    function checkPort(address port_) public view override returns (bool) {
+        return port == port_;
     }
 
-    /// @dev Set line.
-    /// @param line_ New line.
-    function setLine(address line_) external {
+    /// @dev Set port.
+    /// @param port_ New port.
+    function setPort(address port_) external {
         _checkXAuth();
-        line = line_;
-        emit SetLine(line_);
+        port = port_;
+        emit SetPort(port_);
     }
 
     /// @dev Receive xCall from root chain xOwner.

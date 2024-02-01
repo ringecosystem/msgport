@@ -1,6 +1,0 @@
-{
-  "name": "ORMPExt",
-  "provider": "Msgport",
-  "description": "ORMP line ext by Msgport",
-  "api": "https://github.com/darwinia-network/darwinia-msgport-api/blob/main/README.md"
-}

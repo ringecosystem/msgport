@@ -15,26 +15,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.0;
 
-abstract contract Application {
-    function _msgPort() internal view returns (address _port) {
-        _port = msg.sender;
+import "../../interfaces/IPortMetadata.sol";
+
+contract PortMetadata is IPortMetadata {
+    string internal _name;
+    string internal _uri;
+
+    constructor(string memory name_) {
+        _name = name_;
     }
 
-    /// @notice The cross-chain message source chainId
-    function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
-        require(msg.data.length >= 52, "!fromChainId");
-        assembly {
-            _msgDataFromChainId := calldataload(sub(calldatasize(), 52))
-        }
+    function _setURI(string memory uri_) internal virtual {
+        _uri = uri_;
+        emit URI(uri_);
     }
 
-    /// @notice Get the source chain fromDapp address.
-    function _xmsgSender() internal pure returns (address payable _from) {
-        require(msg.data.length >= 20, "!fromDapp");
-        assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
-        }
+    function name() public view virtual returns (string memory) {
+        return _name;
+    }
+
+    function code() public view virtual returns (bytes4) {
+        return bytes4(keccak256(bytes(_name)));
+    }
+
+    function uri() public view virtual returns (string memory) {
+        return _uri;
     }
 }

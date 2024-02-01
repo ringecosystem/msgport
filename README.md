@@ -8,13 +8,13 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](./src/ex
 
 ## Sending message
 
-1. Obtain the message line addres.
+1. Obtain the message port addres.
 
     a. From the address list part: [Supported chains](./SUPPORTED.md)
 
     or
 
-    b. Through lineRegistry contract: `lineRegistry.getLine(string protocolName)`
+    b. Through portRegistry contract: `portRegistry.get(uint256 chainId, bytes4 code)`
 
 2. Retrieve the `fee` and adapter `params` from the [Msgport API](https://github.com/darwinia-network/darwinia-msgport-api/blob/main/README.md)
 
@@ -29,10 +29,10 @@ For an example receiver dApp, please refer to the [ExampleReceiverDapp](./src/ex
     - params: bytes - Adapter params obtained from the Msgport API in step 2.
 
     ```sol
-    messageLine.send(toChainId, toDapp, message, params);
+    messagePort.send(toChainId, toDapp, message, params);
     ```
 
-4. You can verify the senderLine and senderDapp addresses when reciving the message.
+4. You can verify the senderPort and senderDapp addresses when reciving the message.
 
     For an example, please check [Verify example](./src/examples/ExampleReceiverDapp.sol)
 

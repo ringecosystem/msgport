@@ -17,24 +17,8 @@
 
 pragma solidity ^0.8.17;
 
-abstract contract Application {
-    function _msgPort() internal view returns (address _port) {
-        _port = msg.sender;
-    }
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-    /// @notice The cross-chain message source chainId
-    function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
-        require(msg.data.length >= 52, "!fromChainId");
-        assembly {
-            _msgDataFromChainId := calldataload(sub(calldatasize(), 52))
-        }
-    }
-
-    /// @notice Get the source chain fromDapp address.
-    function _xmsgSender() internal pure returns (address payable _from) {
-        require(msg.data.length >= 20, "!fromDapp");
-        assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
-        }
-    }
+contract PortRegistryProxy is ERC1967Proxy {
+    constructor(address logic, bytes memory data) ERC1967Proxy(logic, data) {}
 }

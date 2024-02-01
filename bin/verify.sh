@@ -6,11 +6,9 @@ c3=$PWD/script/input/c3.json
 
 deployer=$(jq -r ".DEPLOYER" $c3)
 ormp=$(jq -r ".ORMP_ADDR" $c3)
-registry=$(jq -r ".LINEREGISTRY_ADDR" $c3)
-ormp_line=$(jq -r ".ORMPLINE_ADDR" $c3)
-ormp_line_ext=$(jq -r ".ORMPLINEEXT_ADDR" $c3)
+registry=$(jq -r ".PORTREGISTRY_ADDR" $c3)
+ormp_port=$(jq -r ".ORMPPORT_ADDR" $c3)
 name="ORMP"
-name_ext="ORMPExt"
 
 verify() {
   local addr; addr=$1
@@ -30,13 +28,10 @@ verify() {
     $path > script/output/$chain_id/$name.v.json)
 }
 
-# verify $registry  42161 $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
-# verify $registry  46    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
-# verify $registry  1    $(cast abi-encode "constructor(address)" $deployer) src/LineRegistry.sol:LineRegistry
+# verify $registry  42161 $(cast abi-encode "constructor(address)" $deployer) src/PortRegistry.sol:PortRegistry
+# verify $registry  46    $(cast abi-encode "constructor(address)" $deployer) src/PortRegistry.sol:PortRegistry
+# verify $registry  1    $(cast abi-encode "constructor(address)" $deployer) src/PortRegistry.sol:PortRegistry
 
-# verify $ormp_line 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
-# verify $ormp_line 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
-# verify $ormp_line 44    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLineExt.sol:ORMPLineExt
-# verify $ormp_line 1    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/lines/ORMPLine.sol:ORMPLine
-# verify $ormp_line_ext 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name_ext) src/lines/ORMPLineExt.sol:ORMPLineExt
-verify $ormp_line_ext 42161    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name_ext) src/lines/ORMPLineExt.sol:ORMPLineExt
+verify $ormp_port 421614   $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+verify $ormp_port 44       $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+verify $ormp_port 11155111 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort

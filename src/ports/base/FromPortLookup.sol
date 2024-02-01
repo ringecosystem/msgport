@@ -15,26 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.0;
 
-abstract contract Application {
-    function _msgPort() internal view returns (address _port) {
-        _port = msg.sender;
+abstract contract FromPortLookup {
+    event SetFromPort(uint256 fromChainId, address fromPort);
+
+    // fromChainId => fromPortAddress
+    mapping(uint256 => address) public fromPortLookup;
+
+    function _setFromPort(uint256 fromChainId, address fromPort) internal virtual {
+        fromPortLookup[fromChainId] = fromPort;
+        emit SetFromPort(fromChainId, fromPort);
     }
 
-    /// @notice The cross-chain message source chainId
-    function _fromChainId() internal pure returns (uint256 _msgDataFromChainId) {
-        require(msg.data.length >= 52, "!fromChainId");
-        assembly {
-            _msgDataFromChainId := calldataload(sub(calldatasize(), 52))
-        }
+    function _fromPort(uint256 fromChainId) internal view returns (address) {
+        return fromPortLookup[fromChainId];
     }
 
-    /// @notice Get the source chain fromDapp address.
-    function _xmsgSender() internal pure returns (address payable _from) {
-        require(msg.data.length >= 20, "!fromDapp");
-        assembly {
-            _from := shr(96, calldataload(sub(calldatasize(), 20)))
-        }
+    function _checkedFromPort(uint256 fromChainId) internal view returns (address l) {
+        l = fromPortLookup[fromChainId];
+        require(l != address(0), "!fromPort");
     }
 }
