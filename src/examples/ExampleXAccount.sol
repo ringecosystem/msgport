@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-/// @dev ISafeXAccountFactory represents a factory contract responsible for the creation of SafeXAccounts.
-interface ISafeXAccountFactory {
-    /// @dev Cross chian function for create SafeXAccount on target chain.
+/// @dev IXAccountFactory represents a factory contract responsible for the creation of xAccounts.
+interface IXAccountFactory {
+    /// @dev Cross chian function for create xAccount on target chain.
     /// @notice If recovery address is `address(0)`, do not enabale recovery module.
-    /// @param code Port code that used for create SafeXAccount.
+    /// @param code Port code that used for create xAccount.
     /// @param toChainId Target chain id.
     /// @param params Port params correspond with the port.
-    /// @param recovery The default safe recovery module address on target chain for SafeXAccount.
+    /// @param recovery The default safe recovery module address on target chain for xAccount.
     function xCreate(bytes4 code, uint256 toChainId, bytes calldata params, address recovery) external payable;
-    /// @dev Calculate SafeXAccount address on target chain.
-    /// @notice The module address is only effective during its creation and may be replaced by the SafeXAccount in the future.
-    /// @param fromChainId Chain id that SafeXAccount belongs in.
-    /// @param toChainId Chain id that SafeXAccount lives in.
-    /// @param deployer Owner that SafeXAccount belongs to.
-    /// @return (SafeXAccount address, module address).
-    function safeXAccountOf(uint256 fromChainId, uint256 toChainId, address deployer)
+    /// @dev Calculate xAccount address on target chain.
+    /// @notice The module address is only effective during its creation and may be replaced by the xAccount in the future.
+    /// @param fromChainId Chain id that xAccount belongs in.
+    /// @param toChainId Chain id that xAccount lives in.
+    /// @param deployer Owner that xAccount belongs to.
+    /// @return (xAccount address, module address).
+    function xAccountOf(uint256 fromChainId, uint256 toChainId, address deployer)
         external
         view
         returns (address, address);
 }
 
-/// @dev ISafeMsgportModule serves as a module integrated within the Safe system, specifically devised to enable remote administration and control of the safeXAccount.
+/// @dev ISafeMsgportModule serves as a module integrated within the Safe system, specifically devised to enable remote administration and control of the xAccount.
 interface ISafeMsgportModule {
     /// @dev Receive xCall from root chain xOwner.
     /// @param target Target of the transaction that should be executed
@@ -53,9 +53,9 @@ interface IMessagePort {
     function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) external payable;
 }
 
-/// @dev SafeXAccountDemo is a demonstration showcasing the utilization of SafeXAccount to execute an xCall.
-contract ExampleSafeXAccount {
-    // SafeXAccountFactory address
+/// @dev ExampleXAccount is a demonstration showcasing the utilization of xAccount to execute an xCall.
+contract ExampleXAccount {
+    // XAccountFactory address
     address public factory;
     // PortRegistry address
     address public registry;
@@ -65,15 +65,15 @@ contract ExampleSafeXAccount {
         registry = registry_;
     }
 
-    /// @dev The function is utilized to create a SafeXAccount on the target chain.
+    /// @dev The function is utilized to create a xAccount on the target chain.
     function createXAccountOnTargetChain(bytes4 code, uint256 toChainId, bytes calldata params, address recovery)
         public
         payable
     {
-        ISafeXAccountFactory(factory).xCreate{value: msg.value}(code, toChainId, params, recovery);
+        IXAccountFactory(factory).xCreate{value: msg.value}(code, toChainId, params, recovery);
     }
 
-    /// @dev The function facilitates the execution of an xCall across a SafeXAccount.
+    /// @dev The function facilitates the execution of an xCall across a xAccount.
     function crossChainCall(
         bytes4 code,
         uint256 toChainId,
@@ -86,7 +86,7 @@ contract ExampleSafeXAccount {
         bytes memory message =
             abi.encodeWithSelector(ISafeMsgportModule.xExecute.selector, target, value, data, operation);
         address port = IPortRegistry(registry).get(toChainId, code);
-        (, address module) = ISafeXAccountFactory(factory).safeXAccountOf(block.chainid, toChainId, address(this));
+        (, address module) = IXAccountFactory(factory).xAccountOf(block.chainid, toChainId, address(this));
         IMessagePort(port).send{value: msg.value}(toChainId, module, message, params);
     }
 }
