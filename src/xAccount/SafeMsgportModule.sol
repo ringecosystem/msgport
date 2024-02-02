@@ -23,7 +23,7 @@ import "../user/xAuth.sol";
 contract SafeMsgportModule is xAuth {
     address public port;
 
-    address public immutable CHILD_SAFE_XACCOUNT;
+    address public immutable CHILD_XACCOUNT;
     uint256 public immutable ROOT_CHAINID;
     address public immutable ROOT_OWNER;
 
@@ -34,7 +34,7 @@ contract SafeMsgportModule is xAuth {
 
     constructor(address xAccount, uint256 chainId, address owner, address port_) {
         port = port_;
-        CHILD_SAFE_XACCOUNT = xAccount;
+        CHILD_XACCOUNT = xAccount;
         ROOT_CHAINID = chainId;
         ROOT_OWNER = owner;
         emit SetPort(port_);
@@ -75,11 +75,11 @@ contract SafeMsgportModule is xAuth {
     {
         _checkXAuth();
         if (msg.value > 0) {
-            (bool s, bytes memory r) = CHILD_SAFE_XACCOUNT.call{value: msg.value}("");
+            (bool s, bytes memory r) = CHILD_XACCOUNT.call{value: msg.value}("");
             if (!s) revert SendEtherFailed(r);
         }
         (bool success, bytes memory returnData) =
-            ISafe(CHILD_SAFE_XACCOUNT).execTransactionFromModuleReturnData(target, value, data, operation);
+            ISafe(CHILD_XACCOUNT).execTransactionFromModuleReturnData(target, value, data, operation);
         if (!success) revert ModuleTransactionFailed(returnData);
         return returnData;
     }

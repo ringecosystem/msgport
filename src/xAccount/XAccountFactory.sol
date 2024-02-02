@@ -27,10 +27,10 @@ import "../ports/base/PortMetadata.sol";
 import "../user/Application.sol";
 import "../utils/CREATE3.sol";
 
-/// @title SafeXAccountFactory
-/// @dev SafeXAccountFactory is a factory contract for create xAccount.
+/// @title XAccountFactory
+/// @dev XAccountFactory is a factory contract for create xAccount.
 ///   - 1 account only have 1 xAccount on target chain for each factory.
-contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
+contract XAccountFactory is Ownable2Step, Application, PortMetadata {
     address public safeFallbackHandler;
     address public safeSingleton;
     ISafeProxyFactory public safeFactory;
@@ -40,7 +40,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
 
     address internal constant DEAD_OWNER = 0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd;
 
-    event SafeXAccountCreated(uint256 fromChainId, address deployer, address xAccount, address module, address port);
+    event XAccountCreated(uint256 fromChainId, address deployer, address xAccount, address module, address port);
 
     constructor(
         address dao,
@@ -107,7 +107,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
-        bytes memory encoded = abi.encodeWithSelector(SafeXAccountFactory.xDeploy.selector, deployer, recovery);
+        bytes memory encoded = abi.encodeWithSelector(XAccountFactory.xDeploy.selector, deployer, recovery);
         address port = REGISTRY.get(LOCAL_CHAINID(), code);
         IMessagePort(port).send{value: fee}(toChainId, _toFactory(toChainId), encoded, params);
     }
@@ -133,10 +133,10 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
-        (proxy, module) = _deploySafeXAccount(salt, chainId, deployer, port);
+        (proxy, module) = _deployXAccount(salt, chainId, deployer, port);
         _setUp(proxy, module, recovery);
 
-        emit SafeXAccountCreated(chainId, deployer, proxy, module, port);
+        emit XAccountCreated(chainId, deployer, proxy, module, port);
     }
 
     function setupModules(address module, address recovery) external {
@@ -146,8 +146,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
     }
 
     function _setUp(address proxy, address module, address recovery) internal {
-        bytes memory setupModulesData =
-            abi.encodeWithSelector(SafeXAccountFactory.setupModules.selector, module, recovery);
+        bytes memory setupModulesData = abi.encodeWithSelector(XAccountFactory.setupModules.selector, module, recovery);
         uint256 threshold = 1;
         address[] memory owners = new address[](1);
         owners[0] = DEAD_OWNER;
@@ -163,7 +162,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
         );
     }
 
-    function _deploySafeXAccount(bytes32 salt, uint256 chainId, address owner, address port)
+    function _deployXAccount(bytes32 salt, uint256 chainId, address owner, address port)
         internal
         returns (address proxy, address module)
     {
@@ -184,12 +183,12 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
     /// @param toChainId Chain id that xAccount lives in.
     /// @param deployer Owner that xAccount belongs to.
     /// @return (xAccount address, module address).
-    function safeXAccountOf(uint256 fromChainId, uint256 toChainId, address deployer)
+    function xAccountOf(uint256 fromChainId, uint256 toChainId, address deployer)
         public
         view
         returns (address, address)
     {
-        return safeXAccountOf(fromChainId, deployer, _toFactory(toChainId));
+        return xAccountOf(fromChainId, deployer, _toFactory(toChainId));
     }
 
     /// @dev Calculate xAccount address.
@@ -198,7 +197,7 @@ contract SafeXAccountFactory is Ownable2Step, Application, PortMetadata {
     /// @param deployer Owner that xAccount belongs to.
     /// @param factory Factory that create xAccount.
     /// @return (xAccount address, module address).
-    function safeXAccountOf(uint256 fromChainId, address deployer, address factory)
+    function xAccountOf(uint256 fromChainId, address deployer, address factory)
         public
         pure
         returns (address, address)
