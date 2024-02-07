@@ -72,6 +72,8 @@ contract ORMPPortTest is Test {
 
     function testSend() public {
         uint256 toChainId = 42161;
+        vm.prank(dao);
+        ormpPort.setToPort(toChainId, address(0x1));
         address toDapp = address(0x1837ff30801F1793563451101350A5f5e14a0a1a);
         address refund = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
         bytes memory message = bytes(
