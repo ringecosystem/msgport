@@ -21,7 +21,7 @@ contract ORMPPortTest is Test {
         uint256 chainId = Chains.Darwinia;
         vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
-        ormpProtocol = address(0x0000000005d961F950adA391C1511c92bbc64D9F);
+        ormpProtocol = address(0x00000000001523057a05d6293C1e5171eE33eE0A);
         ormpPort = new ORMPPort(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
     }
 
@@ -72,6 +72,8 @@ contract ORMPPortTest is Test {
 
     function testSend() public {
         uint256 toChainId = 42161;
+        vm.prank(dao);
+        ormpPort.setToPort(toChainId, address(0x1));
         address toDapp = address(0x1837ff30801F1793563451101350A5f5e14a0a1a);
         address refund = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
         bytes memory message = bytes(
