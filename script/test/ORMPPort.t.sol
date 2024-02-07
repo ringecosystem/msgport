@@ -21,7 +21,7 @@ contract ORMPPortTest is Test {
         uint256 chainId = Chains.Darwinia;
         vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
-        ormpProtocol = address(0x00000000001523057a05d6293C1e5171eE33eE0A);
+        ormpProtocol = address(0x0000000005d961F950adA391C1511c92bbc64D9F);
         ormpPort = new ORMPPort(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
     }
 
