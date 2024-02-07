@@ -15,3 +15,14 @@
 - Pangolin
 - Sepolia
 
+## Supported Lines
+### Mainnet
+- Arbitrum <> Darwinia
+- Crab <> Darwinia
+- Ethereum <> Darwinia
+- Ethereum <> Arbitrum
+
+### Testnet
+- Arbitrum Sepolia <> Pangolin
+- Sepolia <> Pangolin
+- Sepolia <> Arbitrum Sepolia
