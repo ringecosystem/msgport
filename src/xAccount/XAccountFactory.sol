@@ -18,8 +18,8 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "../interfaces/ISafeMsgportModule.sol";
 import "../interfaces/ISafeProxyFactory.sol";
-import "../interfaces/IModuleFactory.sol";
 import "../interfaces/ISafe.sol";
 import "../interfaces/IPortRegistry.sol";
 import "../interfaces/IMessagePort.sol";
@@ -31,10 +31,10 @@ import "../utils/CREATE3.sol";
 /// @dev XAccountFactory is a factory contract for create xAccount.
 ///   - 1 account only have 1 xAccount on target chain for each factory.
 contract XAccountFactory is Ownable2Step, Application, PortMetadata {
+    address public safeMsgportModule;
     address public safeFallbackHandler;
     address public safeSingleton;
     ISafeProxyFactory public safeFactory;
-    IModuleFactory public moduleFactory;
 
     IPortRegistry public immutable REGISTRY;
 
@@ -44,7 +44,7 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
 
     constructor(
         address dao,
-        address mfactory,
+        address module,
         address sfactory,
         address singleton,
         address fallbackHandler,
@@ -52,10 +52,10 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
         string memory name
     ) PortMetadata(name) {
         _transferOwnership(dao);
+        safeMsgportModule = module;
         safeSingleton = singleton;
         safeFallbackHandler = fallbackHandler;
         safeFactory = ISafeProxyFactory(sfactory);
-        moduleFactory = IModuleFactory(mfactory);
         REGISTRY = IPortRegistry(registry);
     }
 
@@ -75,8 +75,8 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
         safeFallbackHandler = fallbackHandler;
     }
 
-    function setModuleFactory(address factory) external onlyOwner {
-        moduleFactory = IModuleFactory(factory);
+    function setSafeMsgportModule(address module) external onlyOwner {
+        safeMsgportModule = module;
     }
 
     function setURI(string calldata uri) external onlyOwner {
@@ -133,8 +133,9 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
         require(chainId != LOCAL_CHAINID(), "!chainId");
 
         bytes32 salt = keccak256(abi.encodePacked(chainId, deployer));
-        (proxy, module) = _deployXAccount(salt, chainId, deployer, port);
-        _setUp(proxy, module, recovery);
+        (proxy, module) = _deployXAccount(salt);
+        _setupProxy(proxy, module, recovery);
+        _setupModule(module, proxy, chainId, deployer, port);
 
         emit XAccountCreated(chainId, deployer, proxy, module, port);
     }
@@ -145,7 +146,7 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
         if (recovery != address(0)) safe.enableModule(recovery);
     }
 
-    function _setUp(address proxy, address module, address recovery) internal {
+    function _setupProxy(address proxy, address module, address recovery) internal {
         bytes memory setupModulesData = abi.encodeWithSelector(XAccountFactory.setupModules.selector, module, recovery);
         uint256 threshold = 1;
         address[] memory owners = new address[](1);
@@ -162,19 +163,16 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
         );
     }
 
-    function _deployXAccount(bytes32 salt, uint256 chainId, address owner, address port)
-        internal
-        returns (address proxy, address module)
-    {
+    function _setupModule(address module, address proxy, uint256 chainId, address deployer, address port) internal {
+        ISafeMsgportModule(module).setup(proxy, chainId, deployer, port);
+    }
+
+    function _deployXAccount(bytes32 salt) internal returns (address proxy, address module) {
         (proxy, module) = CREATE3.getDeployed(salt, address(this));
         bytes memory creationCode1 = safeFactory.proxyCreationCode();
         bytes memory deploymentCode1 = abi.encodePacked(creationCode1, uint256(uint160(safeSingleton)));
 
-        bytes memory creationCode2 = moduleFactory.moduleCreationCode();
-        bytes memory deploymentCode2 = abi.encodePacked(
-            creationCode2, uint256(uint160(proxy)), chainId, uint256(uint160(owner)), uint256(uint160(port))
-        );
-        (proxy, module) = CREATE3.deploy(salt, deploymentCode1, deploymentCode2);
+        (proxy, module) = CREATE3.deploy(salt, deploymentCode1, safeMsgportModule);
     }
 
     /// @dev Calculate xAccount address on target chain.

@@ -33,7 +33,7 @@ library CREATE3 {
 
     bytes32 internal constant PROXY_BYTECODE_HASH = keccak256(PROXY_BYTECODE);
 
-    function deploy(bytes32 salt, bytes memory creationCode1, bytes memory creationCode2)
+    function deploy(bytes32 salt, bytes memory creationCode1, address implementation)
         internal
         returns (address deployed1, address deployed2)
     {
@@ -51,8 +51,21 @@ library CREATE3 {
         (deployed1, deployed2) = getDeployed(salt, address(this));
         (bool success,) = proxy.call(creationCode1);
         require(success && deployed1.code.length != 0, "INITIALIZATION_FAILED1");
+        bytes memory creationCode2 = clone(implementation);
         (success,) = proxy.call(creationCode2);
         require(success && deployed2.code.length != 0, "INITIALIZATION_FAILED2");
+    }
+
+    function clone(address target) internal pure returns (bytes memory) {
+        bytes20 targetBytes = bytes20(target);
+        bytes memory code = new bytes(0x37);
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(add(code, 0x20), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(code, 0x34), targetBytes)
+            mstore(add(code, 0x48), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+        }
+        return code;
     }
 
     function getDeployed(bytes32 salt, address factory) internal pure returns (address, address) {
