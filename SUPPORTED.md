@@ -9,6 +9,7 @@
 - Crab
 - Darwinia
 - Ethereum
+- Polygon
 
 ### Testnet
 - Arbitrum Sepolia
@@ -21,6 +22,7 @@
 - Crab <> Darwinia
 - Ethereum <> Darwinia
 - Ethereum <> Arbitrum
+- Polygon <> Darwinia
 
 ### Testnet
 - Arbitrum Sepolia <> Pangolin

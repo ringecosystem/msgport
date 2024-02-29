@@ -15,6 +15,8 @@ set -x
 # seth send -F $deployer $registry "transferOwnership(address)" $dao --chain arbitrum
 # seth send -F $deployer $registry "transferOwnership(address)" $dao --chain ethereum
 
-seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain darwinia
-seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain arbitrum
-seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain ethereum
+# seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain darwinia
+# seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain arbitrum
+# seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain ethereum
+# seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain arbitrum
+seth send -F $deployer $ormp_port "transferOwnership(address)" $dao --chain polygon

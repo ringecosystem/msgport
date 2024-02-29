@@ -21,7 +21,10 @@ uri="ipfs://$cid"
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[43]"              $uri --chain-id 11155111 --broadcast
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[43]"              $uri --chain-id 421614 --broadcast --skip-simulation --legacy
 
-forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[42161,1,44]" $uri --chain-id 46    --broadcast
-forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46]"         $uri --chain-id 44    --broadcast
-forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46,42161]"   $uri --chain-id 1     --broadcast
-forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[1,46]"       $uri --chain-id 42161 --broadcast --skip-simulation --legacy
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[42161,1,44]" $uri --chain-id 46    --broadcast
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46]"         $uri --chain-id 44    --broadcast
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46,42161]"   $uri --chain-id 1     --broadcast
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[1,46]"       $uri --chain-id 42161 --broadcast --skip-simulation --legacy
+
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46]" $uri --chain-id 137    --broadcast --with-gas-price 150000000000
+# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[137]" $uri --chain-id 46    --broadcast
