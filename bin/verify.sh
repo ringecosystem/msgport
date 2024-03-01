@@ -36,7 +36,8 @@ verify() {
 # verify $ormp_port 43       $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
 # verify $ormp_port 11155111 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
 
-verify $ormp_port 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-verify $ormp_port 44    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-verify $ormp_port 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
-verify $ormp_port 1     $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+# verify $ormp_port 42161 $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+# verify $ormp_port 44    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+# verify $ormp_port 46    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+verify $ormp_port 137    $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
+# verify $ormp_port 1     $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
