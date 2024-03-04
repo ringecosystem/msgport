@@ -28,3 +28,4 @@ uri="ipfs://$cid"
 
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[46]" $uri --chain-id 137    --broadcast --with-gas-price 150000000000
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[137]" $uri --chain-id 46    --broadcast
+forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[42161]" $uri --chain-id 81457 --broadcast --legacy --with-gas-price 1060000

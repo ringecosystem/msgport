@@ -6,6 +6,7 @@
 ## Supported Chains
 ### Mainnet
 - Arbitrum
+- Blast
 - Crab
 - Darwinia
 - Ethereum
@@ -19,6 +20,7 @@
 ## Supported Lines
 ### Mainnet
 - Arbitrum <> Darwinia
+- Arbiturm <> Blast
 - Crab <> Darwinia
 - Ethereum <> Darwinia
 - Ethereum <> Arbitrum
