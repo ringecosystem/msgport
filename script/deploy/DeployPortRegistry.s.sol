@@ -8,6 +8,7 @@ import {Common} from "create3-deploy/script/Common.s.sol";
 import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 import "../../src/PortRegistry.sol";
+import "../../src/PortRegistryProxy.sol";
 
 interface III {
     function owner() external view returns (address);
@@ -58,8 +59,11 @@ contract DeployPortRegistry is Common {
     }
 
     function deploy() public broadcast returns (address) {
-        bytes memory byteCode = type(PortRegistry).creationCode;
-        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer));
+        PortRegistry logic = new PortRegistry();
+
+        bytes memory byteCode = type(PortRegistryProxy).creationCode;
+        bytes memory initData = abi.encodeWithSelector(PortRegistry.initialize.selector, deployer);
+        bytes memory initCode = bytes.concat(byteCode, abi.encode(address(logic), initData));
         address registry = _deploy3(SALT, initCode);
         require(registry == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
