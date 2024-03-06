@@ -40,12 +40,12 @@ contract PortRegistry is Initializable, Ownable2Step, UUPSUpgradeable {
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    /// @dev Fetch port address by chainId and name code.
+    /// @dev Fetch port address by chainId and name.
     function get(uint256 chainId, string calldata name) external view returns (address) {
         return _portLookup[chainId][name];
     }
 
-    /// @dev Fetch port code by chainId and port address.
+    /// @dev Fetch port name by chainId and port address.
     function get(uint256 chainId, address port) external view returns (string memory) {
         return _nameLookup[chainId][port];
     }
