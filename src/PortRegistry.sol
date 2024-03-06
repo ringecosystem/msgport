@@ -52,6 +52,8 @@ contract PortRegistry is Initializable, Ownable2Step, UUPSUpgradeable {
 
     /// @dev Set a port.
     function set(uint256 chainId, string calldata name, address port) external onlyOwner {
+        require(bytes(name).length > 0, "!name");
+        require(port != address(0), "!port");
         _portLookup[chainId][name] = port;
         _nameLookup[chainId][port] = name;
         emit SetPort(chainId, name, port);
