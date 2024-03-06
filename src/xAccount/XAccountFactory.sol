@@ -84,31 +84,34 @@ contract XAccountFactory is Ownable2Step, Application, PortMetadata {
     }
 
     function isRegistred(address port) public view returns (bool) {
-        return REGISTRY.get(LOCAL_CHAINID(), port) != bytes4(0);
+        return bytes(REGISTRY.get(LOCAL_CHAINID(), port)).length > 0;
     }
 
     function _toFactory(uint256 toChainId) internal view returns (address l) {
-        l = REGISTRY.get(toChainId, code());
+        l = REGISTRY.get(toChainId, name());
         require(l != address(0), "!to");
     }
 
     function _fromFactory(uint256 fromChainId) internal view returns (address) {
-        return REGISTRY.get(fromChainId, code());
+        return REGISTRY.get(fromChainId, name());
     }
 
     /// @dev Cross chian function for create xAccount on target chain.
     /// @notice If recovery address is `address(0)`, do not enabale recovery module.
-    /// @param code Port code that used for create xAccount.
+    /// @param name Port name that used for create xAccount.
     /// @param toChainId Target chain id.
     /// @param params Port params correspond with the port.
     /// @param recovery The default safe recovery module address on target chain for xAccount.
-    function xCreate(bytes4 code, uint256 toChainId, bytes calldata params, address recovery) external payable {
+    function xCreate(string calldata name, uint256 toChainId, bytes calldata params, address recovery)
+        external
+        payable
+    {
         uint256 fee = msg.value;
         require(toChainId != LOCAL_CHAINID(), "!toChainId");
 
         address deployer = msg.sender;
         bytes memory encoded = abi.encodeWithSelector(XAccountFactory.xDeploy.selector, deployer, recovery);
-        address port = REGISTRY.get(LOCAL_CHAINID(), code);
+        address port = REGISTRY.get(LOCAL_CHAINID(), name);
         IMessagePort(port).send{value: fee}(toChainId, _toFactory(toChainId), encoded, params);
     }
 
