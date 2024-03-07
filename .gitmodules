@@ -25,3 +25,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "lib/safe-deployments"]
+	path = lib/safe-deployments
+	url = https://github.com/hujw77/safe-deployments
