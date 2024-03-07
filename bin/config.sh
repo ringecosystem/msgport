@@ -17,11 +17,11 @@ get_uri() {
 
 export PORT_KEY="MULTIPORT_ADDR"
 uri=$(get_uri "QmQsKZG4SSbqZ12a1VpZRsURrHbRe5mVbZZQ7GmLs42ZRN")
-forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[421614,11155111]" $uri --chain-id 43       --broadcast
+forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[421614,11155111]" $uri --chain-id 43       --broadcast -g 200
 forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[11155111,44]"     $uri --chain-id 421614   --broadcast --skip-simulation --legacy
 forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[44,421614]"       $uri --chain-id 11155111 --broadcast
 
-forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 43       --broadcast
+forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 43       --broadcast -g 200
 forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 421614   --broadcast --skip-simulation --legacy
 forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 11155111 --broadcast
 
