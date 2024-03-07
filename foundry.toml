@@ -19,6 +19,7 @@ fs_permissions = [
   { "access" = "read", "path" = "./script/input/"},
   { "access" = "read", "path" = "./broadcast/" },
   { "access" = "read", "path" = "./out/" },
+  { "access" = "read", "path" = "./lib/safe-deployments/src/assets/" },
 ]
 
 [fmt]
