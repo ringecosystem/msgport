@@ -21,7 +21,7 @@ contract DeploySafeMsgportModule is Common {
     address deployer;
 
     function name() public pure override returns (string memory) {
-        return "SafeMsgportModule";
+        return "DeploySafeMsgportModule";
     }
 
     function setUp() public override {

@@ -7,8 +7,8 @@ import {Common} from "create3-deploy/script/Common.s.sol";
 import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 interface III {
-    function addPort(address port) external;
-    function getPort(string calldata name) external view returns (address);
+    function set(uint256 chainId, string calldata name, address port) external;
+    function get(uint256 chainId, string calldata name) external view returns (address);
     function name() external view returns (string memory);
 }
 
@@ -16,8 +16,10 @@ contract RegistryPort is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address dao;
-    address registry;
+    string c3;
+    uint256 CHAIN_ID;
+    address REGISTRY;
+    address PORT;
 
     function name() public pure override returns (string memory) {
         return "RegistryPort";
@@ -25,22 +27,22 @@ contract RegistryPort is Common {
 
     function setUp() public override {
         super.setUp();
-        string memory deployedPortRegistry = ScriptTools.readOutput("deploy_port_registry.a");
-        dao = deployedPortRegistry.readAddress(".DAO");
-        registry = deployedPortRegistry.readAddress(".port_REGISTRY");
+        c3 = ScriptTools.readInput("../c3");
+        REGISTRY = c3.readAddress(".PORTREGISTRY_ADDR");
+        string memory key = string(abi.encodePacked(".", vm.envOr("PORT_KEY", string(""))));
+        PORT = c3.readAddress(key);
+        CHAIN_ID = vm.envOr("CHAIN_ID", block.chainid);
     }
 
-    function run() public {
-        require(dao == msg.sender, "!dao");
-        string memory file = vm.envOr("PORT_DEPLOY_FILE", string(""));
-        string memory key = vm.envOr("PORT_KEY", string(""));
-        address port = ScriptTools.readOutput(file).readAddress(key);
-        addPort(port);
+    function run(uint256[] memory chainIds, string calldata name_) public {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            uint256 chainId = chainIds[i];
+            addPort(chainId, name_);
+        }
     }
 
-    function addPort(address port) public broadcast {
-        III(registry).addPort(port);
-        string memory name_ = III(port).name();
-        require(III(registry).getPort(name_) == port);
+    function addPort(uint256 chainId, string memory name_) public broadcast {
+        III(REGISTRY).set(chainId, name_, PORT);
+        require(III(REGISTRY).get(chainId, name_) == PORT);
     }
 }
