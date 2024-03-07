@@ -5,6 +5,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Script} from "forge-std/Script.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {Common} from "create3-deploy/script/Common.s.sol";
+import {Chains} from "create3-deploy/script/Chains.sol";
 import {ScriptTools} from "create3-deploy/script/ScriptTools.sol";
 
 import "../../src/xAccount/XAccountFactory.sol";
@@ -16,6 +17,7 @@ interface III {
 }
 
 contract DeployXAccountFactory is Common {
+    using Chains for uint256;
     using stdJson for string;
     using ScriptTools for string;
 
@@ -23,6 +25,7 @@ contract DeployXAccountFactory is Common {
     bytes32 SALT;
     address MODULE;
     address REGISTRY;
+    string safeVerison = "v1.3.0";
 
     string c3;
     string config;
@@ -71,7 +74,7 @@ contract DeployXAccountFactory is Common {
         string memory fallbackHandlerFile =
             vm.readFile(string(abi.encodePacked(root, safeFolder, "compatibility_fallback_handler.json")));
         fallbackHandler =
-            fallbackHandleFile.readAddress(string(abi.encodePacked(".networkAddresses.", vm.toString(chainId))));
+            fallbackHandlerFile.readAddress(string(abi.encodePacked(".networkAddresses.", vm.toString(chainId))));
 
         string memory gnosisSageFile = vm.readFile(string(abi.encodePacked(root, safeFolder, gasisSafeJson)));
         gnosisSafe = gnosisSageFile.readAddress(string(abi.encodePacked(".networkAddresses.", vm.toString(chainId))));
@@ -90,9 +93,9 @@ contract DeployXAccountFactory is Common {
     function deploy() public broadcast returns (address) {
         string memory name_ = config.readString(".metadata.name");
         (address safeFactory, address safeSingleton, address safeFallbackHandler) = readSafeDeployment();
-        bytes memory byteCode = type(ORMPPort).creationCode;
+        bytes memory byteCode = type(XAccountFactory).creationCode;
         bytes memory initCode = bytes.concat(
-            byteCode, abi.encode(deployer, MODULE, safeFactory, safeSingleton, safeFallbackHandler, REGISTRY, nema_)
+            byteCode, abi.encode(deployer, MODULE, safeFactory, safeSingleton, safeFallbackHandler, REGISTRY, name_)
         );
         address port = _deploy3(SALT, initCode);
         require(port == ADDR, "!addr");

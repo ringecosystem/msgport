@@ -13,9 +13,14 @@ set -eo pipefail
 # forge script script/deploy/DeployMultiPort.s.sol:DeployMultiPort --chain-id 43       --broadcast --verify 
 
 # Deploy safe msgport module on testnet
-forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 421614   --slow --broadcast --verify --legacy --skip-simulation
-forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 11155111 --broadcast --verify --legacy
-forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 43       --broadcast --verify 
+# forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 421614   --slow --broadcast --verify --legacy --skip-simulation
+# forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 11155111 --broadcast --verify --legacy
+# forge script script/deploy/DeploySafeMsgportModule.s.sol:DeploySafeMsgportModule --chain-id 43       --broadcast --verify 
+
+# Deploy xaccount factory on testnet
+forge script script/deploy/DeployXAccountFactory.s.sol:DeployXAccountFactory --chain-id 421614   --slow --broadcast --verify --legacy --skip-simulation
+forge script script/deploy/DeployXAccountFactory.s.sol:DeployXAccountFactory --chain-id 11155111 --broadcast --verify --legacy
+forge script script/deploy/DeployXAccountFactory.s.sol:DeployXAccountFactory --chain-id 43       --broadcast --verify 
 
 # forge script script/deploy/DeployORMPPort.s.sol:DeployORMPPort --chain-id 43       --broadcast --verify --legacy --skip-simulation
 # forge script script/deploy/DeployORMPPort.s.sol:DeployORMPPort --chain-id 421614   --broadcast --verify --legacy --skip-simulation
