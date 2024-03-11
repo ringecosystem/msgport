@@ -23,20 +23,32 @@ import "../user/xAuth.sol";
 contract SafeMsgportModule is xAuth {
     address public port;
 
-    address public immutable CHILD_XACCOUNT;
-    uint256 public immutable ROOT_CHAINID;
-    address public immutable ROOT_OWNER;
+    address public childXAccount;
+    uint256 public rootChainid;
+    address public rootOwner;
 
     event SetPort(address port);
 
+    error AlreadySetup();
+    error ZeroChainId();
     error ModuleTransactionFailed(bytes reason);
     error SendEtherFailed(bytes reason);
 
-    constructor(address xAccount, uint256 chainId, address owner, address port_) {
+    constructor() {
+        rootChainid = 1;
+    }
+
+    function setup(address xAccount, uint256 chainId, address owner, address port_) external {
+        if (rootChainid > 0) {
+            revert AlreadySetup();
+        }
+        if (chainId == 0) {
+            revert ZeroChainId();
+        }
         port = port_;
-        CHILD_XACCOUNT = xAccount;
-        ROOT_CHAINID = chainId;
-        ROOT_OWNER = owner;
+        childXAccount = xAccount;
+        rootChainid = chainId;
+        rootOwner = owner;
         emit SetPort(port_);
     }
 
@@ -45,7 +57,7 @@ contract SafeMsgportModule is xAuth {
     ///   - chainId Chain id that xAccount belongs in.
     ///   - owner Owner that xAccount belongs to.
     function xOwner() public view override returns (uint256, address) {
-        return (ROOT_CHAINID, ROOT_OWNER);
+        return (rootChainid, rootOwner);
     }
 
     /// @dev Check that the xCall originates from the port.
@@ -75,11 +87,11 @@ contract SafeMsgportModule is xAuth {
     {
         _checkXAuth();
         if (msg.value > 0) {
-            (bool s, bytes memory r) = CHILD_XACCOUNT.call{value: msg.value}("");
+            (bool s, bytes memory r) = childXAccount.call{value: msg.value}("");
             if (!s) revert SendEtherFailed(r);
         }
         (bool success, bytes memory returnData) =
-            ISafe(CHILD_XACCOUNT).execTransactionFromModuleReturnData(target, value, data, operation);
+            ISafe(childXAccount).execTransactionFromModuleReturnData(target, value, data, operation);
         if (!success) revert ModuleTransactionFailed(returnData);
         return returnData;
     }

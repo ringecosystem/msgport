@@ -19,6 +19,7 @@ fs_permissions = [
   { "access" = "read", "path" = "./script/input/"},
   { "access" = "read", "path" = "./broadcast/" },
   { "access" = "read", "path" = "./out/" },
+  { "access" = "read", "path" = "./lib/safe-deployments/src/assets/" },
 ]
 
 [fmt]
@@ -50,6 +51,7 @@ blast = "https://rpc.blast.io"
 [etherscan]
 polygon = { key = "${ETHERSCAN_POLYGON_KEY}" }
 arbitrum = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
+sepolia = { key = "${ETHERSCAN_API_KEY}"}
 arbitrum-goerli = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
 arbitrum-sepolia = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
 darwinia = { key = "${ETHERSCAN_DARWINIA_KEY}", url = "https://darwinia.api.subscan.io/api/scan/evm/contract/verifysource" }

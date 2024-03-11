@@ -19,9 +19,9 @@ contract DeployMultiPort is Common {
     using stdJson for string;
     using ScriptTools for string;
 
-    address REGISTRY;
     address ADDR;
     bytes32 SALT;
+    uint256 multiPortThreshold = 1;
 
     string c3;
     string config;
@@ -40,7 +40,6 @@ contract DeployMultiPort is Common {
         outputName = "deploy_multi_port.a";
         config = ScriptTools.readInput(instanceId);
         c3 = ScriptTools.readInput("../c3");
-        REGISTRY = c3.readAddress(".PORTREGISTRY_ADDR");
         ADDR = c3.readAddress(".MULTIPORT_ADDR");
         SALT = c3.readBytes32(".MULTIPORT_SALT");
 
@@ -52,13 +51,13 @@ contract DeployMultiPort is Common {
 
         deploy();
 
-        ScriptTools.exportContract(outputName, "MULTI_port", ADDR);
+        ScriptTools.exportContract(outputName, "MULTI_PORT", ADDR);
     }
 
     function deploy() public broadcast returns (address) {
         string memory name_ = config.readString(".metadata.name");
         bytes memory byteCode = type(MultiPort).creationCode;
-        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, REGISTRY, name_));
+        bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, multiPortThreshold, name_));
         address port = _deploy3(SALT, initCode);
         require(port == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);

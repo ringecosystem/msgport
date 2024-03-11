@@ -19,9 +19,9 @@ contract PortConfig is Common {
     using stdJson for string;
     using ScriptTools for string;
 
+    string c3;
     string config;
-    address dao;
-    address port;
+    address PORT;
 
     function name() public pure override returns (string memory) {
         return "PortConfig";
@@ -29,17 +29,12 @@ contract PortConfig is Common {
 
     function setUp() public override {
         super.setUp();
-        string memory configFile = vm.envOr("PORT_CONFIG_FILE", string(""));
-        config = ScriptTools.readInput(configFile);
-        string memory file = vm.envOr("PORT_DEPLOY_FILE", string(""));
-        string memory key = vm.envOr("PORT_KEY", string(""));
-        string memory deployedPort = ScriptTools.readOutput(file);
-        port = deployedPort.readAddress(key);
-        dao = deployedPort.readAddress(".DAO");
+        c3 = ScriptTools.readInput("../c3");
+        string memory key = string(abi.encodePacked(".", vm.envOr("PORT_KEY", string(""))));
+        PORT = c3.readAddress(key);
     }
 
     function run(uint256[] memory chainIds, string memory uri) public {
-        require(dao == msg.sender, "!dao");
         setPort(chainIds);
         setURI(uri);
     }
@@ -47,18 +42,16 @@ contract PortConfig is Common {
     function setPort(uint256[] memory chainIds) public broadcast {
         for (uint256 i = 0; i < chainIds.length; i++) {
             uint256 chainId = chainIds[i];
-            string memory key = string.concat(".", vm.toString(chainId));
-            address l = config.readAddress(key);
-            III(port).setFromPort(chainId, l);
-            require(III(port).fromPortLookup(chainId) == l);
-            III(port).setToPort(chainId, l);
-            require(III(port).toPortLookup(chainId) == l);
+            III(PORT).setFromPort(chainId, PORT);
+            require(III(PORT).fromPortLookup(chainId) == PORT);
+            III(PORT).setToPort(chainId, PORT);
+            require(III(PORT).toPortLookup(chainId) == PORT);
         }
     }
 
     function setURI(string memory uri) public broadcast {
-        III(port).setURI(uri);
-        require(eq(III(port).uri(), uri));
+        III(PORT).setURI(uri);
+        require(eq(III(PORT).uri(), uri));
     }
 
     function eq(string memory a, string memory b) internal pure returns (bool) {

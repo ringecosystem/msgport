@@ -1,0 +1,6 @@
+{
+  "name": "Multi",
+  "provider": "Msgport",
+  "description": "MultiPort by Msgport",
+  "api": "https://github.com/darwinia-network/darwinia-msgport-api/blob/main/README.md"
+}
