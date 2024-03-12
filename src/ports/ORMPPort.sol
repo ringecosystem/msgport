@@ -20,16 +20,20 @@ pragma solidity ^0.8.17;
 import "./base/BaseMessagePort.sol";
 import "./base/PortLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
-import "ORMP/src/user/UpgradeableApplication.sol";
+import "ORMP/src/user/Application.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract ORMPPort is Ownable2Step, UpgradeableApplication, BaseMessagePort, PortLookup {
-    constructor(address dao, address ormp, string memory name) UpgradeableApplication(ormp) BaseMessagePort(name) {
+contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
+    constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessagePort(name) {
         _transferOwnership(dao);
     }
 
     function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
+    }
+
+    function setAppConfig(address oracle, address relayer) external onlyOwner {
+        _setAppConfig(oracle, relayer);
     }
 
     function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
@@ -46,7 +50,7 @@ contract ORMPPort is Ownable2Step, UpgradeableApplication, BaseMessagePort, Port
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, fromDapp, toDapp, message);
-        IORMP(sender).send{value: msg.value}(
+        IORMP(TRUSTED_ORMP).send{value: msg.value}(
             toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
@@ -65,6 +69,6 @@ contract ORMPPort is Ownable2Step, UpgradeableApplication, BaseMessagePort, Port
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, msg.sender, toDapp, message);
-        return IORMP(sender).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
+        return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
