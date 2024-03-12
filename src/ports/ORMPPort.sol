@@ -28,19 +28,19 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         _transferOwnership(dao);
     }
 
-    function setURI(string calldata uri) external onlyOwner {
+    function setURI(string calldata uri) external virtual onlyOwner {
         _setURI(uri);
     }
 
-    function setAppConfig(address oracle, address relayer) external onlyOwner {
+    function setAppConfig(address oracle, address relayer) external virtual onlyOwner {
         _setAppConfig(oracle, relayer);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
+    function setToPort(uint256 _toChainId, address _toPortAddress) external virtual onlyOwner {
         _setToPort(_toChainId, _toPortAddress);
     }
 
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external virtual onlyOwner {
         _setFromPort(_fromChainId, _fromPortAddress);
     }
 
@@ -50,12 +50,12 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, fromDapp, toDapp, message);
-        IORMP(TRUSTED_ORMP).send{value: msg.value}(
+        IORMP(ormpSender()).send{value: msg.value}(
             toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
+    function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMPRecver {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
@@ -64,11 +64,12 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
+        virtual
         override
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, msg.sender, toDapp, message);
-        return IORMP(TRUSTED_ORMP).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
+        return IORMP(ormpSender()).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }

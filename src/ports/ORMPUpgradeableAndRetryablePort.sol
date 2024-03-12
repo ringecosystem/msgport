@@ -17,20 +17,11 @@
 
 pragma solidity ^0.8.17;
 
-import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
-import "ORMP/src/interfaces/IORMP.sol";
-import "ORMP/src/user/UpgradeableApplication.sol";
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "ORMP/src/user/UpgradeableApplication.sol";
+import "./ORMPPort.sol";
 
-contract ORMPUpgradeableAndRetryablePort is
-    Ownable2Step,
-    UpgradeableApplication,
-    BaseMessagePort,
-    PortLookup,
-    ReentrancyGuard
-{
+contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, ReentrancyGuard {
     /// msgHash => isFailed
     mapping(bytes32 => bool) public fails;
 
@@ -40,12 +31,19 @@ contract ORMPUpgradeableAndRetryablePort is
     event RetryFailedMessage(bytes32 indexed msgHash, bool result);
     event ClearFailedMessage(bytes32 indexed msgHash);
 
-    constructor(address dao, address ormp, string memory name) UpgradeableApplication(ormp) BaseMessagePort(name) {
-        _transferOwnership(dao);
+    constructor(address dao, address ormp, string memory name) ORMPPort(dao, ormp, name) UpgradeableApplication(ormp) {}
+
+    function ormpSender() public view override(Application, UpgradeableApplication) returns (address) {
+        return super.ormpSender();
     }
 
-    function setURI(string calldata uri) external onlyOwner {
-        _setURI(uri);
+    function ormpRecver() public view override(Application, UpgradeableApplication) returns (address) {
+        return super.ormpRecver();
+    }
+
+    function setAppConfig(address oracle, address relayer) external override onlyOwner {
+        setSenderConfig(oracle, relayer);
+        setRecverConfig(oracle, relayer);
     }
 
     function setSender(address ormp) external onlyOwner {
@@ -56,38 +54,12 @@ contract ORMPUpgradeableAndRetryablePort is
         _setRecver(ormp);
     }
 
-    function setSenderConfig(address oracle, address relayer) external onlyOwner {
+    function setSenderConfig(address oracle, address relayer) public onlyOwner {
         _setSenderConfig(oracle, relayer);
     }
 
-    function setRecverConfig(address oracle, address relayer) external onlyOwner {
+    function setRecverConfig(address oracle, address relayer) public onlyOwner {
         _setRecverConfig(oracle, relayer);
-    }
-
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
-        _setFromPort(_fromChainId, _fromPortAddress);
-    }
-
-    function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
-        internal
-        override
-    {
-        (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded =
-            abi.encodeWithSelector(ORMPUpgradeableAndRetryablePort.recv.selector, fromDapp, toDapp, message);
-        IORMP(sender).send{value: msg.value}(
-            toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
-        );
-    }
-
-    function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMP {
-        uint256 fromChainId = _fromChainId();
-        require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
-        _recv(fromChainId, fromDapp, toDapp, message);
     }
 
     function retryFailedMessage(
@@ -137,17 +109,5 @@ contract ORMPUpgradeableAndRetryablePort is
         returns (bytes32)
     {
         return keccak256(abi.encode(msgId, fromChainId, fromDapp, toDapp, message));
-    }
-
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
-        external
-        view
-        override
-        returns (uint256)
-    {
-        (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded =
-            abi.encodeWithSelector(ORMPUpgradeableAndRetryablePort.recv.selector, msg.sender, toDapp, message);
-        return IORMP(sender).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
