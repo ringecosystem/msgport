@@ -45,7 +45,7 @@ contract ORMPPortTest is Test {
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
-        ormpPort.setSenderConfig(address(0x2), address(0x3));
+        ormpPort.setAppConfig(address(0x2), address(0x3));
     }
 
     function testSetPort() public {
