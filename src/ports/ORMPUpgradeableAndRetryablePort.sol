@@ -92,7 +92,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         emit ClearFailedMessage(msgHash);
     }
 
-    /// NOTE: Due to gas-related issues, it is not guaranteed that failed messages will always be stored.
+    /// NOTE: Due to gas-related issues on arbitrum, it is not guaranteed that failed messages will always be stored.
     function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal override {
         (bool success,) = toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
         if (!success) {
