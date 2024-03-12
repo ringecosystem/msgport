@@ -32,22 +32,6 @@ contract ORMPPort is Ownable2Step, UpgradeableApplication, BaseMessagePort, Port
         _setURI(uri);
     }
 
-    function setSender(address ormp) external onlyOwner {
-        _setSender(ormp);
-    }
-
-    function setRecver(address ormp) external onlyOwner {
-        _setRecver(ormp);
-    }
-
-    function setSenderConfig(address oracle, address relayer) external onlyOwner {
-        _setSenderConfig(oracle, relayer);
-    }
-
-    function setRecverConfig(address oracle, address relayer) external onlyOwner {
-        _setRecverConfig(oracle, relayer);
-    }
-
     function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
         _setToPort(_toChainId, _toPortAddress);
     }
