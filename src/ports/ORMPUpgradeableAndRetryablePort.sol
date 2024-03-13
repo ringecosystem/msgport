@@ -89,8 +89,9 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
     }
 
     function clearFailedMessage(Message calldata message) external {
-        require(message.to == msg.sender, "!auth");
         bytes32 msgHash = _checkMessage(message);
+        (,, address toDapp,) = abi.decode(message.encoded, (bytes4, address, address, bytes));
+        require(toDapp == msg.sender, "!auth");
         _clear(msgHash);
     }
 
