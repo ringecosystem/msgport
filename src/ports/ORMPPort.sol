@@ -28,19 +28,19 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         _transferOwnership(dao);
     }
 
-    function setURI(string calldata uri) external virtual onlyOwner {
+    function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
     }
 
-    function setAppConfig(address oracle, address relayer) external virtual onlyOwner {
+    function setAppConfig(address oracle, address relayer) external onlyOwner {
         _setAppConfig(oracle, relayer);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external virtual onlyOwner {
+    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
         _setToPort(_toChainId, _toPortAddress);
     }
 
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external virtual onlyOwner {
+    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
         _setFromPort(_fromChainId, _fromPortAddress);
     }
 
@@ -50,7 +50,7 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
-        IORMP(ormpSender()).send{value: msg.value}(
+        IORMP(protocol()).send{value: msg.value}(
             toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
@@ -64,12 +64,11 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
-        virtual
         override
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, msg.sender, toDapp, message);
-        return IORMP(ormpSender()).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
+        return IORMP(protocol()).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
