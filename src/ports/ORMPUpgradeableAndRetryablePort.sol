@@ -48,7 +48,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
 
     function _checkMessage(Message calldata message) internal view returns (bytes32 msgHash) {
         msgHash = hash(message);
-        require(IORMP(ormpRecver()).dones(msgHash) == true, "!done");
+        require(IORMP(protocol()).dones(msgHash) == true, "!done");
         require(LOCAL_CHAINID() == message.toChainId, "!toChainId");
         require(address(this) == message.to, "!to");
         uint256 fromChainId = message.fromChainId;
@@ -61,7 +61,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         emit MessageDispatchedInPort(msgHash);
     }
 
-    function recv(address fromDapp, address toDapp, bytes memory message) public payable override {
+    function recv(address fromDapp, address toDapp, bytes calldata message) public payable override {
         super.recv(fromDapp, toDapp, message);
         bytes32 msgHash = _messageId();
         _markDone(msgHash);

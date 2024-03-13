@@ -55,7 +55,7 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         );
     }
 
-    function recv(address fromDapp, address toDapp, bytes memory message) public payable virtual onlyORMP {
+    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
