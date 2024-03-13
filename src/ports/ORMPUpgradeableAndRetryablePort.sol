@@ -74,7 +74,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         require(LOCAL_CHAINID() == message.toChainId, "!toChainId");
         require(address(this) == message.to, "!to");
         uint256 fromChainId = message.fromChainId;
-        require(message.from == _checkedFromPort(fromChainId), "!auth");
+        require(message.from == _checkedFromPort(fromChainId), "!xAuth");
     }
 
     function _markDone(bytes32 msgHash) internal {
@@ -89,6 +89,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
     }
 
     function clearFailedMessage(Message calldata message) external {
+        require(message.to == msg.sender, "!auth");
         bytes32 msgHash = _checkMessage(message);
         _clear(msgHash);
     }
