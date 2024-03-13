@@ -96,6 +96,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
     }
 
     function _clear(bytes32 msgHash) internal {
+        require(dones[msgHash] == false, "done");
         dones[msgHash] = true;
         emit ClearFailedMessage(msgHash);
     }
