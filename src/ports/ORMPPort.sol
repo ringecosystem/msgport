@@ -49,13 +49,13 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         override
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, fromDapp, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
         IORMP(ormpSender()).send{value: msg.value}(
             toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
         );
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) external payable onlyORMPRecver {
+    function recv(address fromDapp, address toDapp, bytes memory message) public payable virtual onlyORMPRecver {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
@@ -69,7 +69,7 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(ORMPPort.recv.selector, msg.sender, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, msg.sender, toDapp, message);
         return IORMP(ormpSender()).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }

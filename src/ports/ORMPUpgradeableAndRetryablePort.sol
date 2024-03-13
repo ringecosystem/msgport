@@ -22,13 +22,10 @@ import "ORMP/src/user/UpgradeableApplication.sol";
 import "./ORMPPort.sol";
 
 contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, ReentrancyGuard {
-    /// msgHash => isFailed
-    mapping(bytes32 => bool) public fails;
+    /// @dev msgHash => isDispathedInPort.
+    mapping(bytes32 => bool) public dones;
 
-    event MessageDispatchedFailure(
-        bytes32 indexed msgHash, bytes32 msgId, uint256 fromChainId, address fromDapp, address toDapp, bytes message
-    );
-    event RetryFailedMessage(bytes32 indexed msgHash, bool result);
+    event MessageDispatchedInPort(bytes32 indexed msgHash);
     event ClearFailedMessage(bytes32 indexed msgHash);
 
     constructor(address dao, address ormp, string memory name) ORMPPort(dao, ormp, name) UpgradeableApplication(ormp) {}
@@ -62,52 +59,41 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         _setRecverConfig(oracle, relayer);
     }
 
-    function retryFailedMessage(
-        bytes32 msgId,
-        uint256 fromChainId,
-        address fromDapp,
-        address toDapp,
-        bytes calldata message
-    ) external payable nonReentrant returns (bool success) {
-        bytes32 msgHash = hashInfo(msgId, fromChainId, fromDapp, toDapp, message);
-        require(fails[msgHash] == true, "!failed");
-        (success,) = toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
-        if (success) {
-            delete fails[msgHash];
-        }
-        emit RetryFailedMessage(msgHash, success);
+    function retryFailedMessage(Message calldata message) external payable nonReentrant {
+        bytes32 msgHash = _checkMessage(message);
+        (, address fromDapp, address toDapp, bytes memory payload) =
+            abi.decode(message.encoded, (bytes4, address, address, bytes));
+        _recv(message.fromChainId, fromDapp, toDapp, payload);
+        _markDone(msgHash);
     }
 
-    function clearFailedMessage(
-        bytes32 msgId,
-        uint256 fromChainId,
-        address fromDapp,
-        address toDapp,
-        bytes calldata message
-    ) external {
-        bytes32 msgHash = hashInfo(msgId, fromChainId, fromDapp, toDapp, message);
-        require(fails[msgHash] == true, "!failed");
-        require(toDapp == msg.sender, "!auth");
-        delete fails[msgHash];
+    function _checkMessage(Message calldata message) internal view returns (bytes32 msgHash) {
+        msgHash = hash(message);
+        require(IORMP(ormpRecver()).dones(msgHash) == true, "!done");
+        require(LOCAL_CHAINID() == message.toChainId, "!toChainId");
+        require(address(this) == message.to, "!to");
+        uint256 fromChainId = message.fromChainId;
+        require(message.from == _checkedFromPort(fromChainId), "!auth");
+    }
+
+    function _markDone(bytes32 msgHash) internal {
+        dones[msgHash] = true;
+        emit MessageDispatchedInPort(msgHash);
+    }
+
+    function recv(address fromDapp, address toDapp, bytes memory message) public payable override {
+        super.recv(fromDapp, toDapp, message);
+        bytes32 msgHash = _messageId();
+        _markDone(msgHash);
+    }
+
+    function clearFailedMessage(Message calldata message) external {
+        bytes32 msgHash = _checkMessage(message);
+        _clear(msgHash);
+    }
+
+    function _clear(bytes32 msgHash) internal {
+        dones[msgHash] = true;
         emit ClearFailedMessage(msgHash);
-    }
-
-    /// NOTE: Due to gas-related issues on arbitrum, it is not guaranteed that failed messages will always be stored.
-    function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal override {
-        (bool success,) = toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
-        if (!success) {
-            bytes32 msgId = _messageId();
-            bytes32 msgHash = hashInfo(msgId, fromChainId, fromDapp, toDapp, message);
-            fails[msgHash] = true;
-            emit MessageDispatchedFailure(msgHash, msgId, fromChainId, fromDapp, toDapp, message);
-        }
-    }
-
-    function hashInfo(bytes32 msgId, uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encode(msgId, fromChainId, fromDapp, toDapp, message));
     }
 }
