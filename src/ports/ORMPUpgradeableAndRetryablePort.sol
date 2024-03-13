@@ -30,33 +30,12 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
 
     constructor(address dao, address ormp, string memory name) ORMPPort(dao, ormp, name) UpgradeableApplication(ormp) {}
 
-    function ormpSender() public view override(Application, UpgradeableApplication) returns (address) {
-        return super.ormpSender();
+    function protocol() public view override(Application, UpgradeableApplication) returns (address) {
+        return super.protocol();
     }
 
-    function ormpRecver() public view override(Application, UpgradeableApplication) returns (address) {
-        return super.ormpRecver();
-    }
-
-    function setAppConfig(address oracle, address relayer) external override onlyOwner {
-        setSenderConfig(oracle, relayer);
-        setRecverConfig(oracle, relayer);
-    }
-
-    function setSender(address ormp) external onlyOwner {
-        _setSender(ormp);
-    }
-
-    function setRecver(address ormp) external onlyOwner {
-        _setRecver(ormp);
-    }
-
-    function setSenderConfig(address oracle, address relayer) public onlyOwner {
-        _setSenderConfig(oracle, relayer);
-    }
-
-    function setRecverConfig(address oracle, address relayer) public onlyOwner {
-        _setRecverConfig(oracle, relayer);
+    function setORMP(address ormp) external onlyOwner {
+        _setORMP(ormp);
     }
 
     function retryFailedMessage(Message calldata message) external payable nonReentrant {
