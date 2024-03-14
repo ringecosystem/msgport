@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -60,10 +60,13 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     /// @dev Trusted ports managed by dao.
     EnumerableSet.AddressSet private _trustedPorts;
 
-    mapping(bytes32 portMsgId => bool done) public doneOf;
-    mapping(bytes32 portMsgId => uint256 deliveryCount) public countOf;
-    // protect msg repeat by msgport
-    mapping(bytes32 portMsgId => mapping(address port => bool isDeliveried)) public deliverifyOf;
+    /// @dev portMsgId => done
+    mapping(bytes32 => bool) public doneOf;
+    /// @dev portMsgId => deliveryCount
+    mapping(bytes32 => uint256) public countOf;
+    /// @dev portMsgId => port => isDeliveried
+    /// @notice protect msg repeat by msgport
+    mapping(bytes32 => mapping(address => bool)) public deliverifyOf;
 
     /// @dev The maximum duration that a message's expiration parameter can be set to
     uint256 public constant MAX_MESSAGE_EXPIRATION = 30 days;
