@@ -47,6 +47,7 @@ verify $xaccount_factory 11155111   $( \
   0x00004582a7deb2c39fda29b0934de73cdfac6150 \
   "xAccountFactory" \
 ) src/xAccount/XAccountFactory.sol:XAccountFactory
+verify $module 11155111  "0xbd666d74" src/xAccount/SafeMsgportModule.sol:SafeMsgportModule
 
 # verify $ormp_port 421614   $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
 # verify $ormp_port 43       $(cast abi-encode "constructor(address,address,string)" $deployer $ormp $name) src/ports/ORMPPort.sol:ORMPPort
