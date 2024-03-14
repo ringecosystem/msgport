@@ -28,10 +28,10 @@ contract SafeMsgportModule is xAuth {
     address public rootOwner;
 
     event SetPort(address port);
+    event ModuleTransactionExecuted(address target, uint256 value, bytes data, Operation operation, bool result);
 
     error AlreadySetup();
     error ZeroChainId();
-    error ModuleTransactionFailed(bytes reason);
     error SendEtherFailed(bytes reason);
 
     constructor() {
@@ -92,7 +92,7 @@ contract SafeMsgportModule is xAuth {
         }
         (bool success, bytes memory returnData) =
             ISafe(childXAccount).execTransactionFromModuleReturnData(target, value, data, operation);
-        if (!success) revert ModuleTransactionFailed(returnData);
+        emit ModuleTransactionExecuted(target, value, data, operation, success);
         return returnData;
     }
 }
