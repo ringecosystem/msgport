@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -60,16 +60,19 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
     /// @dev Trusted ports managed by dao.
     EnumerableSet.AddressSet private _trustedPorts;
 
-    mapping(bytes32 portMsgId => bool done) public doneOf;
-    mapping(bytes32 portMsgId => uint256 deliveryCount) public countOf;
-    // protect msg repeat by msgport
-    mapping(bytes32 portMsgId => mapping(address port => bool isDeliveried)) public deliverifyOf;
+    /// @dev portMsgId => done
+    mapping(bytes32 => bool) public doneOf;
+    /// @dev portMsgId => deliveryCount
+    mapping(bytes32 => uint256) public countOf;
+    /// @dev portMsgId => port => isDeliveried
+    /// @notice protect msg repeat by msgport
+    mapping(bytes32 => mapping(address => bool)) public deliverifyOf;
 
     /// @dev The maximum duration that a message's expiration parameter can be set to
     uint256 public constant MAX_MESSAGE_EXPIRATION = 30 days;
 
     event SetThreshold(uint256 threshold);
-    event PortMessageSent(bytes32 indexed portMsgId, PortMsg portMsg, bool[] sentResult);
+    event PortMessageSent(bytes32 indexed portMsgId, PortMsg portMsg);
     event PortMessageConfirmation(bytes32 indexed portMsgId, address port);
     event PortMessageExpired(bytes32 indexed portMsgId);
     event PortMessageExecution(bytes32 indexed portMsgId);
@@ -146,39 +149,22 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         });
         bytes memory encoded = abi.encodeWithSelector(MultiPort.multiRecv.selector, portMsg);
         bytes32 portMsgId = hash(portMsg);
-
-        bool[] memory sentResult = _multiSend(args, toChainId, encoded);
-        emit PortMessageSent(portMsgId, portMsg, sentResult);
+        _multiSend(args, toChainId, encoded);
+        emit PortMessageSent(portMsgId, portMsg);
     }
 
-    function _multiSend(RemoteCallArgs memory args, uint256 toChainId, bytes memory encoded)
-        internal
-        returns (bool[] memory)
-    {
+    function _multiSend(RemoteCallArgs memory args, uint256 toChainId, bytes memory encoded) internal {
         uint256 len = args.ports.length;
         uint256 totalFee = 0;
-        bool[] memory sentResult = new bool[](len);
         for (uint256 i = 0; i < len; i++) {
             uint256 fee = args.fees[i];
             address port = args.ports[i];
             require(isTrustedPort(port), "!trusted");
-            sentResult[i] = _sendMessage(port, fee, toChainId, encoded, args.params[i]);
+            IMessagePort(port).send{value: fee}(toChainId, _checkedToPort(toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
 
         require(totalFee == msg.value, "!fees");
-        return sentResult;
-    }
-
-    function _sendMessage(address port, uint256 fee, uint256 toChainId, bytes memory encoded, bytes memory params)
-        internal
-        returns (bool r)
-    {
-        try IMessagePort(port).send{value: fee}(toChainId, _checkedToPort(toChainId), encoded, params) {
-            r = true;
-        } catch {
-            r = false;
-        }
     }
 
     function multiRecv(PortMsg calldata portMsg) external payable {
