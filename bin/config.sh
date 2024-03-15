@@ -25,11 +25,11 @@ forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 43  
 forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 421614   --broadcast --skip-simulation --legacy
 forge script script/config/MultiPortConfig.s.sol:MultiPortConfig --chain-id 11155111 --broadcast
 
-# export PORT_KEY="XACCOUNTFACTORY_ADDR"
-# uri=$(get_uri "QmahfNo9m9TqHUxARhug93Ubzn3HVutfQ9bDAxWq9ksJhy")
-# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[421614,11155111]" $uri --chain-id 43       --broadcast
-# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[11155111,44]"     $uri --chain-id 421614   --broadcast --skip-simulation --legacy
-# forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[44,421614]"       $uri --chain-id 11155111 --broadcast
+export PORT_KEY="XACCOUNTFACTORY_ADDR"
+uri=$(get_uri "QmahfNo9m9TqHUxARhug93Ubzn3HVutfQ9bDAxWq9ksJhy")
+forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[]" $uri --chain-id 43       --broadcast -g 200
+forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[]" $uri --chain-id 421614   --broadcast --skip-simulation --legacy
+forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[]" $uri --chain-id 11155111 --broadcast
 
 
 # forge script script/config/PortConfig.s.sol:PortConfig --sig "run(uint256[],string)" "[42161,1,44]" $uri --chain-id 46    --broadcast

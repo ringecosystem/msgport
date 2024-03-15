@@ -100,7 +100,7 @@ contract DeployXAccountFactory is Common {
         address port = _deploy3(SALT, initCode);
         require(port == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        console.log("ORMPPort deployed: %s", port);
+        console.log("XAccountFactory deployed: %s", port);
         return port;
     }
 

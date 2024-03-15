@@ -1,10 +1,10 @@
 ## Canonical Cross-chain Deployment Addresses
 | Port              |   Name            |  Canonical Cross-chain Deployment Address  |
 |-------------------|-------------------|--------------------------------------------|
-| PortRegistry      |                   | 0x00004582a7DeB2C39fdA29B0934dE73cdfaC6150 |
-| MultiPort         |  Multi            | 0x00005e5FCC932F3a5B7A3665bC99Bab0d1Ff0477 |
-| xAccountFactory   |  xAccountFactory  | 0x0000E457a920A83B47fc7Cc9C37714730cc13cEb |
-| SafeMsgportModule |                   | 0x0000BB6920aA050733b7e368FA7DF6d7FAA88142 |
+| PortRegistry      |                   | 0x0000918d16dd376a21B8775FeF0303b10e9A654F |
+| MultiPort         |  Multi            | 0x000002C33f83AE045d5EBB8972F09674379e6A31 |
+| xAccountFactory   |  xAccountFactory  | 0x0000FcFa1F8e3768e5ea55D60A02340dbCcB9dd1 |
+| SafeMsgportModule |                   | 0x000080fc9c29c366DC8c1C656846E277BA7b6cB9 |
 
 ## Supported Chains
 ### Testnet
