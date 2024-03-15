@@ -44,7 +44,7 @@ verify $xaccount_factory 11155111   $( \
   0xc22834581ebc8527d974f8a1c97e1bea4ef910bc \
   0x69f4d1788e39c87893c980c06edf4b7f686e2938 \
   0x017062a1de2fe6b99be3d9d37841fed19f573804 \
-  0x00004582a7deb2c39fda29b0934de73cdfac6150 \
+  $registry \
   "xAccountFactory" \
 ) src/xAccount/XAccountFactory.sol:XAccountFactory
 verify $module 11155111  "0xbd666d74" src/xAccount/SafeMsgportModule.sol:SafeMsgportModule
