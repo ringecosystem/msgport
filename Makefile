@@ -12,7 +12,7 @@ salt   :; @create3 -s 00000000000000
 sync   :; @git submodule update --recursive
 
 tools  :  foundry create3
-create3:; @cargo install --git https://github.com/darwinia-network/create3-deploy -f
+create3:; @cargo install --git https://github.com/darwinia-network/create3-deploy -f --locked
 foundry:; curl -L https://foundry.paradigm.xyz | bash
 
 deploy :; @./bin/deploy.sh
