@@ -20,20 +20,61 @@ pragma solidity ^0.8.17;
 import "./base/BaseMessagePort.sol";
 import "./base/PortLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
-import "ORMP/src/user/Application.sol";
+import "ORMP/src/user/UpgradeableApplication.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
-    constructor(address dao, address ormp, string memory name) Application(ormp) BaseMessagePort(name) {
+contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLookup {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    address public ormp;
+
+    EnumerableSet.AddressSet internal historyORMPSet;
+
+    event SetORMP(address previousORMP, address currentORMP);
+
+    modifier onlyORMPs() {
+        require(historyORMPSet.contains(msg.sender), "!ormps");
+        _;
+    }
+
+    modifier onlyOnce() {
+        bytes32 msgHash = _messageId();
+        uint256 len = historyORMPSet.length();
+        for (uint256 i = 0; i < len; i++) {
+            address o = historyORMPSet.at(i);
+            require(IORMP(o).dones(msgHash) == false, "done");
+        }
+        _;
+    }
+
+    constructor(address dao, address ormp_, string memory name) BaseMessagePort(name) {
         _transferOwnership(dao);
+        ormp = ormp_;
+        historyORMPSet.add(ormp_);
+    }
+
+    function protocol() public view override returns (address) {
+        return ormp;
+    }
+
+    /// @notice How to migrate to new ORMP contract.
+    /// 1. setORMP to new ORMP contract.
+    /// 2. previousORMP.setAppConfig to null after relay on-flight message.
+    function setORMP(address ormp_) external onlyOwner {
+        address previousORMP = ormp;
+        require(historyORMPSet.add(previousORMP), "!add");
+        ormp = ormp_;
+        emit SetORMP(previousORMP, ormp_);
+    }
+
+    function setAppConfig(address ormp_, address oracle, address relayer) external onlyOwner {
+        require(historyORMPSet.contains(ormp_), "!exist");
+        IORMP(ormp_).setAppConfig(oracle, relayer);
     }
 
     function setURI(string calldata uri) external onlyOwner {
         _setURI(uri);
-    }
-
-    function setAppConfig(address oracle, address relayer) external onlyOwner {
-        _setAppConfig(oracle, relayer);
     }
 
     function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
@@ -42,6 +83,22 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
 
     function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
         _setFromPort(_fromChainId, _fromPortAddress);
+    }
+
+    function historyORMPLength() public view returns (uint256) {
+        return historyORMPSet.length();
+    }
+
+    function historyORMPs() public view returns (address[] memory) {
+        return historyORMPSet.values();
+    }
+
+    function historyORMPAt(uint256 index) public view returns (address) {
+        return historyORMPSet.at(index);
+    }
+
+    function historyORMPContains(address ormp_) public view returns (bool) {
+        return historyORMPSet.contains(ormp_);
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -55,7 +112,7 @@ contract ORMPPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         );
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
+    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMPs onlyOnce {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);

@@ -18,27 +18,20 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "ORMP/src/user/UpgradeableApplication.sol";
-import "./ORMPPort.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "./ORMPUpgradeablePort.sol";
 
-contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, ReentrancyGuard {
+contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     /// @dev msgHash => isDispathedInPort.
     mapping(bytes32 => bool) public dones;
 
     event MessageDispatchedInPort(bytes32 indexed msgHash);
-    event ClearFailedMessage(bytes32 indexed msgHash);
 
-    constructor(address dao, address ormp, string memory name) ORMPPort(dao, ormp, name) UpgradeableApplication(ormp) {}
+    constructor(address dao, address ormp, string memory name) ORMPUpgradeablePort(dao, ormp, name) {}
 
-    function protocol() public view override(Application, UpgradeableApplication) returns (address) {
-        return super.protocol();
-    }
-
-    function setORMP(address ormp) external onlyOwner {
-        _setORMP(ormp);
-    }
-
-    function retryFailedMessage(Message calldata message) external payable nonReentrant {
+    function retry(Message calldata message) external payable nonReentrant {
         bytes32 msgHash = _checkMessage(message);
         (, address fromDapp, address toDapp, bytes memory payload) =
             abi.decode(message.encoded, (bytes4, address, address, bytes));
@@ -46,9 +39,30 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         _markDone(msgHash);
     }
 
+    function clear(Message calldata message) external {
+        bytes32 msgHash = _checkMessage(message);
+        (,, address toDapp,) = abi.decode(message.encoded, (bytes4, address, address, bytes));
+        require(toDapp == msg.sender, "!auth");
+        _clear(msgHash);
+    }
+
+    function _clear(bytes32 msgHash) internal {
+        require(dones[msgHash] == false, "done");
+        dones[msgHash] = true;
+        emit MessageDispatchedInPort(msgHash);
+    }
+
+    function _checkDispathed(bytes32 msgHash) internal view {
+        uint256 len = historyORMPSet.length();
+        for (uint256 i = 0; i < len; i++) {
+            address o = historyORMPSet.at(i);
+            require(IORMP(o).dones(msgHash), "!done");
+        }
+    }
+
     function _checkMessage(Message calldata message) internal view returns (bytes32 msgHash) {
         msgHash = hash(message);
-        require(IORMP(protocol()).dones(msgHash) == true, "!done");
+        _checkDispathed(msgHash);
         require(LOCAL_CHAINID() == message.toChainId, "!toChainId");
         require(address(this) == message.to, "!to");
         uint256 fromChainId = message.fromChainId;
@@ -65,18 +79,5 @@ contract ORMPUpgradeableAndRetryablePort is ORMPPort, UpgradeableApplication, Re
         super.recv(fromDapp, toDapp, message);
         bytes32 msgHash = _messageId();
         _markDone(msgHash);
-    }
-
-    function clearFailedMessage(Message calldata message) external {
-        bytes32 msgHash = _checkMessage(message);
-        (,, address toDapp,) = abi.decode(message.encoded, (bytes4, address, address, bytes));
-        require(toDapp == msg.sender, "!auth");
-        _clear(msgHash);
-    }
-
-    function _clear(bytes32 msgHash) internal {
-        require(dones[msgHash] == false, "done");
-        dones[msgHash] = true;
-        emit ClearFailedMessage(msgHash);
     }
 }

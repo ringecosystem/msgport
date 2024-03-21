@@ -61,12 +61,12 @@ contract DeployORMPURPort is Common {
 
     function deploy() public broadcast returns (address) {
         string memory name_ = config.readString(".metadata.name");
-        bytes memory byteCode = type(ORMPPort).creationCode;
+        bytes memory byteCode = type(ORMPUpgradeableAndRetryablePort).creationCode;
         bytes memory initCode = bytes.concat(byteCode, abi.encode(deployer, ORMP, name_));
         address port = _deploy3(SALT, initCode);
         require(port == ADDR, "!addr");
         require(III(ADDR).owner() == deployer);
-        console.log("ORMPPort deployed: %s", port);
+        console.log("ORMPUpgradeableAndRetryablePort deployed: %s", port);
         return port;
     }
 
