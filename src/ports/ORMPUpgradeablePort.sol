@@ -20,7 +20,7 @@ pragma solidity ^0.8.17;
 import "./base/BaseMessagePort.sol";
 import "./base/PortLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
-import "ORMP/src/user/UpgradeableApplication.sol";
+import "ORMP/src/user/AppBase.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
@@ -33,7 +33,7 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
 
     event SetORMP(address previousORMP, address currentORMP);
 
-    modifier onlyORMPs() {
+    modifier onlyORMP() override {
         require(historyORMPSet.contains(msg.sender), "!ormps");
         _;
     }
@@ -52,10 +52,6 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         _transferOwnership(dao);
         ormp = ormp_;
         historyORMPSet.add(ormp_);
-    }
-
-    function protocol() public view override returns (address) {
-        return ormp;
     }
 
     /// @notice How to migrate to new ORMP contract.
@@ -107,12 +103,10 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
-        IORMP(protocol()).send{value: msg.value}(
-            toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams
-        );
+        IORMP(ormp).send{value: msg.value}(toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams);
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMPs onlyOnce {
+    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP onlyOnce {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
@@ -126,6 +120,6 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, msg.sender, toDapp, message);
-        return IORMP(protocol()).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
+        return IORMP(ormp).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
