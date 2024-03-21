@@ -17,9 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IMessagePortExt {
-    function checkDeliveried(bytes32 msgHash) external view returns (bool);
-    function checkCompleted(bytes32 msgHash) external view returns (bool);
-    function fromPortLookup(uint256 fromChainId) external view returns (address);
-    function toPortLookup(uint256 toChainId) external view returns (address);
+interface IMessageRetryablePort {
+    function retry(bytes calldata messageData) external payable;
+    function clear(bytes calldata messageData) external;
 }

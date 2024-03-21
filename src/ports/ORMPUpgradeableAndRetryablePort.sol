@@ -31,7 +31,8 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
 
     constructor(address dao, address ormp, string memory name) ORMPUpgradeablePort(dao, ormp, name) {}
 
-    function retry(Message calldata message) external payable nonReentrant {
+    function retry(bytes calldata messageData) external payable nonReentrant {
+        Message memory message = abi.decode(messageData, (Message));
         bytes32 msgHash = _checkMessage(message);
         (, address fromDapp, address toDapp, bytes memory payload) =
             abi.decode(message.encoded, (bytes4, address, address, bytes));
@@ -39,17 +40,12 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
         _markDone(msgHash);
     }
 
-    function clear(Message calldata message) external {
+    function clear(bytes calldata messageData) external {
+        Message memory message = abi.decode(messageData, (Message));
         bytes32 msgHash = _checkMessage(message);
         (,, address toDapp,) = abi.decode(message.encoded, (bytes4, address, address, bytes));
         require(toDapp == msg.sender, "!auth");
         _clear(msgHash);
-    }
-
-    function _clear(bytes32 msgHash) internal {
-        require(dones[msgHash] == false, "done");
-        dones[msgHash] = true;
-        emit MessageDispatchedInPort(msgHash);
     }
 
     function _checkDispathed(bytes32 msgHash) internal view {
@@ -60,7 +56,7 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
         }
     }
 
-    function _checkMessage(Message calldata message) internal view returns (bytes32 msgHash) {
+    function _checkMessage(Message memory message) internal view returns (bytes32 msgHash) {
         msgHash = hash(message);
         _checkDispathed(msgHash);
         require(LOCAL_CHAINID() == message.toChainId, "!toChainId");
@@ -70,6 +66,12 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
     }
 
     function _markDone(bytes32 msgHash) internal {
+        require(dones[msgHash] == false, "done");
+        dones[msgHash] = true;
+        emit MessageDispatchedInPort(msgHash);
+    }
+
+    function _clear(bytes32 msgHash) internal {
         require(dones[msgHash] == false, "done");
         dones[msgHash] = true;
         emit MessageDispatchedInPort(msgHash);
