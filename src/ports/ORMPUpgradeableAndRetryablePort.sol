@@ -32,8 +32,8 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
 
     constructor(address dao, address ormp, string memory name) ORMPUpgradeablePort(dao, ormp, name) {}
 
-    function retry(bytes calldata messageData) external payable nonReentrant {
-        Message memory message = abi.decode(messageData, (Message));
+    function retry(bytes calldata failedMessage) external payable nonReentrant {
+        Message memory message = abi.decode(failedMessage, (Message));
         bytes32 msgHash = _checkMessage(message);
         (, address fromDapp, address toDapp, bytes memory payload) =
             abi.decode(message.encoded, (bytes4, address, address, bytes));
@@ -41,8 +41,8 @@ contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard
         _markDone(msgHash);
     }
 
-    function clear(bytes calldata messageData) external {
-        Message memory message = abi.decode(messageData, (Message));
+    function clear(bytes calldata failedMessage) external {
+        Message memory message = abi.decode(failedMessage, (Message));
         bytes32 msgHash = _checkMessage(message);
         (,, address toDapp,) = abi.decode(message.encoded, (bytes4, address, address, bytes));
         require(toDapp == msg.sender, "!auth");
