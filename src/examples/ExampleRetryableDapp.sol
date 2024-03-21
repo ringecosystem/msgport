@@ -25,11 +25,11 @@ import "./ExampleReceiverDapp.sol";
 contract ExampleRetryableDapp is ExampleReceiverDapp, ReentrancyGuard {
     constructor(address port, address dapp) ExampleReceiverDapp(port, dapp) {}
 
-    function retry(bytes calldata messageData) external payable {
-        IMessageRetryablePort(PORT).retry(messageData);
+    function retry(bytes calldata failedMessage) external payable {
+        IMessageRetryablePort(PORT).retry(failedMessage);
     }
 
-    function clear(bytes calldata messageData) external {
-        IMessageRetryablePort(PORT).clear(messageData);
+    function clear(bytes calldata failedMessage) external {
+        IMessageRetryablePort(PORT).clear(failedMessage);
     }
 }

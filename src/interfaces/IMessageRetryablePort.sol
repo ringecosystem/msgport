@@ -18,6 +18,6 @@
 pragma solidity ^0.8.0;
 
 interface IMessageRetryablePort {
-    function retry(bytes calldata messageData) external payable;
-    function clear(bytes calldata messageData) external;
+    function retry(bytes calldata failedMessage) external payable;
+    function clear(bytes calldata failedMessage) external;
 }
