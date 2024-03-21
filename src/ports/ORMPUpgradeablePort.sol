@@ -56,7 +56,7 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
 
     /// @notice How to migrate to new ORMP contract.
     /// 1. setORMP to new ORMP contract.
-    /// 2. previousORMP.setAppConfig to null.
+    /// 2. previousORMP.setAppConfig to null after relay on-flight message.
     function setORMP(address ormp_) external onlyOwner {
         address previousORMP = ormp;
         require(historyORMPSet.add(previousORMP), "!add");
