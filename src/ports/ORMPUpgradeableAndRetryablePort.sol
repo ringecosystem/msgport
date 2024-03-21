@@ -24,7 +24,8 @@ import "./ORMPUpgradeablePort.sol";
 contract ORMPUpgradeableAndRetryablePort is ORMPUpgradeablePort, ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    /// @dev msgHash => isDispathedInPort.
+    /// @dev msgHash => isDispatchedInPort.
+    /// The dispatched result means dapp executed successful.
     mapping(bytes32 => bool) public dones;
 
     event MessageDispatchedInPort(bytes32 indexed msgHash);
