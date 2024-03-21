@@ -21,8 +21,8 @@ contract ORMPPortTest is Test {
         uint256 chainId = Chains.Darwinia;
         vm.createSelectFork(chainId.toChainName());
         dao = address(0x1);
-        ormpProtocol = address(0x00000000001523057a05d6293C1e5171eE33eE0A);
-        ormpPort = new ORMPUpgradeablePort(dao, vm.envOr("ORMP_ADDRESS", address(ormpProtocol)), "ORMP");
+        ormpProtocol = vm.envOr("ORMP_ADDRESS", 0x00000000001523057a05d6293C1e5171eE33eE0A);
+        ormpPort = new ORMPUpgradeablePort(dao, vm.envOr("ORMP_ADDRESS", ormpProtocol), "ORMP");
     }
 
     function testSetUri() public {
@@ -38,14 +38,14 @@ contract ORMPPortTest is Test {
 
     function testSetAppConfig() public {
         vm.prank(dao);
-        ormpPort.setAppConfig(address(ormpPort), address(0x2), address(0x3));
+        ormpPort.setAppConfig(ormpProtocol, address(0x2), address(0x3));
         UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpPort));
         assertEq(uc.oracle, address(0x2));
         assertEq(uc.relayer, address(0x3));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
-        ormpPort.setAppConfig(address(ormpPort), address(0x2), address(0x3));
+        ormpPort.setAppConfig(ormpProtocol, address(0x2), address(0x3));
     }
 
     function testSetPort() public {
