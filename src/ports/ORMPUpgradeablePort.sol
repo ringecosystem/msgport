@@ -29,8 +29,6 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
 
     address public ormp;
 
-    mapping(bytes32 => bool) public dones;
-
     EnumerableSet.AddressSet internal historyORMPSet;
 
     event SetORMP(address previousORMP, address currentORMP);
@@ -107,9 +105,6 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
-        bytes32 msgHash = _messageId();
-        require(dones(msgHash) == false, "done");
-        dones[msgHash] = true;
     }
 
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
