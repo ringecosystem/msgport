@@ -29,22 +29,14 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
 
     address public ormp;
 
+    mapping(bytes32 => bool) public dones;
+
     EnumerableSet.AddressSet internal historyORMPSet;
 
     event SetORMP(address previousORMP, address currentORMP);
 
     modifier onlyORMP() override {
         require(historyORMPSet.contains(msg.sender), "!ormps");
-        _;
-    }
-
-    modifier onlyOnce() {
-        bytes32 msgHash = _messageId();
-        uint256 len = historyORMPSet.length();
-        for (uint256 i = 0; i < len; i++) {
-            address o = historyORMPSet.at(i);
-            require(IORMP(o).dones(msgHash) == false, "done");
-        }
         _;
     }
 
@@ -56,12 +48,17 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
 
     /// @notice How to migrate to new ORMP contract.
     /// 1. setORMP to new ORMP contract.
-    /// 2. previousORMP.setAppConfig to null after relay on-flight message.
+    /// 2. delete previousORMP after relay on-flight message.
     function setORMP(address ormp_) external onlyOwner {
         address previousORMP = ormp;
         require(historyORMPSet.add(previousORMP), "!add");
         ormp = ormp_;
         emit SetORMP(previousORMP, ormp_);
+    }
+
+    function delORMP(address ormp_) external onlyOwner {
+        require(ormp != ormp_, "sender");
+        require(historyORMPSet.remove(ormp_), "!del");
     }
 
     function setAppConfig(address ormp_, address oracle, address relayer) external onlyOwner {
@@ -106,10 +103,13 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         IORMP(ormp).send{value: msg.value}(toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams);
     }
 
-    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP onlyOnce {
+    function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
+        bytes32 msgHash = _messageId();
+        require(dones(msgHash) == false, "done");
+        dones[msgHash] = true;
     }
 
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
