@@ -2,7 +2,6 @@
 | Port                            |   Name     |  Canonical Cross-chain Deployment Address  |
 |---------------------------------|------------|--------------------------------------------|
 | ORMPPort                        |   ORMP     | 0x0000000005d961F950adA391C1511c92bbc64D9F |
-| ORMPUpgradeableAndRetryablePort |   ORMP-UR  | 0x000000000EA450D971d3A68c754Fb5C212d3101b |
 
 ## Supported Chains
 ### Mainnet
