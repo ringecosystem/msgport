@@ -10,7 +10,7 @@ import "ORMP/src/UserConfig.sol";
 import "../../src/ports/ORMPUpgradeablePort.sol";
 import "../../src/ports/base/FromPortLookup.sol";
 
-contract ORMPPortTest is Test {
+contract ORMPUpgradeablePortTest is Test {
     using Chains for uint256;
 
     ORMPUpgradeablePort ormpPort;
