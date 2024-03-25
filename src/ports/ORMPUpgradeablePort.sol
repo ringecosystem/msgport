@@ -49,8 +49,8 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     /// 2. delete previousORMP after relay on-flight message.
     function setORMP(address ormp_) external onlyOwner {
         address previousORMP = ormp;
-        require(historyORMPSet.add(previousORMP), "!add");
         ormp = ormp_;
+        require(historyORMPSet.add(ormp_), "!add");
         emit SetORMP(previousORMP, ormp_);
     }
 
