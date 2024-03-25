@@ -32,6 +32,8 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     EnumerableSet.AddressSet internal historyORMPSet;
 
     event SetORMP(address previousORMP, address currentORMP);
+    event HistoryORMPAdded(address ormp);
+    event HistoryORMPDeleted(address ormp);
 
     modifier onlyORMP() override {
         require(historyORMPSet.contains(msg.sender), "!ormps");
@@ -52,11 +54,13 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         ormp = ormp_;
         require(historyORMPSet.add(ormp_), "!add");
         emit SetORMP(previousORMP, ormp_);
+        emit HistoryORMPAdded(ormp_);
     }
 
     function delORMP(address ormp_) external onlyOwner {
         require(ormp != ormp_, "sender");
         require(historyORMPSet.remove(ormp_), "!del");
+        emit HistoryORMPDeleted(ormp_);
     }
 
     function setAppConfig(address ormp_, address oracle, address relayer) external onlyOwner {
