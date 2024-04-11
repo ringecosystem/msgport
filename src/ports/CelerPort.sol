@@ -76,7 +76,7 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
             payable(msg.sender).transfer(paid - fee);
         }
 
-        sendMessage(toPortLookup[_toChainId], down(_toChainId), celerMessage, fee);
+        sendMessage(_checkedToPort(_toChainId), down(_toChainId), celerMessage, fee);
     }
 
     //////////////////////////////////////////
@@ -96,7 +96,7 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
 
         require(msg.sender == lowLevelMessager, "caller is not message bus");
 
-        require(fromPortLookup[fromChainId] == _srcContract, "invalid source port address");
+        require(_checkedFromPort(fromChainId) == _srcContract, "invalid source port address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
 

@@ -21,19 +21,23 @@ abstract contract FromPortLookup {
     event SetFromPort(uint256 fromChainId, address fromPort);
 
     // fromChainId => fromPortAddress
-    mapping(uint256 => address) public fromPortLookup;
+    mapping(uint256 => address) internal _fromPortLookup;
+
+    function fromPortLookup(uint256 fromChainId) public view virtual returns (address) {
+        return _fromPortLookup[fromChainId];
+    }
 
     function _setFromPort(uint256 fromChainId, address fromPort) internal virtual {
-        fromPortLookup[fromChainId] = fromPort;
+        _fromPortLookup[fromChainId] = fromPort;
         emit SetFromPort(fromChainId, fromPort);
     }
 
-    function _fromPort(uint256 fromChainId) internal view returns (address) {
-        return fromPortLookup[fromChainId];
+    function _fromPort(uint256 fromChainId) internal view virtual returns (address) {
+        return _fromPortLookup[fromChainId];
     }
 
-    function _checkedFromPort(uint256 fromChainId) internal view returns (address l) {
-        l = fromPortLookup[fromChainId];
+    function _checkedFromPort(uint256 fromChainId) internal view virtual returns (address l) {
+        l = _fromPortLookup[fromChainId];
         require(l != address(0), "!fromPort");
     }
 }

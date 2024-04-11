@@ -62,7 +62,7 @@ contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, Axelar
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = down(_toChainId);
-        string memory toPortAddress = Utils.addressToHexString(toPortLookup[_toChainId]);
+        string memory toPortAddress = Utils.addressToHexString(_checkedToPort(_toChainId));
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
@@ -81,7 +81,9 @@ contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, Axelar
             abi.decode(payload_, (address, address, bytes));
 
         uint256 fromChainId = up(sourceChain_);
-        require(fromPortLookup[fromChainId] == Utils.hexStringToAddress(sourceAddress_), "invalid source port address");
+        require(
+            _checkedFromPort(fromChainId) == Utils.hexStringToAddress(sourceAddress_), "invalid source port address"
+        );
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }

@@ -19,36 +19,39 @@ pragma solidity ^0.8.17;
 
 // https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
 contract LayerZeroChainIdMapping {
-    error PortRegistryChainIdNotFound(uint256 portRegistryChainId);
-    error LzChainIdNotFound(uint16 lzChainId);
+    error ChainIdNotFound(uint16 lzchainId);
+    error LzChainIdNotFound(uint256 ChainId);
 
     mapping(uint256 => uint16) public downMapping;
     mapping(uint16 => uint256) public upMapping;
 
-    constructor(uint256[] memory _portRegistryChainIds, uint16[] memory _lzChainIds) {
-        require(_portRegistryChainIds.length == _lzChainIds.length, "Lengths do not match.");
+    event SetChainIdMap(uint256 chainId, uint16 lzChainId);
 
-        for (uint256 i = 0; i < _portRegistryChainIds.length; i++) {
-            _setChainIdMap(_portRegistryChainIds[i], _lzChainIds[i]);
+    constructor(uint256[] memory chainIds, uint16[] memory lzChainIds) {
+        require(chainIds.length == lzChainIds.length, "Lengths do not match.");
+
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            _setChainIdMap(chainIds[i], lzChainIds[i]);
         }
     }
 
-    function _setChainIdMap(uint256 _portRegistryChainId, uint16 _lzChainId) internal {
-        downMapping[_portRegistryChainId] = _lzChainId;
-        upMapping[_lzChainId] = _portRegistryChainId;
+    function _setChainIdMap(uint256 chainId, uint16 lzChainId) internal {
+        downMapping[chainId] = lzChainId;
+        upMapping[lzChainId] = chainId;
+        emit SetChainIdMap(chainId, lzChainId);
     }
 
-    function down(uint256 portRegistryChainId) internal view returns (uint16 lzChainId) {
-        lzChainId = downMapping[portRegistryChainId];
+    function down(uint256 chainId) internal view returns (uint16 lzChainId) {
+        lzChainId = downMapping[chainId];
         if (lzChainId == 0) {
-            revert PortRegistryChainIdNotFound(portRegistryChainId);
+            revert LzChainIdNotFound(chainId);
         }
     }
 
-    function up(uint16 lzChainId) internal view returns (uint256 portRegistryChainId) {
-        portRegistryChainId = upMapping[lzChainId];
-        if (portRegistryChainId == 0) {
-            revert PortRegistryChainIdNotFound(portRegistryChainId);
+    function up(uint16 lzChainId) internal view returns (uint256 chainId) {
+        chainId = upMapping[lzChainId];
+        if (chainId == 0) {
+            revert ChainIdNotFound(lzChainId);
         }
     }
 }
