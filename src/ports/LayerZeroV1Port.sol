@@ -29,17 +29,16 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
     ILayerZeroEndpoint public immutable LZ;
 
     modifier onlyLZ() {
-        require(msg.sender == LZ, "!lz");
+        require(msg.sender == address(LZ), "!lz");
         _;
     }
 
-    constructor(address dao, address lz, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
+    constructor(address dao, address lzv1, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
         BaseMessagePort(name)
-        NonblockingLzApp(lzEndpoint)
         LayerZeroChainIdMapping(chainIds, lzChainIds)
     {
         _transferOwnership(dao);
-        LZ = ILayerZeroEndpoint(lz);
+        LZ = ILayerZeroEndpoint(lzv1);
     }
 
     function setURI(string calldata uri) external onlyOwner {
@@ -61,7 +60,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
     function _getExtraGas(bytes memory lzParams) internal pure virtual returns (uint256 extraGas) {
         require(lzParams.length >= 34, "!adapterParams");
         assembly {
-            extraGas := mload(add(_adapterParams, 34))
+            extraGas := mload(add(lzParams, 34))
         }
     }
 
@@ -80,18 +79,17 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         bytes memory payload = abi.encode(fromDapp, toDapp, message);
         address toPort = _checkedToPort(toChainId);
         LZ.send{value: msg.value}(
-            dstChainId, abi.encodePacked(toPort, address(this)), payload, refund, address(0), lzParams
+            dstChainId, abi.encodePacked(toPort, address(this)), payload, payable(refund), address(0), lzParams
         );
     }
 
     function clear(uint16 srcChainId, bytes calldata srcAddress) external {
-        ILayerZeroEndpoint(lzEndpoint).forceResumeReceive(srcChainId, srcAddress);
+        LZ.forceResumeReceive(srcChainId, srcAddress);
         emit MessageFailure("Clear");
     }
 
     function lzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
         internal
-        override
         onlyLZ
     {
         uint256 fromChainId = up(srcChainId);
@@ -110,8 +108,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         uint16 remoteChainId = down(toChainId);
         (, bytes memory lzParams) = abi.decode(params, (address, bytes));
         bytes memory layerZeroMessage = abi.encode(msg.sender, toDapp, message);
-        (uint256 nativeFee,) =
-            ILayerZeroEndpoint(lzEndpoint).estimateFees(remoteChainId, address(this), layerZeroMessage, false, lzParams);
+        (uint256 nativeFee,) = LZ.estimateFees(remoteChainId, address(this), layerZeroMessage, false, lzParams);
         return nativeFee;
     }
 }
