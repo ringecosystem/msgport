@@ -83,9 +83,34 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         );
     }
 
-    function clear(uint16 srcChainId, bytes calldata srcAddress) external {
+    function clear(uint16 srcChainId, bytes calldata srcAddress) external onlyOwner {
         LZ.forceResumeReceive(srcChainId, srcAddress);
         emit MessageFailure("Clear");
+    }
+
+    function getConfig(uint16 _version, uint16 _chainId, address, uint256 _configType)
+        external
+        view
+        returns (bytes memory)
+    {
+        return LZ.getConfig(_version, _chainId, address(this), _configType);
+    }
+
+    // generic config for LayerZero user Application
+    function setConfig(uint16 _version, uint16 _chainId, uint256 _configType, bytes calldata _config)
+        external
+        override
+        onlyOwner
+    {
+        LZ.setConfig(_version, _chainId, _configType, _config);
+    }
+
+    function setSendVersion(uint16 _version) external override onlyOwner {
+        LZ.setSendVersion(_version);
+    }
+
+    function setReceiveVersion(uint16 _version) external override onlyOwner {
+        LZ.setReceiveVersion(_version);
     }
 
     function lzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
