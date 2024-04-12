@@ -18,7 +18,8 @@
 pragma solidity ^0.8.0;
 
 interface IMessagePort {
-    error MessageFailure(bytes errorData);
+    event MessageSuccess(bytes returnData);
+    event MessageFailure(bytes errorData);
 
     /// @dev Send a cross-chain message over the MessagePort.
     /// @notice Send a cross-chain message over the MessagePort.

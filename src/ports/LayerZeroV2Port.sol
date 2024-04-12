@@ -17,21 +17,20 @@
 
 pragma solidity ^0.8.17;
 
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
+import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
 import "./base/FromPortLookup.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 
-contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, FromPortLookup, LayerZeroChainIdMapping, NonblockingLzApp {
+contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, FromPortLookup, LayerZeroChainIdMapping, OApp {
     constructor(
         address dao,
         address lzEndpoint,
         string memory name,
         uint256[] memory chainIds,
         uint16[] memory lzChainIds
-    ) BaseMessagePort(name) NonblockingLzApp(lzEndpoint) LayerZeroChainIdMapping(chainIds, lzChainIds) {
+    ) BaseMessagePort(name) OApp(lzEndpoint, dao) LayerZeroChainIdMapping(chainIds, lzChainIds) {
         _transferOwnership(dao);
     }
 
@@ -73,19 +72,18 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, FromPortLookup, Layer
         internal
         override
     {
-        (address refund, bytes memory lzParams) = abi.decode(params, (address, bytes));
-        uint16 remoteChainId = down(toChainId);
+        (address refund, bytes memory options) = abi.decode(params, (address, bytes));
+        uint32 dstEid = down(toChainId);
 
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
 
         _lzSend(
-            remoteChainId,
-            layerZeroMessage,
-            payable(refund),
-            address(0), // zro payment address
-            lzParams, // adapter params
-            msg.value
+            dstEid, // Destination chain's endpoint ID.
+            layerZeroMessage, // Encoded message payload being sent.
+            options, // Message execution options (e.g., gas to use on destination).
+            MessagingFee(msg.value, 0), // Fee struct containing native gas and ZRO token.
+            payable(msg.sender) // The refund address in case the send call reverts.
         );
     }
 
@@ -107,13 +105,15 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, FromPortLookup, Layer
         ILayerZeroEndpoint(lzEndpoint).forceResumeReceive(srcChainId, srcAddress);
     }
 
-    function _nonblockingLzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
-        internal
-        override
-    {
+    function _lzReceive(
+        Origin calldata origin, // struct containing info about the message sender
+        bytes32 guid, // global packet identifier
+        bytes calldata payload, // encoded message payload being received
+        address executor, // the Executor address.
+        bytes calldata extraData // arbitrary data appended by the Executor
+    ) internal override {
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
-        require(this.isTrustedRemote(srcChainId, srcAddress), "!auth");
-        _recv(up(srcChainId), fromDapp, toDapp, message);
+        _recv(up(origin.srcEid), fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -122,11 +122,10 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, FromPortLookup, Layer
         override
         returns (uint256)
     {
-        uint16 remoteChainId = down(toChainId);
-        (, bytes memory lzParams) = abi.decode(params, (address, bytes));
+        uint32 dstEid = down(toChainId);
+        (, bytes memory options) = abi.decode(params, (address, bytes));
         bytes memory layerZeroMessage = abi.encode(msg.sender, toDapp, message);
-        (uint256 nativeFee,) =
-            ILayerZeroEndpoint(lzEndpoint).estimateFees(remoteChainId, address(this), layerZeroMessage, false, lzParams);
-        return nativeFee;
+        MessageFee memory fee = _quote(dstEid, layerZeroMessage, options, false);
+        return fee.nativeFee;
     }
 }

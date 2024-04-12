@@ -18,55 +18,56 @@
 pragma solidity ^0.8.17;
 
 import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
-import "./base/FromPortLookup.sol";
+import "./base/PortLookup.sol";
 import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
 
-contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, FromPortLookup, LayerZeroChainIdMapping, NonblockingLzApp {
-    constructor(
-        address dao,
-        address lzEndpoint,
-        string memory name,
-        uint256[] memory chainIds,
-        uint16[] memory lzChainIds
-    ) BaseMessagePort(name) NonblockingLzApp(lzEndpoint) LayerZeroChainIdMapping(chainIds, lzChainIds) {
+contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroChainIdMapping {
+    uint256 public constant EXTRAGAS_INPORT = 30000;
+
+    ILayerZeroEndpoint public immutable LZ;
+
+    modifier onlyLZ() {
+        require(msg.sender == LZ, "!lz");
+        _;
+    }
+
+    constructor(address dao, address lz, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
+        BaseMessagePort(name)
+        NonblockingLzApp(lzEndpoint)
+        LayerZeroChainIdMapping(chainIds, lzChainIds)
+    {
         _transferOwnership(dao);
+        LZ = ILayerZeroEndpoint(lz);
     }
 
-    function _transferOwnership(address newOwner) internal override(Ownable, Ownable2Step) {
-        super._transferOwnership(newOwner);
-    }
-
-    function transferOwnership(address newOwner) public virtual override(Ownable, Ownable2Step) onlyOwner {
-        super.transferOwnership(newOwner);
+    function setURI(string calldata uri) external onlyOwner {
+        _setURI(uri);
     }
 
     function setChainIdMap(uint256 chainId, uint16 lzChainId) external onlyOwner {
         _setChainIdMap(chainId, lzChainId);
     }
 
+    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
+        _setToPort(_toChainId, _toPortAddress);
+    }
+
     function setFromPort(uint256 fromChainId, address fromPortAddress) external onlyOwner {
         _setFromPort(fromChainId, fromPortAddress);
     }
 
-    function fromPortLookup(uint256 fromChainId) public view override returns (address) {
-        uint16 lzChainId = down(fromChainId);
-        return bytesToAddress(this.getTrustedRemoteAddress(lzChainId));
+    function _getExtraGas(bytes memory lzParams) internal pure virtual returns (uint256 extraGas) {
+        require(lzParams.length >= 34, "!adapterParams");
+        assembly {
+            extraGas := mload(add(_adapterParams, 34))
+        }
     }
 
-    function bytesToAddress(bytes memory addressBytes) internal pure returns (address) {
-        return address(bytes20(bytes(addressBytes)));
-    }
-
-    function _setFromPort(uint256 fromChainId, address fromPort) internal override {
-        uint16 lzChainId = down(fromChainId);
-        bytes memory path = abi.encodePacked(fromPort, address(this));
-        trustedRemoteLookup[lzChainId] = path;
-        emit SetFromPort(fromChainId, fromPort);
-        emit SetTrustedRemote(lzChainId, path);
-        emit SetTrustedRemoteAddress(lzChainId, abi.encodePacked(fromPort));
+    function _checkExtraGas(bytes memory lzParams) internal pure virtual {
+        uint256 extraGas = _getExtraGas(lzParams);
+        require(EXTRAGAS_INPORT >= 30000, "!extraGas");
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -74,46 +75,30 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, FromPortLookup, Layer
         override
     {
         (address refund, bytes memory lzParams) = abi.decode(params, (address, bytes));
-        uint16 remoteChainId = down(toChainId);
-
-        // build layer zero message
-        bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
-
-        _lzSend(
-            remoteChainId,
-            layerZeroMessage,
-            payable(refund),
-            address(0), // zro payment address
-            lzParams, // adapter params
-            msg.value
+        _checkExtraGas(lzParams);
+        uint16 dstChainId = down(toChainId);
+        bytes memory payload = abi.encode(fromDapp, toDapp, message);
+        address toPort = _checkedToPort(toChainId);
+        LZ.send{value: msg.value}(
+            dstChainId, abi.encodePacked(toPort, address(this)), payload, refund, address(0), lzParams
         );
-    }
-
-    function _storeFailedMessage(
-        uint16 srcChainId,
-        bytes memory srcAddress,
-        uint64 nonce,
-        bytes memory payload,
-        bytes memory reason
-    ) internal override {
-        emit MessageFailed(srcChainId, srcAddress, nonce, payload, reason);
-    }
-
-    function retryMessage(uint16, bytes calldata, uint64, bytes calldata) public payable override {
-        revert("!retry");
     }
 
     function clear(uint16 srcChainId, bytes calldata srcAddress) external {
         ILayerZeroEndpoint(lzEndpoint).forceResumeReceive(srcChainId, srcAddress);
+        emit MessageFailure("Clear");
     }
 
-    function _nonblockingLzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
+    function lzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
         internal
         override
+        onlyLZ
     {
+        uint256 fromChainId = up(srcChainId);
+        address fromPort = _checkedFromPort(fromChainId);
+        require(keccak256(srcAddress) == keccak256(abi.encodePacked(fromPort, address(this))), "!auth");
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
-        require(this.isTrustedRemote(srcChainId, srcAddress), "!auth");
-        _recv(up(srcChainId), fromDapp, toDapp, message);
+        _recv(fromChainId, fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)

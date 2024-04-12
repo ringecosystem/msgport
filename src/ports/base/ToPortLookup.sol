@@ -32,11 +32,11 @@ abstract contract ToPortLookup {
         emit SetToPort(toChainId, toPort);
     }
 
-    function _toPort(uint256 toChainId) internal view returns (address) {
+    function _toPort(uint256 toChainId) internal view virtual returns (address) {
         return _toPortLookup[toChainId];
     }
 
-    function _checkedToPort(uint256 toChainId) internal view returns (address l) {
+    function _checkedToPort(uint256 toChainId) internal view virtual returns (address l) {
         l = _toPortLookup[toChainId];
         require(l != address(0), "!toPort");
     }
