@@ -73,7 +73,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         _checkExtraGas(lzParams);
         uint16 dstChainId = down(toChainId);
         bytes memory payload = abi.encode(fromDapp, toDapp, message);
-        address toPort = _checkedPeer(toChainId);
+        address toPort = _checkedPeerOf(toChainId);
         LZ.send{value: msg.value}(
             dstChainId, abi.encodePacked(toPort, address(this)), payload, payable(refund), address(0), lzParams
         );
@@ -113,7 +113,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         onlyLZ
     {
         uint256 fromChainId = up(srcChainId);
-        address fromPort = _checkedPeer(fromChainId);
+        address fromPort = _checkedPeerOf(fromChainId);
         require(keccak256(srcAddress) == keccak256(abi.encodePacked(fromPort, address(this))), "!auth");
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
         _recv(fromChainId, fromDapp, toDapp, message);

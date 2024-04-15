@@ -65,7 +65,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
 
     function _getPeerOrRevert(uint32 eid) internal view override returns (bytes32) {
         uint256 chainId = up(eid);
-        address peer = _checkedPeer(chainId);
+        address peer = _checkedPeerOf(chainId);
         return _toBytes32(peer);
     }
 
