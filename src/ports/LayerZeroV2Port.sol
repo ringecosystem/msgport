@@ -32,9 +32,6 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         _transferOwnership(dao);
     }
 
-    // TODO:
-    // setPeer()
-
     function _transferOwnership(address newOwner) internal override(Ownable, Ownable2Step) {
         super._transferOwnership(newOwner);
     }
