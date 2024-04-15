@@ -20,10 +20,10 @@ pragma solidity ^0.8.17;
 import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "../chain-id-mappings/LayerZeroV2ChainIdMapping.sol";
 
-contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroV2ChainIdMapping, OApp {
+contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZeroV2ChainIdMapping, OApp {
     constructor(address dao, address lzv2, string memory name, uint256[] memory chainIds, uint32[] memory endpointIds)
         BaseMessagePort(name)
         OApp(lzv2, dao)
@@ -51,12 +51,26 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         _setChainIdMap(chainId, lzChainId);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
-    function setFromPort(uint256 fromChainId, address fromPortAddress) external onlyOwner {
-        _setFromPort(fromChainId, fromPortAddress);
+    function setPeer(uint32 eid, bytes32 peer) public override onlyOwner {
+        _setPeer(down(eid), _toAddress(peer));
+    }
+
+    function _toAddress(bytes32 a) internal pure returns (address) {
+        return address(uint160(uint256(a)));
+    }
+
+    function _getPeerOrRevert(uint32 eid) internal view override returns (bytes32) {
+        uint256 chainId = up(eid);
+        address peer = _checkedPeer(chainId);
+        return _toBytes32(peer);
+    }
+
+    function _toBytes32(address addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(addr)));
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)

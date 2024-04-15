@@ -20,10 +20,10 @@ pragma solidity ^0.8.17;
 import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "../chain-id-mappings/LayerZeroV1ChainIdMapping.sol";
 
-contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroV1ChainIdMapping {
+contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZeroV1ChainIdMapping {
     uint256 public constant EXTRAGAS_INPORT = 30000;
 
     ILayerZeroEndpoint public immutable LZ;
@@ -32,9 +32,6 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         require(msg.sender == address(LZ), "!lz");
         _;
     }
-
-    // TODO:
-    // setPeer()
 
     constructor(address dao, address lzv1, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
         BaseMessagePort(name)
@@ -52,12 +49,8 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         _setChainIdMap(chainId, lzChainId);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 fromChainId, address fromPortAddress) external onlyOwner {
-        _setFromPort(fromChainId, fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     function _getExtraGas(bytes memory lzParams) internal pure virtual returns (uint256 extraGas) {
@@ -80,7 +73,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         _checkExtraGas(lzParams);
         uint16 dstChainId = down(toChainId);
         bytes memory payload = abi.encode(fromDapp, toDapp, message);
-        address toPort = _checkedToPort(toChainId);
+        address toPort = _checkedPeer(toChainId);
         LZ.send{value: msg.value}(
             dstChainId, abi.encodePacked(toPort, address(this)), payload, payable(refund), address(0), lzParams
         );
@@ -120,7 +113,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         onlyLZ
     {
         uint256 fromChainId = up(srcChainId);
-        address fromPort = _checkedFromPort(fromChainId);
+        address fromPort = _checkedPeer(fromChainId);
         require(keccak256(srcAddress) == keccak256(abi.encodePacked(fromPort, address(this))), "!auth");
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
         _recv(fromChainId, fromDapp, toDapp, message);
