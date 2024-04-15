@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 // https://raw.githubusercontent.com/LayerZero-Labs/sdk/main/packages/lz-sdk/src/enums/ChainId.ts
-contract LayerZeroChainIdMapping {
+contract LayerZeroV1ChainIdMapping {
     error ChainIdNotFound(uint16 lzchainId);
     error LzChainIdNotFound(uint256 ChainId);
 
@@ -30,7 +30,8 @@ contract LayerZeroChainIdMapping {
     constructor(uint256[] memory chainIds, uint16[] memory lzChainIds) {
         require(chainIds.length == lzChainIds.length, "Lengths do not match.");
 
-        for (uint256 i = 0; i < chainIds.length; i++) {
+        uint256 len = chainIds.length;
+        for (uint256 i = 0; i < len; i++) {
             _setChainIdMap(chainIds[i], lzChainIds[i]);
         }
     }

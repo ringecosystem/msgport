@@ -21,16 +21,19 @@ import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contract
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
 import "./base/PortLookup.sol";
-import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
+import "../chain-id-mappings/LayerZeroV2ChainIdMapping.sol";
 
-contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroChainIdMapping, OApp {
-    constructor(address dao, address lzv2, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
+contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroV2ChainIdMapping, OApp {
+    constructor(address dao, address lzv2, string memory name, uint256[] memory chainIds, uint32[] memory endpointIds)
         BaseMessagePort(name)
         OApp(lzv2, dao)
-        LayerZeroChainIdMapping(chainIds, lzChainIds)
+        LayerZeroV2ChainIdMapping(chainIds, endpointIds)
     {
         _transferOwnership(dao);
     }
+
+    // TODO:
+    // setPeer()
 
     function _transferOwnership(address newOwner) internal override(Ownable, Ownable2Step) {
         super._transferOwnership(newOwner);
@@ -71,16 +74,16 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
             layerZeroMessage, // Encoded message payload being sent.
             options, // Message execution options (e.g., gas to use on destination).
             MessagingFee(msg.value, 0), // Fee struct containing native gas and ZRO token.
-            payable(msg.sender) // The refund address in case the send call reverts.
+            payable(refund) // The refund address in case the send call reverts.
         );
     }
 
     function _lzReceive(
         Origin calldata origin, // struct containing info about the message sender
-        bytes32 guid, // global packet identifier
+        bytes32, /*guid*/ // global packet identifier
         bytes calldata payload, // encoded message payload being received
-        address executor, // the Executor address.
-        bytes calldata extraData // arbitrary data appended by the Executor
+        address, /*executor*/ // the Executor address.
+        bytes calldata /*extraData*/ // arbitrary data appended by the Executor
     ) internal override {
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
         _recv(up(origin.srcEid), fromDapp, toDapp, message);

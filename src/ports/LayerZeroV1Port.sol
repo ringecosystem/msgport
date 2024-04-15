@@ -21,9 +21,9 @@ import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEn
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./base/BaseMessagePort.sol";
 import "./base/PortLookup.sol";
-import "../chain-id-mappings/LayerZeroChainIdMapping.sol";
+import "../chain-id-mappings/LayerZeroV1ChainIdMapping.sol";
 
-contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroChainIdMapping {
+contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZeroV1ChainIdMapping {
     uint256 public constant EXTRAGAS_INPORT = 30000;
 
     ILayerZeroEndpoint public immutable LZ;
@@ -33,9 +33,12 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
         _;
     }
 
+    // TODO:
+    // setPeer()
+
     constructor(address dao, address lzv1, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
         BaseMessagePort(name)
-        LayerZeroChainIdMapping(chainIds, lzChainIds)
+        LayerZeroV1ChainIdMapping(chainIds, lzChainIds)
     {
         _transferOwnership(dao);
         LZ = ILayerZeroEndpoint(lzv1);
@@ -66,7 +69,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
 
     function _checkExtraGas(bytes memory lzParams) internal pure virtual {
         uint256 extraGas = _getExtraGas(lzParams);
-        require(EXTRAGAS_INPORT >= 30000, "!extraGas");
+        require(extraGas >= EXTRAGAS_INPORT, "!extraGas");
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -99,17 +102,16 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PortLookup, LayerZero
     // generic config for LayerZero user Application
     function setConfig(uint16 _version, uint16 _chainId, uint256 _configType, bytes calldata _config)
         external
-        override
         onlyOwner
     {
         LZ.setConfig(_version, _chainId, _configType, _config);
     }
 
-    function setSendVersion(uint16 _version) external override onlyOwner {
+    function setSendVersion(uint16 _version) external onlyOwner {
         LZ.setSendVersion(_version);
     }
 
-    function setReceiveVersion(uint16 _version) external override onlyOwner {
+    function setReceiveVersion(uint16 _version) external onlyOwner {
         LZ.setReceiveVersion(_version);
     }
 
