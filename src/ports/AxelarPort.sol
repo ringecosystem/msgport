@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "../chain-id-mappings/AxelarChainIdMapping.sol";
 import "../utils/Utils.sol";
 import {AxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
@@ -27,7 +27,7 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, AxelarExecutable, Ownable2Step {
+contract AxelarPort is BaseMessagePort, PeerLookup, AxelarChainIdMapping, AxelarExecutable, Ownable2Step {
     IAxelarGasService public immutable GAS_SERVICE;
 
     constructor(
@@ -44,12 +44,8 @@ contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, Axelar
         _setChainIdMap(_portRegistryChainId, _axelarChainId);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
-        _setFromPort(_fromChainId, _fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     function _send(
@@ -62,7 +58,7 @@ contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, Axelar
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = down(_toChainId);
-        string memory toPortAddress = Utils.addressToHexString(_checkedToPort(_toChainId));
+        string memory toPortAddress = Utils.addressToHexString(_checkedPeerOf(_toChainId));
 
         if (msg.value > 0) {
             GAS_SERVICE.payNativeGasForContractCall{value: msg.value}(
@@ -81,9 +77,7 @@ contract AxelarPort is BaseMessagePort, PortLookup, AxelarChainIdMapping, Axelar
             abi.decode(payload_, (address, address, bytes));
 
         uint256 fromChainId = up(sourceChain_);
-        require(
-            _checkedFromPort(fromChainId) == Utils.hexStringToAddress(sourceAddress_), "invalid source port address"
-        );
+        require(_checkedPeerOf(fromChainId) == Utils.hexStringToAddress(sourceAddress_), "invalid source port address");
 
         _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
