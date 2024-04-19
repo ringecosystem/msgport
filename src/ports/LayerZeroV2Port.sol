@@ -53,7 +53,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
     }
 
     function setPeer(uint32 eid, bytes32 peer) public override onlyOwner {
-        _setPeer(down(eid), _toAddress(peer));
+        _setPeer(up(eid), _toAddress(peer));
     }
 
     function _toAddress(bytes32 a) internal pure returns (address) {
