@@ -489,10 +489,11 @@ interface IMessagePort {
     ///         It should be noted that not all ports will implement this interface.
     /// @dev If the messaging protocol does not support on-chain fetch fee, then revert with "Unimplemented!".
     /// @param toChainId The message destination chain id. <https://eips.ethereum.org/EIPS/eip-155>
+    /// @param fromDapp The user application contract address which send the message.
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
     /// @param params Extend parameters to adapt to different message protocols.
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         returns (uint256);
@@ -981,7 +982,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
         }
     }
 
-    function fee(uint256, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
+    function fee(uint256, address, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
         revert("Unimplemented!");
     }
 }
@@ -1091,14 +1092,14 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         override
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, msg.sender, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
         return IORMP(ormp).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }
