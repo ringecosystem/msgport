@@ -8,7 +8,6 @@ import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/UserConfig.sol";
 
 import "../../src/ports/ORMPUpgradeablePort.sol";
-import "../../src/ports/base/FromPortLookup.sol";
 
 contract ORMPUpgradeablePortTest is Test {
     using Chains for uint256;
@@ -48,32 +47,32 @@ contract ORMPUpgradeablePortTest is Test {
         ormpPort.setAppConfig(ormpProtocol, address(0x2), address(0x3));
     }
 
-    function testSetPort() public {
+    function testSetPeer() public {
         // From port
         vm.prank(dao);
-        ormpPort.setFromPort(1, address(0x1));
+        ormpPort.setPeer(1, address(0x1));
         vm.prank(dao);
-        ormpPort.setFromPort(2, address(0x2));
-        assertEq(PortLookup(ormpPort).fromPortLookup(1), address(0x1));
-        assertEq(PortLookup(ormpPort).fromPortLookup(2), address(0x2));
+        ormpPort.setPeer(2, address(0x2));
+        assertEq(PeerLookup(ormpPort).peerOf(1), address(0x1));
+        assertEq(PeerLookup(ormpPort).peerOf(2), address(0x2));
         // To port
         vm.prank(dao);
-        ormpPort.setToPort(3, address(0x3));
+        ormpPort.setPeer(3, address(0x3));
         vm.prank(dao);
-        ormpPort.setToPort(4, address(0x4));
-        assertEq(PortLookup(ormpPort).toPortLookup(3), address(0x3));
-        assertEq(PortLookup(ormpPort).toPortLookup(4), address(0x4));
+        ormpPort.setPeer(4, address(0x4));
+        assertEq(PeerLookup(ormpPort).peerOf(3), address(0x3));
+        assertEq(PeerLookup(ormpPort).peerOf(4), address(0x4));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
-        ormpPort.setFromPort(5, address(0x5));
+        ormpPort.setPeer(5, address(0x5));
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
-        ormpPort.setFromPort(6, address(0x6));
+        ormpPort.setPeer(6, address(0x6));
     }
 
     function testSend() public {
         uint256 toChainId = 42161;
         vm.prank(dao);
-        ormpPort.setToPort(toChainId, address(0x1));
+        ormpPort.setPeer(toChainId, address(0x1));
         address toDapp = address(0x1837ff30801F1793563451101350A5f5e14a0a1a);
         address refund = address(0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85);
         bytes memory message = bytes(

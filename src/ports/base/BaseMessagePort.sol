@@ -48,16 +48,13 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
     /// @param fromDapp The message sender in source chain.
     /// @param toDapp The message receiver in dest chain.
     /// @param message The message body.
-    function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
-        internal
-        returns (bytes memory)
-    {
+    function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message) internal {
         (bool success, bytes memory returndata) =
             toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
         if (success) {
-            return returndata;
+            emit MessageSuccess(returndata);
         } else {
-            revert MessageFailure(returndata);
+            emit MessageFailure(returndata);
         }
     }
 

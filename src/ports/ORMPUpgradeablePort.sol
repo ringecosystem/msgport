@@ -18,13 +18,13 @@
 pragma solidity 0.8.17;
 
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "ORMP/src/interfaces/IORMP.sol";
 import "ORMP/src/user/AppBase.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLookup {
+contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLookup {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address public ormp;
@@ -72,12 +72,8 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         _setURI(uri);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
-        _setFromPort(_fromChainId, _fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     function historyORMPLength() public view returns (uint256) {
@@ -102,12 +98,12 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
-        IORMP(ormp).send{value: msg.value}(toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams);
+        IORMP(ormp).send{value: msg.value}(toChainId, _checkedPeerOf(toChainId), gasLimit, encoded, refund, ormpParams);
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
         uint256 fromChainId = _fromChainId();
-        require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
+        require(_xmsgSender() == _checkedPeerOf(fromChainId), "!auth");
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 

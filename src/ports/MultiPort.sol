@@ -20,7 +20,7 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "../interfaces/IPortRegistry.sol";
 import "../interfaces/IPortMetadata.sol";
 import "../interfaces/IMessagePort.sol";
@@ -28,7 +28,7 @@ import "../user/Application.sol";
 
 /// @title MultiPort
 /// @notice Send message by multi message port.
-contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
+contract MultiPort is Ownable2Step, Application, BaseMessagePort, PeerLookup {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @dev RemoteCallArgs
@@ -116,12 +116,8 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         return _trustedPorts.contains(port);
     }
 
-    function setToPort(uint256 toChainId, address toPortAddress) external onlyOwner {
-        _setToPort(toChainId, toPortAddress);
-    }
-
-    function setFromPort(uint256 fromChainId, address fromPortAddress) external onlyOwner {
-        _setFromPort(fromChainId, fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
@@ -160,7 +156,7 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
             uint256 fee = args.fees[i];
             address port = args.ports[i];
             require(isTrustedPort(port), "!trusted");
-            IMessagePort(port).send{value: fee}(toChainId, _checkedToPort(toChainId), encoded, args.params[i]);
+            IMessagePort(port).send{value: fee}(toChainId, _checkedPeerOf(toChainId), encoded, args.params[i]);
             totalFee += fee;
         }
 
@@ -174,7 +170,7 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PortLookup {
         require(LOCAL_CHAINID() == portMsg.toChainId, "!toChainId");
         require(fromChainId == portMsg.fromChainId, "!fromChainId");
         require(fromChainId != LOCAL_CHAINID(), "!fromChainId");
-        require(_xmsgSender() == _checkedFromPort(fromChainId), "!xmsgSender");
+        require(_xmsgSender() == _checkedPeerOf(fromChainId), "!xmsgSender");
         bytes32 portMsgId = hash(portMsg);
         require(deliverifyOf[portMsgId][port] == false, "deliveried");
         deliverifyOf[portMsgId][port] = true;
