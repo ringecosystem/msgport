@@ -32,10 +32,11 @@ interface IMessagePort {
     ///         It should be noted that not all ports will implement this interface.
     /// @dev If the messaging protocol does not support on-chain fetch fee, then revert with "Unimplemented!".
     /// @param toChainId The message destination chain id. <https://eips.ethereum.org/EIPS/eip-155>
+    /// @param fromDapp The user application contract address which send the message.
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
     /// @param params Extend parameters to adapt to different message protocols.
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         returns (uint256);

@@ -61,7 +61,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
         }
     }
 
-    function fee(uint256, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
+    function fee(uint256, address, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
         revert("Unimplemented!");
     }
 }
