@@ -107,14 +107,14 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLook
         _recv(fromChainId, fromDapp, toDapp, message);
     }
 
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         override
         returns (uint256)
     {
         (uint256 gasLimit,, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
-        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, msg.sender, toDapp, message);
+        bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
         return IORMP(ormp).fee(toChainId, address(this), gasLimit, encoded, ormpParams);
     }
 }

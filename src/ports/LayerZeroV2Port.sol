@@ -100,7 +100,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         _recv(up(origin.srcEid), fromDapp, toDapp, message);
     }
 
-    function fee(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         override
@@ -108,7 +108,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
     {
         uint32 dstEid = down(toChainId);
         (, bytes memory options) = abi.decode(params, (address, bytes));
-        bytes memory layerZeroMessage = abi.encode(msg.sender, toDapp, message);
+        bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
         return _quote(dstEid, layerZeroMessage, options, false).nativeFee;
     }
 }
