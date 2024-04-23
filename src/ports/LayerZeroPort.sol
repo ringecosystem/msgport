@@ -88,14 +88,14 @@ contract LayerZeroPort is BaseMessagePort, FromPortLookup, LayerZeroChainIdMappi
         _recv(srcChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 
-    function fee(uint256 toChainId, address, bytes calldata message, bytes calldata params)
+    function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
         external
         view
         override
         returns (uint256)
     {
         uint16 remoteChainId = down(toChainId);
-        bytes memory layerZeroMessage = abi.encode(address(0), address(0), message);
+        bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
         (uint256 nativeFee,) = ILayerZeroEndpoint(lowLevelMessager).estimateFees(
             remoteChainId, address(this), layerZeroMessage, false, params
         );

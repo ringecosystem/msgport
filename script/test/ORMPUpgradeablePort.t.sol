@@ -81,7 +81,7 @@ contract ORMPUpgradeablePortTest is Test {
         );
         bytes memory params = bytes("0x");
         bytes memory adapterParams = abi.encode(500000, refund, params);
-        uint256 fee = ormpPort.fee(toChainId, toDapp, message, adapterParams);
+        uint256 fee = ormpPort.fee(toChainId, address(this), toDapp, message, adapterParams);
         ormpPort.send{value: fee}(toChainId, toDapp, message, adapterParams);
     }
 }
