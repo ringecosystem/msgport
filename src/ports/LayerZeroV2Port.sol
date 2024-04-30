@@ -73,6 +73,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
+        returns (bytes32 msgId)
     {
         (address refund, bytes memory options) = abi.decode(params, (address, bytes));
         uint32 dstEid = down(toChainId);
@@ -80,24 +81,23 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
 
-        _lzSend(
-            dstEid, // Destination chain's endpoint ID.
-            layerZeroMessage, // Encoded message payload being sent.
-            options, // Message execution options (e.g., gas to use on destination).
-            MessagingFee(msg.value, 0), // Fee struct containing native gas and ZRO token.
-            payable(refund) // The refund address in case the send call reverts.
-        );
+        return _lzSend(dstEid, layerZeroMessage, options, MessagingFee(msg.value, 0), payable(refund)) // Destination chain's endpoint ID.
+                // Encoded message payload being sent.
+                // Message execution options (e.g., gas to use on destination).
+                // Fee struct containing native gas and ZRO token.
+                // The refund address in case the send call reverts.
+            .guid;
     }
 
     function _lzReceive(
         Origin calldata origin, // struct containing info about the message sender
-        bytes32, /*guid*/ // global packet identifier
+        bytes32 guid, // global packet identifier
         bytes calldata payload, // encoded message payload being received
         address, /*executor*/ // the Executor address.
         bytes calldata /*extraData*/ // arbitrary data appended by the Executor
     ) internal override {
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
-        _recv(up(origin.srcEid), fromDapp, toDapp, message);
+        _recv(guid, up(origin.srcEid), fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)

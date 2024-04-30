@@ -54,7 +54,7 @@ contract AxelarPort is BaseMessagePort, PeerLookup, AxelarChainIdMapping, Axelar
         address _toDappAddress,
         bytes calldata _messagePayload,
         bytes calldata /*_params*/
-    ) internal override {
+    ) internal override returns (bytes32) {
         bytes memory axelarMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         string memory toChainId = down(_toChainId);
@@ -67,6 +67,8 @@ contract AxelarPort is BaseMessagePort, PeerLookup, AxelarChainIdMapping, Axelar
         }
 
         gateway.callContract(toChainId, toPortAddress, axelarMessage);
+
+        return bytes32(0);
     }
 
     function _execute(string calldata sourceChain_, string calldata sourceAddress_, bytes calldata payload_)
@@ -79,6 +81,6 @@ contract AxelarPort is BaseMessagePort, PeerLookup, AxelarChainIdMapping, Axelar
         uint256 fromChainId = up(sourceChain_);
         require(_checkedPeerOf(fromChainId) == Utils.hexStringToAddress(sourceAddress_), "invalid source port address");
 
-        _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(bytes32(0), fromChainId, fromDappAddress, toDappAddress, messagePayload);
     }
 }
