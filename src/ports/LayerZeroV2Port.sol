@@ -81,12 +81,7 @@ contract LayerZeroV2Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         // build layer zero message
         bytes memory layerZeroMessage = abi.encode(fromDapp, toDapp, message);
 
-        return _lzSend(dstEid, layerZeroMessage, options, MessagingFee(msg.value, 0), payable(refund)) // Destination chain's endpoint ID.
-                // Encoded message payload being sent.
-                // Message execution options (e.g., gas to use on destination).
-                // Fee struct containing native gas and ZRO token.
-                // The refund address in case the send call reverts.
-            .guid;
+        return _lzSend(dstEid, layerZeroMessage, options, MessagingFee(msg.value, 0), payable(refund)).guid;
     }
 
     function _lzReceive(
