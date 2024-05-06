@@ -18,8 +18,10 @@
 pragma solidity ^0.8.0;
 
 interface IMessagePort {
-    event MessageSuccess(bytes returnData);
-    event MessageFailure(bytes errorData);
+    event MessageSent(
+        bytes32 indexed msgId, address fromDapp, uint256 toChainId, address toDapp, bytes message, bytes params
+    );
+    event MessageRecv(bytes32 indexed msgId, bool result, bytes returnData);
 
     /// @dev Send a cross-chain message over the MessagePort.
     /// @notice Send a cross-chain message over the MessagePort.
@@ -27,7 +29,11 @@ interface IMessagePort {
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
     /// @param params Extend parameters to adapt to different message protocols.
-    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) external payable;
+    /// @return msgId Return the ID of message.
+    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+        external
+        payable
+        returns (bytes32 msgId);
 
     /// @notice Get a quote in source native gas, for the amount that send() requires to pay for message delivery.
     ///         It should be noted that not all ports will implement this interface.

@@ -95,16 +95,19 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLook
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
+        returns (bytes32)
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
-        IORMP(ormp).send{value: msg.value}(toChainId, _checkedPeerOf(toChainId), gasLimit, encoded, refund, ormpParams);
+        return IORMP(ormp).send{value: msg.value}(
+            toChainId, _checkedPeerOf(toChainId), gasLimit, encoded, refund, ormpParams
+        );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
         uint256 fromChainId = _fromChainId();
         require(_xmsgSender() == _checkedPeerOf(fromChainId), "!auth");
-        _recv(fromChainId, fromDapp, toDapp, message);
+        _recv(_messageId(), fromChainId, fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)

@@ -68,6 +68,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
+        returns (bytes32 msgId)
     {
         (address refund, bytes memory lzParams) = abi.decode(params, (address, bytes));
         _checkExtraGas(lzParams);
@@ -77,11 +78,15 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         LZ.send{value: msg.value}(
             dstChainId, abi.encodePacked(toPort, address(this)), payload, payable(refund), address(0), lzParams
         );
+        uint64 nonce = LZ.getOutboundNonce(dstChainId, address(this));
+        return keccak256(abi.encodePacked(dstChainId, address(this), toPort, nonce));
     }
 
     function clear(uint16 srcChainId, bytes calldata srcAddress) external onlyOwner {
         LZ.forceResumeReceive(srcChainId, srcAddress);
-        emit MessageFailure("Clear");
+        uint64 nonce = LZ.getInboundNonce(srcChainId, srcAddress);
+        bytes32 msgId = keccak256(abi.encodePacked(LZ.getChainId(), srcAddress, nonce));
+        emit MessageRecv(mark(msgId), false, "Clear");
     }
 
     function getConfig(uint16 _version, uint16 _chainId, address, uint256 _configType)
@@ -108,7 +113,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         LZ.setReceiveVersion(_version);
     }
 
-    function lzReceive(uint16 srcChainId, bytes memory srcAddress, uint64, /*_nonce*/ bytes memory payload)
+    function lzReceive(uint16 srcChainId, bytes memory srcAddress, uint64 nonce, bytes memory payload)
         internal
         onlyLZ
     {
@@ -116,7 +121,8 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         address fromPort = _checkedPeerOf(fromChainId);
         require(keccak256(srcAddress) == keccak256(abi.encodePacked(fromPort, address(this))), "!auth");
         (address fromDapp, address toDapp, bytes memory message) = abi.decode(payload, (address, address, bytes));
-        _recv(fromChainId, fromDapp, toDapp, message);
+        bytes32 msgId = keccak256(abi.encodePacked(LZ.getChainId(), srcAddress, nonce));
+        _recv(msgId, fromChainId, fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)

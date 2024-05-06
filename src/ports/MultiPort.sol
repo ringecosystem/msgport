@@ -123,6 +123,7 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PeerLookup {
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
+        returns (bytes32)
     {
         RemoteCallArgs memory args = abi.decode(params, (RemoteCallArgs));
 
@@ -147,6 +148,7 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PeerLookup {
         bytes32 portMsgId = hash(portMsg);
         _multiSend(args, toChainId, encoded);
         emit PortMessageSent(portMsgId, portMsg);
+        return portMsgId;
     }
 
     function _multiSend(RemoteCallArgs memory args, uint256 toChainId, bytes memory encoded) internal {
@@ -186,7 +188,7 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PeerLookup {
         require(doneOf[portMsgId] == false, "done");
         if (countOf[portMsgId] >= threshold) {
             doneOf[portMsgId] = true;
-            _recv(portMsg.fromChainId, portMsg.fromDapp, portMsg.toDapp, portMsg.message);
+            _recv(portMsgId, portMsg.fromChainId, portMsg.fromDapp, portMsg.toDapp, portMsg.message);
             emit PortMessageExecution(portMsgId);
         }
     }
