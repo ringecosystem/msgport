@@ -18,7 +18,7 @@
 pragma solidity 0.8.9;
 
 import "./base/BaseMessagePort.sol";
-import "./base/PortLookup.sol";
+import "./base/PeerLookup.sol";
 import "../chain-id-mappings/CelerChainIdMapping.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageSenderApp.sol";
 import "sgn-v2-contracts/contracts/message/framework/MessageReceiverApp.sol";
@@ -26,7 +26,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "sgn-v2-contracts/contracts/message/interfaces/IMessageBus.sol";
 import "../utils/Utils.sol";
 
-contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageSenderApp, MessageReceiverApp {
+contract CelerPort is BaseMessagePort, PeerLookup, CelerChainIdMapping, MessageSenderApp, MessageReceiverApp {
     address public remotePortAddress;
     address public immutable lowLevelMessager;
 
@@ -43,12 +43,8 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
         _setChainIdMap(_portRegistryChainId, _celerChainId);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
-        _setFromPort(_fromChainId, _fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     //////////////////////////////////////////
@@ -61,7 +57,7 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
         address _toDappAddress,
         bytes calldata _messagePayload,
         bytes calldata /*_params*/
-    ) internal override {
+    ) internal override returns (bytes32) {
         bytes memory celerMessage = abi.encode(_fromDappAddress, _toDappAddress, _messagePayload);
 
         // https://github.com/celer-network/sgn-v2-contracts/blob/1c65d5538ff8509c7e2626bb1a857683db775231/contracts/message/interfaces/IMessageBus.sol#LL122C17-L122C17
@@ -76,7 +72,9 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
             payable(msg.sender).transfer(paid - fee);
         }
 
-        sendMessage(toPortLookup[_toChainId], down(_toChainId), celerMessage, fee);
+        sendMessage(_checkedPeerOf(_toChainId), down(_toChainId), celerMessage, fee);
+
+        return bytes32(0);
     }
 
     //////////////////////////////////////////
@@ -96,9 +94,9 @@ contract CelerPort is BaseMessagePort, PortLookup, CelerChainIdMapping, MessageS
 
         require(msg.sender == lowLevelMessager, "caller is not message bus");
 
-        require(fromPortLookup[fromChainId] == _srcContract, "invalid source port address");
+        require(_checkedPeerOf(fromChainId) == _srcContract, "invalid source port address");
 
-        _recv(fromChainId, fromDappAddress, toDappAddress, messagePayload);
+        _recv(bytes32(0), fromChainId, fromDappAddress, toDappAddress, messagePayload);
 
         return ExecutionStatus.Success;
     }

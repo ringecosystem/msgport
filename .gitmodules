@@ -28,3 +28,6 @@
 [submodule "lib/safe-deployments"]
 	path = lib/safe-deployments
 	url = https://github.com/hujw77/safe-deployments
+[submodule "lib/LayerZero-v2"]
+	path = lib/LayerZero-v2
+	url = https://github.com/LayerZero-Labs/LayerZero-v2
