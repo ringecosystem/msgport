@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.20;
+pragma solidity 0.8.17;
 
 // lib/ORMP/src/Common.sol
 // This file is part of Darwinia.
@@ -475,7 +475,10 @@ library EnumerableSet {
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 interface IMessagePort {
-    error MessageFailure(bytes errorData);
+    event MessageSent(
+        bytes32 indexed msgId, address fromDapp, uint256 toChainId, address toDapp, bytes message, bytes params
+    );
+    event MessageRecv(bytes32 indexed msgId, bool result, bytes returnData);
 
     /// @dev Send a cross-chain message over the MessagePort.
     /// @notice Send a cross-chain message over the MessagePort.
@@ -483,7 +486,11 @@ interface IMessagePort {
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
     /// @param params Extend parameters to adapt to different message protocols.
-    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) external payable;
+    /// @return msgId Return the ID of message.
+    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+        external
+        payable
+        returns (bytes32 msgId);
 
     /// @notice Get a quote in source native gas, for the amount that send() requires to pay for message delivery.
     ///         It should be noted that not all ports will implement this interface.
@@ -528,7 +535,7 @@ interface IPortMetadata {
     function uri() external view returns (string memory);
 }
 
-// src/ports/base/FromPortLookup.sol
+// src/ports/base/PeerLookup.sol
 // This file is part of Darwinia.
 // Copyright (C) 2018-2023 Darwinia Network
 
@@ -546,63 +553,24 @@ interface IPortMetadata {
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-abstract contract FromPortLookup {
-    event SetFromPort(uint256 fromChainId, address fromPort);
+abstract contract PeerLookup {
+    // chainId => peer
+    mapping(uint256 => address) internal _peers;
 
-    // fromChainId => fromPortAddress
-    mapping(uint256 => address) public fromPortLookup;
+    event PeerSet(uint256 chainId, address peer);
 
-    function _setFromPort(uint256 fromChainId, address fromPort) internal virtual {
-        fromPortLookup[fromChainId] = fromPort;
-        emit SetFromPort(fromChainId, fromPort);
+    function peerOf(uint256 chainId) public virtual returns (address) {
+        return _peers[chainId];
     }
 
-    function _fromPort(uint256 fromChainId) internal view returns (address) {
-        return fromPortLookup[fromChainId];
+    function _setPeer(uint256 chainId, address peer) internal virtual {
+        _peers[chainId] = peer;
+        emit PeerSet(chainId, peer);
     }
 
-    function _checkedFromPort(uint256 fromChainId) internal view returns (address l) {
-        l = fromPortLookup[fromChainId];
-        require(l != address(0), "!fromPort");
-    }
-}
-
-// src/ports/base/ToPortLookup.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
-
-abstract contract ToPortLookup {
-    event SetToPort(uint256 toChainId, address toPort);
-
-    // toChainId => toPortAddress
-    mapping(uint256 => address) public toPortLookup;
-
-    function _setToPort(uint256 toChainId, address toPort) internal virtual {
-        toPortLookup[toChainId] = toPort;
-        emit SetToPort(toChainId, toPort);
-    }
-
-    function _toPort(uint256 toChainId) internal view returns (address) {
-        return toPortLookup[toChainId];
-    }
-
-    function _checkedToPort(uint256 toChainId) internal view returns (address l) {
-        l = toPortLookup[toChainId];
-        require(l != address(0), "!toPort");
+    function _checkedPeerOf(uint256 chainId) internal view virtual returns (address p) {
+        p = _peers[chainId];
+        require(p != address(0), "!peer");
     }
 }
 
@@ -903,26 +871,6 @@ abstract contract Ownable2Step is Ownable {
     }
 }
 
-// src/ports/base/PortLookup.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
-
-abstract contract PortLookup is FromPortLookup, ToPortLookup {}
-
 // src/ports/base/BaseMessagePort.sol
 // This file is part of Darwinia.
 // Copyright (C) 2018-2023 Darwinia Network
@@ -955,31 +903,34 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
     /// @param toDapp The user application contract address which receive the message.
     /// @param message The calldata which encoded by ABI Encoding.
     /// @param params Extend parameters to adapt to different message protocols.
+    /// @return msgId Return the ID of message.
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
-        virtual;
+        virtual
+        returns (bytes32 msgId);
 
-    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params) public payable {
-        _send(msg.sender, toChainId, toDapp, message, params);
+    function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
+        public
+        payable
+        returns (bytes32 msgId)
+    {
+        msgId = _send(msg.sender, toChainId, toDapp, message, params);
+        emit MessageSent(msgId, msg.sender, toChainId, toDapp, message, params);
     }
 
     /// @dev Make toDapp accept messages.
     ///      This should be called by message port when a message is received.
+    /// @param msgId The ID of message.
     /// @param fromChainId The source chainId, standard evm chainId.
     /// @param fromDapp The message sender in source chain.
     /// @param toDapp The message receiver in dest chain.
     /// @param message The message body.
-    function _recv(uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
+    function _recv(bytes32 msgId, uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
         internal
-        returns (bytes memory)
     {
         (bool success, bytes memory returndata) =
-            toDapp.call{value: msg.value}(abi.encodePacked(message, fromChainId, fromDapp));
-        if (success) {
-            return returndata;
-        } else {
-            revert MessageFailure(returndata);
-        }
+            toDapp.call{value: msg.value}(abi.encodePacked(message, msgId, fromChainId, fromDapp));
+        emit MessageRecv(msgId, success, returndata);
     }
 
     function fee(uint256, address, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {
@@ -1005,7 +956,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
 // You should have received a copy of the GNU General Public License
 // along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
-contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLookup {
+contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLookup {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address public ormp;
@@ -1053,12 +1004,8 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
         _setURI(uri);
     }
 
-    function setToPort(uint256 _toChainId, address _toPortAddress) external onlyOwner {
-        _setToPort(_toChainId, _toPortAddress);
-    }
-
-    function setFromPort(uint256 _fromChainId, address _fromPortAddress) external onlyOwner {
-        _setFromPort(_fromChainId, _fromPortAddress);
+    function setPeer(uint256 chainId, address peer) external onlyOwner {
+        _setPeer(chainId, peer);
     }
 
     function historyORMPLength() public view returns (uint256) {
@@ -1080,16 +1027,19 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PortLook
     function _send(address fromDapp, uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
         internal
         override
+        returns (bytes32)
     {
         (uint256 gasLimit, address refund, bytes memory ormpParams) = abi.decode(params, (uint256, address, bytes));
         bytes memory encoded = abi.encodeWithSelector(this.recv.selector, fromDapp, toDapp, message);
-        IORMP(ormp).send{value: msg.value}(toChainId, _checkedToPort(toChainId), gasLimit, encoded, refund, ormpParams);
+        return IORMP(ormp).send{value: msg.value}(
+            toChainId, _checkedPeerOf(toChainId), gasLimit, encoded, refund, ormpParams
+        );
     }
 
     function recv(address fromDapp, address toDapp, bytes calldata message) public payable virtual onlyORMP {
         uint256 fromChainId = _fromChainId();
-        require(_xmsgSender() == _checkedFromPort(fromChainId), "!auth");
-        _recv(fromChainId, fromDapp, toDapp, message);
+        require(_xmsgSender() == _checkedPeerOf(fromChainId), "!auth");
+        _recv(_messageId(), fromChainId, fromDapp, toDapp, message);
     }
 
     function fee(uint256 toChainId, address fromDapp, address toDapp, bytes calldata message, bytes calldata params)
