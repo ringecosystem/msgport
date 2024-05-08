@@ -46,7 +46,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
         returns (bytes32 msgId)
     {
         msgId = _send(msg.sender, toChainId, toDapp, message, params);
-        emit MessageSent(mark(msgId), msg.sender, toChainId, toDapp, message, params);
+        emit MessageSent(msgId, msg.sender, toChainId, toDapp, message, params);
     }
 
     /// @dev Make toDapp accept messages.
@@ -59,14 +59,9 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
     function _recv(bytes32 msgId, uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
         internal
     {
-        msgId = mark(msgId);
         (bool success, bytes memory returndata) =
             toDapp.call{value: msg.value}(abi.encodePacked(message, msgId, fromChainId, fromDapp));
         emit MessageRecv(msgId, success, returndata);
-    }
-
-    function mark(bytes32 msgId) public view returns (bytes32) {
-        return keccak256(abi.encodePacked(name(), msgId));
     }
 
     function fee(uint256, address, address, bytes calldata, bytes calldata) external view virtual returns (uint256) {

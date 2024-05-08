@@ -86,7 +86,7 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         LZ.forceResumeReceive(srcChainId, srcAddress);
         uint64 nonce = LZ.getInboundNonce(srcChainId, srcAddress);
         bytes32 msgId = keccak256(abi.encodePacked(LZ.getChainId(), srcAddress, nonce));
-        emit MessageRecv(mark(msgId), false, "Clear");
+        emit MessageRecv(msgId, false, "Clear");
     }
 
     function getConfig(uint16 _version, uint16 _chainId, address, uint256 _configType)
