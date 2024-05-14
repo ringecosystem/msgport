@@ -38,9 +38,10 @@ contract ORMPUpgradeablePortTest is Test {
     function testSetAppConfig() public {
         vm.prank(dao);
         ormpPort.setAppConfig(ormpProtocol, address(0x2), address(0x3));
-        UC memory uc = IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpPort));
-        assertEq(uc.oracle, address(0x2));
-        assertEq(uc.relayer, address(0x3));
+        (address oracle, address relayer) =
+            IORMP(vm.envOr("ORMP_ADDRESS", address(ormpProtocol))).getAppConfig(address(ormpPort));
+        assertEq(oracle, address(0x2));
+        assertEq(relayer, address(0x3));
         // Cannot
         vm.expectRevert(bytes("Ownable: caller is not the owner"));
         vm.prank(address(0));
