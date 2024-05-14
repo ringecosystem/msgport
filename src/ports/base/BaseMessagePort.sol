@@ -41,7 +41,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
         returns (bytes32 msgId);
 
     function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
-        public
+        external
         payable
         returns (bytes32 msgId)
     {
