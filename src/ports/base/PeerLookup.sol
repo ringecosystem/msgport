@@ -23,7 +23,7 @@ abstract contract PeerLookup {
 
     event PeerSet(uint256 chainId, address peer);
 
-    function peerOf(uint256 chainId) public virtual returns (address) {
+    function peerOf(uint256 chainId) public view virtual returns (address) {
         return _peers[chainId];
     }
 
