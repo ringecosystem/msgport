@@ -1,0 +1,120 @@
+openapi: 3.0.1
+info:
+  title: Msgport API
+  description: ''
+  version: 1.0.0
+tags: []
+paths:
+  /v2/fee_with_options:
+    get:
+      summary: API v2 - ORMP
+      deprecated: false
+      description: |+
+        This is the Msgport ORMPPort's api
+
+
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromChainId:
+                  type: integer
+                  faker: '43'
+                fromAddress:
+                  type: string
+                  faker: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+                toChainId:
+                  type: integer
+                  faker: '11155111'
+                toAddress:
+                  type: string
+                  faker: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+                message:
+                  type: string
+                  faker: >-
+                    0x1841a477000000000000000000000000000000000000000000000000000000000000002e0000000000000000000000002b496f19a420c02490db859fefeccd71edc2c046000000000000000000000000dc0c760c0fb4672d06088515f6446a71df0c64c1000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001a4e80f03d0000000000000000000000000000000000000000000000000000000000000002e000000000000000000000000e7578598aac020abfb918f33a20fad5b71d670b4000000000000000000000000092e19c46c9daab7824393f1cd9c22f5bea135600000000000000000000000004ca75992d2750bec270731a72dfdede6b9e71cc700000000000000000000000088a39b052d477cfde47600a7c9950a441ce61cb40000000000000000000000000000000000000000000000056bc75e2d631000000000000000000000000000000000000000000000000000000000018e98a317b100000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000c29dcb1f12a1618262ef9fba673b77140adc02d60000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000001488a39B052d477CfdE47600a7C9950a441Ce61cb400000000000000000000000000000000000000000000000000000000000000000000000000000000
+                ormp:
+                  type: object
+                  properties:
+                    refundAddress:
+                      type: string
+                      faker: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+                    gasLimit:
+                      type: string
+                  required:
+                    - refundAddress
+              required:
+                - fromChainId
+                - fromAddress
+                - toChainId
+                - toAddress
+                - message
+            example:
+              fromChainId: 43
+              fromAddress: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+              toChainId: 11155111
+              toAddress: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+              message: >-
+                0x1841a477000000000000000000000000000000000000000000000000000000000000002e0000000000000000000000002b496f19a420c02490db859fefeccd71edc2c046000000000000000000000000dc0c760c0fb4672d06088515f6446a71df0c64c1000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001a4e80f03d0000000000000000000000000000000000000000000000000000000000000002e000000000000000000000000e7578598aac020abfb918f33a20fad5b71d670b4000000000000000000000000092e19c46c9daab7824393f1cd9c22f5bea135600000000000000000000000004ca75992d2750bec270731a72dfdede6b9e71cc700000000000000000000000088a39b052d477cfde47600a7c9950a441ce61cb40000000000000000000000000000000000000000000000056bc75e2d631000000000000000000000000000000000000000000000000000000000018e98a317b100000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000c29dcb1f12a1618262ef9fba673b77140adc02d60000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000001488a39B052d477CfdE47600a7C9950a441Ce61cb400000000000000000000000000000000000000000000000000000000000000000000000000000000
+              ormp:
+                refundAddress: '0x9F33a4809aA708d7a399fedBa514e0A0d15EfA85'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      fee:
+                        type: string
+                      params:
+                        type: string
+                      gas:
+                        type: object
+                        properties:
+                          protocol:
+                            type: string
+                          msgport:
+                            type: string
+                          total:
+                            type: string
+                        required:
+                          - total
+                          - protocol
+                          - msgport
+                    required:
+                      - fee
+                      - params
+                      - gas
+                required:
+                  - code
+                  - data
+                  - 01HYMAYPZEKHNDRW01Q8VQT729
+              examples:
+                '1':
+                  summary: Success
+                  value:
+                    code: 0
+                    data:
+                      fee: '5339556000000000000000'
+                      params: >-
+                        0x000000000000000000000000000000000000000000000000000000000000c6120000000000000000000000009f33a4809aa708d7a399fedba514e0a0d15efa8500000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+                      gas:
+                        protocol: '0'
+                        msgport: '42255'
+                        total: '50706'
+      security: []
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
