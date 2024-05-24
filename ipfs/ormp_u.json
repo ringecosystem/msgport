@@ -4,6 +4,6 @@
   "description": "ORMPUpgradeablePort by Msgport",
   "api": {
     "baseUrl": "https://api.msgport.xyz",
-    "scheme": "ipfs://bafybeicntftnn7avmmdu7ipn64qvkhg3curmweodwofokoqnleeprh2ltq"
+    "schema": "ipfs://bafybeicntftnn7avmmdu7ipn64qvkhg3curmweodwofokoqnleeprh2ltq"
   }
 }
