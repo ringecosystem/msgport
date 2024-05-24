@@ -1,23 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
 // lib/ORMP/src/Common.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 /// @dev The block of control information and data for comminicate
 /// between user applications. Messages are the exchange medium
@@ -39,14 +23,6 @@ struct Message {
     address to;
     uint256 gasLimit;
     bytes encoded; /*(abi.encodePacked(SELECTOR, PARAMS))*/
-}
-
-/// @dev User application custom configuration.
-/// @param oracle Oracle contract address.
-/// @param relayer Relayer contract address.
-struct UC {
-    address oracle;
-    address relayer;
 }
 
 /// @dev Hash of the message.
@@ -457,22 +433,6 @@ library EnumerableSet {
 }
 
 // src/interfaces/IMessagePort.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 interface IMessagePort {
     event MessageSent(
@@ -507,22 +467,6 @@ interface IMessagePort {
 }
 
 // src/interfaces/IPortMetadata.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 interface IPortMetadata {
     event URI(string uri);
@@ -536,22 +480,6 @@ interface IPortMetadata {
 }
 
 // src/ports/base/PeerLookup.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 abstract contract PeerLookup {
     // chainId => peer
@@ -559,7 +487,7 @@ abstract contract PeerLookup {
 
     event PeerSet(uint256 chainId, address peer);
 
-    function peerOf(uint256 chainId) public virtual returns (address) {
+    function peerOf(uint256 chainId) public view virtual returns (address) {
         return _peers[chainId];
     }
 
@@ -575,22 +503,6 @@ abstract contract PeerLookup {
 }
 
 // lib/ORMP/src/interfaces/IORMP.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 interface IORMP {
     /// @dev Send a cross-chain message over the endpoint.
@@ -626,27 +538,39 @@ interface IORMP {
     /// @param message Verified receive message info.
     /// @param proof Message proof of this message.
     /// @return dispatchResult Result of the message dispatch.
-    function recv(Message calldata message, bytes calldata proof) external returns (bool dispatchResult);
-
-    function prove() external view returns (bytes32[32] memory);
+    function recv(Message calldata message, bytes calldata proof) external payable returns (bool dispatchResult);
 
     /// @dev Fetch user application config.
     /// @notice If user application has not configured, then the default config is used.
     /// @param ua User application contract address.
-    /// @return user application config.
-    function getAppConfig(address ua) external view returns (UC memory);
+    function getAppConfig(address ua) external view returns (address oracle, address relayer);
 
     /// @notice Set user application config.
     /// @param oracle Oracle which user application choose.
     /// @param relayer Relayer which user application choose.
     function setAppConfig(address oracle, address relayer) external;
 
-    function defaultUC() external view returns (UC memory);
+    function defaultUC() external view returns (address oracle, address relayer);
 
     /// @dev Check the msg if it is dispatched.
     /// @param msgHash Hash of the checked message.
     /// @return Return the dispatched result of the checked message.
     function dones(bytes32 msgHash) external view returns (bool);
+
+    /// @dev Import hash by any oracle address.
+    /// @notice Hash is an abstract of the proof system, it can be a block hash or a message root hash,
+    ///  		specifically provided by oracles.
+    /// @param chainId The source chain id.
+    /// @param channel The message channel.
+    /// @param msgIndex The source chain message index.
+    /// @param hash_ The hash to import.
+    function importHash(uint256 chainId, address channel, uint256 msgIndex, bytes32 hash_) external;
+
+    /// @dev Fetch hash.
+    /// @param oracle The oracle address.
+    /// @param lookupKey The key for loop up hash.
+    /// @return Return the hash imported by the oracle.
+    function hashLookup(address oracle, bytes32 lookupKey) external view returns (bytes32);
 }
 
 // lib/openzeppelin-contracts/contracts/access/Ownable.sol
@@ -731,22 +655,6 @@ abstract contract Ownable is Context {
 }
 
 // src/ports/base/PortMetadata.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 contract PortMetadata is IPortMetadata {
     string internal _name;
@@ -771,22 +679,6 @@ contract PortMetadata is IPortMetadata {
 }
 
 // lib/ORMP/src/user/AppBase.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 // https://eips.ethereum.org/EIPS/eip-5164
 abstract contract AppBase {
@@ -872,22 +764,6 @@ abstract contract Ownable2Step is Ownable {
 }
 
 // src/ports/base/BaseMessagePort.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 abstract contract BaseMessagePort is IMessagePort, PortMetadata {
     constructor(string memory name) PortMetadata(name) {}
@@ -910,7 +786,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
         returns (bytes32 msgId);
 
     function send(uint256 toChainId, address toDapp, bytes calldata message, bytes calldata params)
-        public
+        external
         payable
         returns (bytes32 msgId)
     {
@@ -939,22 +815,6 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
 }
 
 // src/ports/ORMPUpgradeablePort.sol
-// This file is part of Darwinia.
-// Copyright (C) 2018-2023 Darwinia Network
-
-//
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
 
 contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLookup {
     using EnumerableSet for EnumerableSet.AddressSet;
