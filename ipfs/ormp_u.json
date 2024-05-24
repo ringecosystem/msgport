@@ -2,5 +2,8 @@
   "name": "ORMP-U",
   "provider": "Msgport",
   "description": "ORMPUpgradeablePort by Msgport",
-  "api": "https://github.com/msgport/msgport-api2?tab=readme-ov-file#v2"
+  "api": {
+    "baseUrl": "https://api.msgport.xyz",
+    "scheme": "ipfs://"
+  }
 }
