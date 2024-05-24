@@ -3,7 +3,6 @@
   "provider": "Msgport",
   "description": "ORMPUpgradeablePort by Msgport",
   "api": {
-    "README": "https://github.com/msgport/msgport-api2/tree/6e6b7897c3856b9d2f6a18b4534272a28a3f5606?tab=readme-ov-file#v2",
     "baseUrl": "https://api.msgport.xyz",
     "scheme": "ipfs://bafybeicntftnn7avmmdu7ipn64qvkhg3curmweodwofokoqnleeprh2ltq"
   }
