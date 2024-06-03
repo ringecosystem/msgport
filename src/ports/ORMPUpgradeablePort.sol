@@ -24,6 +24,11 @@ contract ORMPUpgradeablePort is Ownable2Step, AppBase, BaseMessagePort, PeerLook
         _;
     }
 
+    modifier checkToDapp(address toDapp) override {
+        require(!historyORMPSet.contains(toDapp), "!toDapp");
+        _;
+    }
+
     constructor(address dao, address ormp_, string memory name) BaseMessagePort(name) {
         _transferOwnership(dao);
         ormp = ormp_;

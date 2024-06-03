@@ -5,6 +5,10 @@ import "../../interfaces/IMessagePort.sol";
 import "./PortMetadata.sol";
 
 abstract contract BaseMessagePort is IMessagePort, PortMetadata {
+    modifier checkToDapp(address) virtual {
+        _;
+    }
+
     constructor(string memory name) PortMetadata(name) {}
 
     function LOCAL_CHAINID() public view returns (uint256) {
@@ -42,6 +46,7 @@ abstract contract BaseMessagePort is IMessagePort, PortMetadata {
     /// @param message The message body.
     function _recv(bytes32 msgId, uint256 fromChainId, address fromDapp, address toDapp, bytes memory message)
         internal
+        checkToDapp(toDapp)
     {
         (bool success, bytes memory returndata) =
             toDapp.call{value: msg.value}(abi.encodePacked(message, msgId, fromChainId, fromDapp));
