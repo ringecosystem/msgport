@@ -61,6 +61,11 @@ contract MultiPort is Ownable2Step, Application, BaseMessagePort, PeerLookup {
     event PortMessageExpired(bytes32 indexed portMsgId);
     event PortMessageExecution(bytes32 indexed portMsgId);
 
+    modifier checkToDapp(address toDapp) override {
+        require(!_trustedPorts.contains(toDapp), "!toDapp");
+        _;
+    }
+
     constructor(address dao, uint256 threshold_, string memory name) BaseMessagePort(name) {
         _transferOwnership(dao);
         _setThreshold(threshold_);
