@@ -17,6 +17,11 @@ contract LayerZeroV1Port is Ownable2Step, BaseMessagePort, PeerLookup, LayerZero
         _;
     }
 
+    modifier checkToDapp(address toDapp) override {
+        require(toDapp != address(LZ), "!toDapp");
+        _;
+    }
+
     constructor(address dao, address lzv1, string memory name, uint256[] memory chainIds, uint16[] memory lzChainIds)
         BaseMessagePort(name)
         LayerZeroV1ChainIdMapping(chainIds, lzChainIds)
